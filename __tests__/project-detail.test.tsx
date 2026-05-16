@@ -28,14 +28,15 @@ describe("Page: Project Detail", () => {
 	test("renders project title and description", () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
 		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			// Identification by arguments or path
-			if (args?.projectId && !args?.paginationOpts && !query?._path?.includes("list") && !query?._path?.includes("getByProject")) {
+			// Project detail call
+			if (args?.projectId && !args?.paginationOpts && args?.projectId === "test-id") {
 				return {
 					_id: "test-id" as unknown as Id<"projects">,
 					name: "Architecture Project",
 					description: "A custom villa design",
 				};
 			}
+			// Lists (notes, designs, systems)
 			if (args?.paginationOpts) return { page: [] };
 			return [];
 		});
@@ -49,7 +50,7 @@ describe("Page: Project Detail", () => {
 	test("shows the correct module sections", () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
 		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			if (args?.projectId && !args?.paginationOpts && !query?._path?.includes("list") && !query?._path?.includes("getByProject")) {
+			if (args?.projectId && !args?.paginationOpts && args?.projectId === "test-id") {
 				return {
 					_id: "test-id" as unknown as Id<"projects">,
 					name: "Test Project",
@@ -69,7 +70,7 @@ describe("Page: Project Detail", () => {
 	test("handles non-existent project", () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "wrong-id" });
 		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			if (args?.projectId && !args?.paginationOpts && !query?._path?.includes("list") && !query?._path?.includes("getByProject")) {
+			if (args?.projectId && !args?.paginationOpts && args?.projectId === "wrong-id") {
 				return null;
 			}
 			return [];
