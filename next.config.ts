@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
 	},
 	experimental: {
 		typedEnv: true,
+		optimizeCss: true,
 		optimizePackageImports: ["lucide-react", "framer-motion", "sonner"],
 	},
 	images: {
