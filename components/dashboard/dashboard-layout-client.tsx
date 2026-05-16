@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { DashboardHeader } from "./dashboard-header";
 import { DashboardSidebarNav } from "./dashboard-nav";
+import { PomodoroProvider } from "./pomodoro-context";
 import { SidebarProvider, useSidebar } from "./sidebar-context";
 
 function DashboardLayoutContent({ children }: { children: ReactNode }) {
@@ -32,8 +33,10 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 
 export function DashboardLayoutClient({ children }: { children: ReactNode }) {
 	return (
-		<SidebarProvider>
-			<DashboardLayoutContent>{children}</DashboardLayoutContent>
-		</SidebarProvider>
+		<PomodoroProvider>
+			<SidebarProvider>
+				<DashboardLayoutContent>{children}</DashboardLayoutContent>
+			</SidebarProvider>
+		</PomodoroProvider>
 	);
 }

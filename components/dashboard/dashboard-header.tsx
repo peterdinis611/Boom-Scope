@@ -16,7 +16,9 @@ export function DashboardHeader() {
 	if (pathname.startsWith("/dashboard/projects")) activeId = "projects";
 	if (pathname.startsWith("/dashboard/notes")) activeId = "notes";
 	if (pathname.startsWith("/dashboard/canvas")) activeId = "design";
-	if (pathname.startsWith("/dashboard/design-system")) activeId = "generate";
+	if (pathname.startsWith("/dashboard/design-system")) activeId = "design-system";
+	if (pathname.startsWith("/dashboard/generator")) activeId = "generate";
+	if (pathname.startsWith("/dashboard/pomodoro")) activeId = "pomodoro";
 	if (pathname.startsWith("/dashboard/settings")) activeId = "settings";
 
 	const titles: Record<DashboardNavId, { title: string; subtitle: string }> = {
@@ -30,9 +32,17 @@ export function DashboardHeader() {
 		},
 		notes: { title: "Poznámky", subtitle: "Správa vašich poznámok k projektu" },
 		design: { title: "Canvas", subtitle: "Pracovný priestor pre dizajn" },
-		generate: {
+		"design-system": {
 			title: "Design System",
+			subtitle: "Vizuálna DNA projektu",
+		},
+		generate: {
+			title: "AI Generator",
 			subtitle: "AI generátor vizuálnej identity",
+		},
+		pomodoro: {
+			title: "Pomodoro",
+			subtitle: "Zvýšte svoju produktivitu so sústredenou prácou",
 		},
 		settings: {
 			title: "Nastavenia",

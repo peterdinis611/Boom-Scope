@@ -18,6 +18,7 @@ import {
 	Palette,
 	Settings as SettingsIcon,
 	Sparkles,
+	Timer,
 	X,
 } from "lucide-react";
 import type { Route } from "next";
@@ -34,6 +35,7 @@ export type DashboardNavId =
 	| "design"
 	| "design-system"
 	| "generate"
+	| "pomodoro"
 	| "settings";
 
 const navItems: {
@@ -85,6 +87,13 @@ const navItems: {
 		description: "Generovať multi-viewport dizajn",
 		icon: Sparkles,
 		href: "/dashboard/generator",
+	},
+	{
+		id: "pomodoro",
+		label: "Pomodoro",
+		description: "Sústredená práca s časovačom",
+		icon: Timer,
+		href: "/dashboard/pomodoro" as Route,
 	},
 	{
 		id: "settings",
