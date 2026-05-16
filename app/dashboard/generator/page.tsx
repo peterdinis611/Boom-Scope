@@ -29,11 +29,16 @@ interface GeneratedDesign {
 	mobile: { elements: any[] };
 }
 
+interface Message {
+	role: "user" | "assistant";
+	content: string;
+	design?: GeneratedDesign;
+}
+
 export default function GeneratorPage() {
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [generatedDesign, setGeneratedDesign] =
-		useState<GeneratedDesign | null>(null);
+	const [messages, setMessages] = useState<Message[]>([]);
 	const generateAction = useAction(api.openai.generateResponsiveDesign);
 	const router = useRouter();
 
@@ -43,11 +48,32 @@ export default function GeneratorPage() {
 			return;
 		}
 
+		const userMessage: Message = { role: "user", content: prompt };
+		const newMessages = [...messages, userMessage];
+		setMessages(newMessages);
+		setPrompt("");
 		setIsGenerating(true);
+
 		try {
-			const result = await generateAction({ prompt });
-			setGeneratedDesign(result as GeneratedDesign);
-			toast.success("Dizajn vygenerovaný!");
+			// Prepare history for the action (excluding the last prompt which is passed separately)
+			const history = messages.map((m) => ({
+				role: m.role,
+				content: m.role === "assistant" ? JSON.stringify(m.design) : m.content,
+			}));
+
+			const result = await generateAction({
+				prompt,
+				history: history as any,
+			});
+
+			const assistantMessage: Message = {
+				role: "assistant",
+				content: "Tu je váš aktualizovaný dizajn.",
+				design: result as GeneratedDesign,
+			};
+
+			setMessages((prev) => [...prev, assistantMessage]);
+			toast.success("Dizajn aktualizovaný!");
 		} catch (error) {
 			console.error(error);
 			toast.error("Nepodarilo sa vygenerovať dizajn.");
@@ -56,10 +82,11 @@ export default function GeneratorPage() {
 		}
 	};
 
+	const latestDesign = messages
+		.filter((m) => m.role === "assistant" && m.design)
+		.slice(-1)[0]?.design;
+
 	const openInCanvas = (elements: any[], viewport: string) => {
-		// In a real app, we might save this first.
-		// For now, let's simulate by passing via state or just showing a message
-		// Actually, we can save it to localStorage and pick it up in canvas
 		localStorage.setItem("imported_design", JSON.stringify(elements));
 		localStorage.setItem("imported_viewport", viewport);
 		router.push("/dashboard/canvas");
@@ -68,42 +95,86 @@ export default function GeneratorPage() {
 	return (
 		<div className="flex flex-col min-h-screen bg-background text-foreground p-6 lg:p-10 space-y-10">
 			{/* Header */}
-			<div className="flex flex-col space-y-2">
-				<div className="flex items-center gap-3 text-primary">
-					<div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-						<Sparkles className="size-5" />
+			<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+				<div className="flex flex-col space-y-2">
+					<div className="flex items-center gap-3 text-primary">
+						<div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+							<Sparkles className="size-5" />
+						</div>
+						<h1 className="text-3xl font-black uppercase tracking-tight italic">
+							AI Design Studio
+						</h1>
 					</div>
-					<h1 className="text-3xl font-black uppercase tracking-tight italic">
-						AI Design Generator
-					</h1>
+					<p className="text-muted-foreground max-w-2xl text-lg font-medium leading-relaxed">
+						Diskutujte s AI o vašom dizajne. Napíšte zmeny a sledujte ako sa vizuál vyvíja v reálnom čase.
+					</p>
 				</div>
-				<p className="text-muted-foreground max-w-2xl text-lg font-medium leading-relaxed">
-					Napíšte čo potrebujete a naša AI pripraví kompletnú vizuálnu identitu
-					pre všetky zariadenia súčasne.
-				</p>
+				{messages.length > 0 && (
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => {
+							setMessages([]);
+							setPrompt("");
+							toast.info("Studio bolo resetované.");
+						}}
+						className="rounded-xl border-border/50 hover:bg-destructive/10 hover:text-destructive font-black uppercase text-[10px] tracking-widest h-10 px-6"
+					>
+						Reset Studio
+					</Button>
+				)}
 			</div>
 
-			{/* Prompt Input Section */}
+			{/* Chat / Prompt Input Section */}
 			<div className="relative group">
 				<div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-500/10 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-focus-within:opacity-100 transition duration-1000" />
 				<Card className="relative bg-background/50 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl space-y-6">
+					{/* Message History (Simplified) */}
+					{messages.length > 0 && (
+						<div className="max-h-[200px] overflow-y-auto space-y-4 pb-4 border-b border-border/50 scrollbar-hide">
+							{messages.map((m, i) => (
+								<div
+									key={i}
+									className={cn(
+										"flex flex-col space-y-1",
+										m.role === "user" ? "items-end" : "items-start"
+									)}
+								>
+									<span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+										{m.role === "user" ? "Vy" : "AI"}
+									</span>
+									<div
+										className={cn(
+											"px-4 py-2 rounded-2xl text-sm font-medium max-w-[80%]",
+											m.role === "user"
+												? "bg-primary text-white rounded-tr-none"
+												: "bg-muted text-foreground rounded-tl-none"
+										)}
+									>
+										{m.role === "user" ? m.content : "Aktualizoval som dizajn podľa vašich požiadaviek."}
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+
 					<Textarea
-						placeholder="Napr.: Moderná landing page pre SaaS platformu zameranú na analytiku dát. Použi tmavý režim, gradienty a sklenené efekty..."
-						className="min-h-[120px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/50 resize-none px-0"
+						placeholder={messages.length === 0 ? "Napr.: Moderná landing page pre SaaS platformu..." : "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."}
+						className="min-h-[80px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/50 resize-none px-0"
 						value={prompt}
 						onChange={(e) => setPrompt(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" && !e.shiftKey) {
+								e.preventDefault();
+								handleGenerate();
+							}
+						}}
 					/>
-					<div className="flex items-center justify-between pt-4 border-t border-border/50">
-						<div className="flex gap-4 text-xs font-black uppercase tracking-widest text-muted-foreground">
-							<span className="flex items-center gap-1.5">
-								<Monitor className="size-3" /> Web
-							</span>
-							<span className="flex items-center gap-1.5">
-								<TabletIcon className="size-3" /> Tablet
-							</span>
-							<span className="flex items-center gap-1.5">
-								<Smartphone className="size-3" /> Mobile
-							</span>
+					<div className="flex items-center justify-between pt-4">
+						<div className="flex gap-4 text-xs font-black uppercase tracking-widest text-muted-foreground opacity-50">
+							<span>Web</span>
+							<span>Tablet</span>
+							<span>Mobile</span>
 						</div>
 						<Button
 							onClick={handleGenerate}
@@ -113,12 +184,12 @@ export default function GeneratorPage() {
 							{isGenerating ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Generujem...
+									Premýšľam...
 								</>
 							) : (
 								<>
 									<Sparkles className="mr-2 h-4 w-4" />
-									Generovať Dizajn
+									{messages.length === 0 ? "Generovať" : "Aktualizovať"}
 								</>
 							)}
 						</Button>
@@ -128,8 +199,9 @@ export default function GeneratorPage() {
 
 			{/* Previews */}
 			<AnimatePresence mode="wait">
-				{generatedDesign ? (
+				{latestDesign ? (
 					<motion.div
+						key={messages.length} // Force re-animation on new message
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						className="grid grid-cols-1 xl:grid-cols-12 gap-8"
@@ -144,7 +216,7 @@ export default function GeneratorPage() {
 									variant="ghost"
 									size="sm"
 									onClick={() =>
-										openInCanvas(generatedDesign.web.elements, "web")
+										openInCanvas(latestDesign.web.elements, "web")
 									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
@@ -153,7 +225,7 @@ export default function GeneratorPage() {
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner overflow-x-auto">
 								<DesignPreview
-									elements={generatedDesign.web.elements}
+									elements={latestDesign.web.elements}
 									width={1920}
 									height={1080}
 									scale={0.4}
@@ -172,7 +244,7 @@ export default function GeneratorPage() {
 									variant="ghost"
 									size="sm"
 									onClick={() =>
-										openInCanvas(generatedDesign.tablet.elements, "tablet")
+										openInCanvas(latestDesign.tablet.elements, "tablet")
 									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
@@ -181,7 +253,7 @@ export default function GeneratorPage() {
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
 								<DesignPreview
-									elements={generatedDesign.tablet.elements}
+									elements={latestDesign.tablet.elements}
 									width={768}
 									height={1024}
 									scale={0.5}
@@ -200,7 +272,7 @@ export default function GeneratorPage() {
 									variant="ghost"
 									size="sm"
 									onClick={() =>
-										openInCanvas(generatedDesign.mobile.elements, "mobile")
+										openInCanvas(latestDesign.mobile.elements, "mobile")
 									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
@@ -209,7 +281,7 @@ export default function GeneratorPage() {
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
 								<DesignPreview
-									elements={generatedDesign.mobile.elements}
+									elements={latestDesign.mobile.elements}
 									width={375}
 									height={667}
 									scale={0.8}

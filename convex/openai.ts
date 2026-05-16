@@ -116,6 +116,14 @@ Return ONLY valid JSON.`,
 export const generateResponsiveDesign = action({
 	args: {
 		prompt: v.string(),
+		history: v.optional(
+			v.array(
+				v.object({
+					role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+					content: v.string(),
+				}),
+			),
+		),
 	},
 	handler: async (ctx, args) => {
 		const openai = getOpenAI();
@@ -160,9 +168,11 @@ Ensure:
 3. Use a sophisticated, modern aesthetic with harmonious colors.
 4. Provide at least 10-15 elements per viewport to create a realistic UI section (hero, card group, etc.).
 5. Coordinates and sizes must fit within the respective canvas sizes.
+6. If the user provides feedback or requests changes, update the existing design accordingly while maintaining consistency.
 
 Return ONLY valid JSON.`,
 				},
+				...(args.history || []),
 				{
 					role: "user",
 					content: args.prompt,
