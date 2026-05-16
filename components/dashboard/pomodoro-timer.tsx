@@ -1,24 +1,34 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
-import { 
-	Play, 
-	Pause, 
-	RotateCcw, 
-	SkipForward, 
-	Settings2, 
-	Coffee, 
-	Brain, 
-	Clock 
+import {
+	Brain,
+	Clock,
+	Coffee,
+	Pause,
+	Play,
+	RotateCcw,
+	Settings2,
+	SkipForward,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { usePomodoro, type PomodoroMode } from "./pomodoro-context";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { type PomodoroMode, usePomodoro } from "./pomodoro-context";
 
 export function PomodoroTimer() {
 	const {
@@ -42,24 +52,27 @@ export function PomodoroTimer() {
 		return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 	};
 
-	const modeConfig: Record<PomodoroMode, { label: string, icon: any, color: string, description: string }> = {
-		focus: { 
-			label: "Focus", 
-			icon: Brain, 
+	const modeConfig: Record<
+		PomodoroMode,
+		{ label: string; icon: any; color: string; description: string }
+	> = {
+		focus: {
+			label: "Focus",
+			icon: Brain,
 			color: "text-primary",
-			description: "Time to concentrate on your tasks"
+			description: "Time to concentrate on your tasks",
 		},
-		shortBreak: { 
-			label: "Short Break", 
-			icon: Coffee, 
+		shortBreak: {
+			label: "Short Break",
+			icon: Coffee,
 			color: "text-success",
-			description: "Quick rest to recharge"
+			description: "Quick rest to recharge",
 		},
-		longBreak: { 
-			label: "Long Break", 
-			icon: Clock, 
+		longBreak: {
+			label: "Long Break",
+			icon: Clock,
 			color: "text-primary",
-			description: "Extended rest for deeper recovery"
+			description: "Extended rest for deeper recovery",
 		},
 	};
 
@@ -76,10 +89,15 @@ export function PomodoroTimer() {
 						onClick={() => setMode(m)}
 						className={cn(
 							"rounded-full transition-all duration-300",
-							mode === m && "shadow-lg scale-105"
+							mode === m && "shadow-lg scale-105",
 						)}
 					>
-						{mode === m && <motion.span layoutId="active-bg" className="absolute inset-0 bg-primary rounded-full -z-10" />}
+						{mode === m && (
+							<motion.span
+								layoutId="active-bg"
+								className="absolute inset-0 bg-primary rounded-full -z-10"
+							/>
+						)}
 						{modeConfig[m].label}
 					</Button>
 				))}
@@ -87,11 +105,13 @@ export function PomodoroTimer() {
 
 			<Card className="w-full relative overflow-hidden border-none bg-card/50 backdrop-blur-xl shadow-2xl">
 				<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-				
+
 				<CardHeader className="text-center relative z-10">
 					<div className="flex items-center justify-center gap-2 text-primary mb-2">
 						<Icon className={cn("size-5", color)} />
-						<CardTitle className="text-2xl font-bold tracking-tight">{label}</CardTitle>
+						<CardTitle className="text-2xl font-bold tracking-tight">
+							{label}
+						</CardTitle>
 					</div>
 					<CardDescription>{description}</CardDescription>
 				</CardHeader>
@@ -124,7 +144,7 @@ export function PomodoroTimer() {
 								style={{ strokeLinecap: "round" }}
 							/>
 						</svg>
-						
+
 						<div className="absolute inset-0 flex flex-col items-center justify-center text-center">
 							<AnimatePresence mode="wait">
 								<motion.span
@@ -160,7 +180,9 @@ export function PomodoroTimer() {
 							onClick={toggleTimer}
 							className={cn(
 								"size-20 rounded-full shadow-xl transition-all duration-300 hover:scale-105 active:scale-95",
-								isActive ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"
+								isActive
+									? "bg-secondary text-secondary-foreground"
+									: "bg-primary text-primary-foreground",
 							)}
 						>
 							{isActive ? (
@@ -189,7 +211,10 @@ export function PomodoroTimer() {
 								<Settings2 className="size-5 text-muted-foreground hover:text-foreground transition-colors" />
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="w-80 p-6 bg-card/95 backdrop-blur-lg border-primary/10 shadow-2xl" align="end">
+						<PopoverContent
+							className="w-80 p-6 bg-card/95 backdrop-blur-lg border-primary/10 shadow-2xl"
+							align="end"
+						>
 							<div className="space-y-6">
 								<div className="space-y-2">
 									<h4 className="font-bold leading-none flex items-center gap-2">
@@ -200,7 +225,7 @@ export function PomodoroTimer() {
 										Prispôsobte si dĺžku jednotlivých intervalov.
 									</p>
 								</div>
-								
+
 								<div className="space-y-4">
 									<div className="space-y-2">
 										<Label htmlFor="focus">Focus (minút)</Label>
@@ -208,7 +233,11 @@ export function PomodoroTimer() {
 											id="focus"
 											type="number"
 											defaultValue={settings.focusDuration / 60}
-											onChange={(e) => updateSettings({ focusDuration: Number(e.target.value) * 60 })}
+											onChange={(e) =>
+												updateSettings({
+													focusDuration: Number(e.target.value) * 60,
+												})
+											}
 											className="bg-background/50"
 										/>
 									</div>
@@ -218,7 +247,11 @@ export function PomodoroTimer() {
 											id="shortBreak"
 											type="number"
 											defaultValue={settings.shortBreakDuration / 60}
-											onChange={(e) => updateSettings({ shortBreakDuration: Number(e.target.value) * 60 })}
+											onChange={(e) =>
+												updateSettings({
+													shortBreakDuration: Number(e.target.value) * 60,
+												})
+											}
 											className="bg-background/50"
 										/>
 									</div>
@@ -228,15 +261,19 @@ export function PomodoroTimer() {
 											id="longBreak"
 											type="number"
 											defaultValue={settings.longBreakDuration / 60}
-											onChange={(e) => updateSettings({ longBreakDuration: Number(e.target.value) * 60 })}
+											onChange={(e) =>
+												updateSettings({
+													longBreakDuration: Number(e.target.value) * 60,
+												})
+											}
 											className="bg-background/50"
 										/>
 									</div>
 								</div>
 
 								<div className="pt-2">
-									<Button 
-										className="w-full" 
+									<Button
+										className="w-full"
 										variant="secondary"
 										onClick={() => setIsSettingsOpen(false)}
 									>
@@ -255,21 +292,27 @@ export function PomodoroTimer() {
 					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
 						<Brain className="size-5 text-primary" />
 						<div className="text-xl font-bold">25m</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">Ideálny focus</div>
+						<div className="text-xs text-muted-foreground uppercase tracking-wider">
+							Ideálny focus
+						</div>
 					</CardContent>
 				</Card>
 				<Card className="bg-card/30 border-none backdrop-blur-sm">
 					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
 						<Coffee className="size-5 text-success" />
 						<div className="text-xl font-bold">5m</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">Krátky relax</div>
+						<div className="text-xs text-muted-foreground uppercase tracking-wider">
+							Krátky relax
+						</div>
 					</CardContent>
 				</Card>
 				<Card className="bg-card/30 border-none backdrop-blur-sm">
 					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
 						<RotateCcw className="size-5 text-muted-foreground" />
 						<div className="text-xl font-bold">4 cykly</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">Pred dlhou pauzou</div>
+						<div className="text-xs text-muted-foreground uppercase tracking-wider">
+							Pred dlhou pauzou
+						</div>
 					</CardContent>
 				</Card>
 			</div>

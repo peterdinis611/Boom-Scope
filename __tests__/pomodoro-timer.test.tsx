@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import React from "react";
-import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
-import { PomodoroTimer } from "../components/dashboard/pomodoro-timer";
+import type React from "react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { PomodoroProvider } from "../components/dashboard/pomodoro-context";
+import { PomodoroTimer } from "../components/dashboard/pomodoro-timer";
 
 // Mock framer-motion to avoid animation complexity in tests
 vi.mock("motion/react", () => ({
@@ -97,8 +97,12 @@ describe("Component: PomodoroTimer", () => {
 			renderTimer();
 			// Each label appears in the mode selector buttons — use getAllByText
 			expect(screen.getAllByText("Focus").length).toBeGreaterThanOrEqual(1);
-			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(1);
-			expect(screen.getAllByText("Long Break").length).toBeGreaterThanOrEqual(1);
+			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(
+				1,
+			);
+			expect(screen.getAllByText("Long Break").length).toBeGreaterThanOrEqual(
+				1,
+			);
 		});
 
 		test("renders Reset and Skip control buttons", () => {
@@ -192,7 +196,9 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(screen.getByTitle("Preskočiť"));
 			});
 			// Both the button and the heading show "Short Break" — check heading in the card
-			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(1);
+			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(
+				1,
+			);
 			expect(screen.getByText("05:00")).toBeDefined();
 		});
 
@@ -228,9 +234,7 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(shortBreakBtns[0]);
 			});
 			expect(screen.getByText("05:00")).toBeDefined();
-			expect(
-				screen.getByText(/Quick rest to recharge/i),
-			).toBeDefined();
+			expect(screen.getByText(/Quick rest to recharge/i)).toBeDefined();
 		});
 
 		test("clicking Long Break updates the timer to 15:00", () => {

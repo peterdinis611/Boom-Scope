@@ -16,7 +16,8 @@ export function DashboardHeader() {
 	if (pathname.startsWith("/dashboard/projects")) activeId = "projects";
 	if (pathname.startsWith("/dashboard/notes")) activeId = "notes";
 	if (pathname.startsWith("/dashboard/canvas")) activeId = "design";
-	if (pathname.startsWith("/dashboard/design-system")) activeId = "design-system";
+	if (pathname.startsWith("/dashboard/design-system"))
+		activeId = "design-system";
 	if (pathname.startsWith("/dashboard/generator")) activeId = "generate";
 	if (pathname.startsWith("/dashboard/pomodoro")) activeId = "pomodoro";
 	if (pathname.startsWith("/dashboard/settings")) activeId = "settings";

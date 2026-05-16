@@ -37,8 +37,7 @@ const PomodoroContext = createContext<PomodoroContextType | undefined>(
 );
 
 export function PomodoroProvider({ children }: { children: React.ReactNode }) {
-	const [settings, setSettings] =
-		useState<PomodoroSettings>(DEFAULT_SETTINGS);
+	const [settings, setSettings] = useState<PomodoroSettings>(DEFAULT_SETTINGS);
 	const [mode, setModeState] = useState<PomodoroMode>("focus");
 	const [timeLeft, setTimeLeft] = useState(DEFAULT_SETTINGS.focusDuration);
 	const [isActive, setIsActive] = useState(false);
@@ -117,10 +116,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 		}
 	};
 
-	const getDurationForMode = (
-		m: PomodoroMode,
-		s: PomodoroSettings,
-	): number => {
+	const getDurationForMode = (m: PomodoroMode, s: PomodoroSettings): number => {
 		switch (m) {
 			case "focus":
 				return s.focusDuration;

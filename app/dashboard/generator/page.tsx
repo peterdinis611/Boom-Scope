@@ -106,7 +106,8 @@ export default function GeneratorPage() {
 						</h1>
 					</div>
 					<p className="text-muted-foreground max-w-2xl text-lg font-medium leading-relaxed">
-						Diskutujte s AI o vašom dizajne. Napíšte zmeny a sledujte ako sa vizuál vyvíja v reálnom čase.
+						Diskutujte s AI o vašom dizajne. Napíšte zmeny a sledujte ako sa
+						vizuál vyvíja v reálnom čase.
 					</p>
 				</div>
 				{messages.length > 0 && (
@@ -137,7 +138,7 @@ export default function GeneratorPage() {
 									key={i}
 									className={cn(
 										"flex flex-col space-y-1",
-										m.role === "user" ? "items-end" : "items-start"
+										m.role === "user" ? "items-end" : "items-start",
 									)}
 								>
 									<span className="text-[10px] font-black uppercase tracking-widest opacity-40">
@@ -148,10 +149,12 @@ export default function GeneratorPage() {
 											"px-4 py-2 rounded-2xl text-sm font-medium max-w-[80%]",
 											m.role === "user"
 												? "bg-primary text-white rounded-tr-none"
-												: "bg-muted text-foreground rounded-tl-none"
+												: "bg-muted text-foreground rounded-tl-none",
 										)}
 									>
-										{m.role === "user" ? m.content : "Aktualizoval som dizajn podľa vašich požiadaviek."}
+										{m.role === "user"
+											? m.content
+											: "Aktualizoval som dizajn podľa vašich požiadaviek."}
 									</div>
 								</div>
 							))}
@@ -159,7 +162,11 @@ export default function GeneratorPage() {
 					)}
 
 					<Textarea
-						placeholder={messages.length === 0 ? "Napr.: Moderná landing page pre SaaS platformu..." : "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."}
+						placeholder={
+							messages.length === 0
+								? "Napr.: Moderná landing page pre SaaS platformu..."
+								: "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."
+						}
 						className="min-h-[80px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/50 resize-none px-0"
 						value={prompt}
 						onChange={(e) => setPrompt(e.target.value)}
@@ -215,9 +222,7 @@ export default function GeneratorPage() {
 								<Button
 									variant="ghost"
 									size="sm"
-									onClick={() =>
-										openInCanvas(latestDesign.web.elements, "web")
-									}
+									onClick={() => openInCanvas(latestDesign.web.elements, "web")}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
 									Upraviť v Canvas <ExternalLink className="ml-2 size-3" />

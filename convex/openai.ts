@@ -119,7 +119,11 @@ export const generateResponsiveDesign = action({
 		history: v.optional(
 			v.array(
 				v.object({
-					role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+					role: v.union(
+						v.literal("user"),
+						v.literal("assistant"),
+						v.literal("system"),
+					),
 					content: v.string(),
 				}),
 			),
