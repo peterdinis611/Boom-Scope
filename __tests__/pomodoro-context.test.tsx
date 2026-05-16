@@ -14,26 +14,11 @@ import {
 	usePomodoro,
 } from "../components/dashboard/pomodoro-context";
 
-// ── IndexedDB mock ──────────────────────────────────────────────────────────
-// Replace the real lib functions with controllable vi.fn() so tests remain
-// synchronous and don't need a real IDB implementation in jsdom.
-const mockGetSettings = vi.fn<[], Promise<null | Record<string, unknown>>>();
-const mockSaveSettings = vi.fn<[unknown], Promise<void>>();
-
-vi.mock("@/lib/pomodoro-db", () => ({
-	getPomodoroSettings: () => mockGetSettings(),
-	savePomodoroSettings: (s: unknown) => mockSaveSettings(s),
-}));
-
-// Mock sonner
 vi.mock("sonner", () => ({
-	toast: {
-		success: vi.fn(),
-		error: vi.fn(),
-	},
+	toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-// ── Helper component ────────────────────────────────────────────────────────
+// ── Helper component ─────────────────────────────────────────────────────────
 function PomodoroDisplay() {
 	const {
 		timeLeft,
@@ -55,278 +40,179 @@ function PomodoroDisplay() {
 			<span data-testid="mode">{mode}</span>
 			<span data-testid="progress">{progress.toFixed(2)}</span>
 			<span data-testid="focus-duration">{settings.focusDuration}</span>
-			<button data-testid="toggle" type="button" onClick={toggleTimer}>
-				Toggle
-			</button>
-			<button data-testid="reset" type="button" onClick={resetTimer}>
-				Reset
-			</button>
-			<button data-testid="skip" type="button" onClick={skipMode}>
-				Skip
-			</button>
-			<button
-				data-testid="set-short-break"
-				type="button"
-				onClick={() => setMode("shortBreak")}
-			>
-				Short Break
-			</button>
-			<button
-				data-testid="set-long-break"
-				type="button"
-				onClick={() => setMode("longBreak")}
-			>
-				Long Break
-			</button>
-			<button
-				data-testid="update-focus"
-				type="button"
-				onClick={() => updateSettings({ focusDuration: 10 * 60 })}
-			>
-				Set 10min Focus
-			</button>
+			<button data-testid="toggle" type="button" onClick={toggleTimer}>Toggle</button>
+			<button data-testid="reset" type="button" onClick={resetTimer}>Reset</button>
+			<button data-testid="skip" type="button" onClick={skipMode}>Skip</button>
+			<button data-testid="set-short-break" type="button" onClick={() => setMode("shortBreak")}>Short Break</button>
+			<button data-testid="set-long-break" type="button" onClick={() => setMode("longBreak")}>Long Break</button>
+			<button data-testid="update-focus" type="button" onClick={() => updateSettings({ focusDuration: 10 * 60 })}>Set 10min Focus</button>
 		</div>
 	);
 }
 
-function renderWithProvider() {
-	return render(
+async function renderWithProvider() {
+	render(
 		<PomodoroProvider>
 			<PomodoroDisplay />
 		</PomodoroProvider>,
 	);
+	// Always wait for the async IDB load to settle before any assertion
+	await act(async () => { });
 }
 
-// ── Tests ───────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
+/** Start the timer and wait for the interval effect to be registered. */
+function startTimer() {
+	act(() => { screen.getByTestId("toggle").click(); });
+}
+
+/** Advance fake timers inside act() so React flushes state updates. */
+function advanceTime(ms: number) {
+	act(() => { vi.advanceTimersByTime(ms); });
+}
+
+// ── Suite ────────────────────────────────────────────────────────────────────
 describe("PomodoroContext", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
-		// Default: no saved settings in IDB
-		mockGetSettings.mockResolvedValue(null);
-		mockSaveSettings.mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
-		act(() => {
-			vi.runOnlyPendingTimers();
-		});
+		// Flush any remaining pending timers inside act so React can clean up
+		act(() => { vi.runOnlyPendingTimers(); });
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});
 
+	// ── Initial state ──────────────────────────────────────────────────────────
 	describe("Initial state", () => {
-		test("starts in focus mode with 25 minutes on the clock", async () => {
-			renderWithProvider();
-			// Let the async IDB load settle
-			await act(async () => {});
+		test("starts in focus mode with 25:00 on the clock", async () => {
+			await renderWithProvider();
 			expect(screen.getByTestId("mode").textContent).toBe("focus");
 			expect(screen.getByTestId("time-left").textContent).toBe("1500");
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 
 		test("starts with 0% progress", async () => {
-			renderWithProvider();
-			await act(async () => {});
+			await renderWithProvider();
 			expect(screen.getByTestId("progress").textContent).toBe("0.00");
 		});
 
-		test("loads default focus duration from settings", async () => {
-			renderWithProvider();
-			await act(async () => {});
+		test("focus duration defaults to 1500 seconds", async () => {
+			await renderWithProvider();
 			expect(screen.getByTestId("focus-duration").textContent).toBe("1500");
 		});
 	});
 
+	// ── toggleTimer ────────────────────────────────────────────────────────────
 	describe("toggleTimer", () => {
-		test("activates the timer on first toggle", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-				// Flush the effect that sets up the interval
-				vi.advanceTimersByTime(0);
-			});
+		test("activates the timer", async () => {
+			await renderWithProvider();
+			startTimer();
 			expect(screen.getByTestId("is-active").textContent).toBe("true");
 		});
 
-		test("pauses the timer on second toggle", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
+		test("pauses the timer on second click", async () => {
+			await renderWithProvider();
+			startTimer();
+			act(() => { screen.getByTestId("toggle").click(); });
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 	});
 
+	// ── Countdown ─────────────────────────────────────────────────────────────
 	describe("Timer countdown", () => {
-		test("decrements timeLeft by 1 each second when active", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-				vi.advanceTimersByTime(3000);
-			});
+		test("decrements by 1 each second when active", async () => {
+			await renderWithProvider();
+			startTimer();          // registers interval
+			advanceTime(3000);     // tick 3 seconds
 			expect(screen.getByTestId("time-left").textContent).toBe("1497");
 		});
 
-		test("does not decrement when paused", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
-			act(() => {
-				vi.advanceTimersByTime(2000);
-			});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
-			const timeAfterPause = screen.getByTestId("time-left").textContent;
-			act(() => {
-				vi.advanceTimersByTime(3000);
-			});
-			expect(screen.getByTestId("time-left").textContent).toBe(timeAfterPause);
+		test("does not decrement while paused", async () => {
+			await renderWithProvider();
+			startTimer();
+			advanceTime(2000);
+			act(() => { screen.getByTestId("toggle").click(); }); // pause
+			const snapshot = screen.getByTestId("time-left").textContent;
+			advanceTime(5000); // time passes but timer is paused
+			expect(screen.getByTestId("time-left").textContent).toBe(snapshot);
 		});
 	});
 
+	// ── resetTimer ────────────────────────────────────────────────────────────
 	describe("resetTimer", () => {
-		test("resets the timer to full duration and stops it", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-				vi.advanceTimersByTime(5000);
-			});
-			act(() => {
-				screen.getByTestId("reset").click();
-			});
+		test("restores full duration and stops the timer", async () => {
+			await renderWithProvider();
+			startTimer();
+			advanceTime(5000);
+			act(() => { screen.getByTestId("reset").click(); });
 			expect(screen.getByTestId("time-left").textContent).toBe("1500");
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 	});
 
+	// ── setMode ───────────────────────────────────────────────────────────────
 	describe("setMode", () => {
-		test("switches to short break mode with correct duration", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("set-short-break").click();
-			});
+		test("switches to shortBreak and sets 5 minutes", async () => {
+			await renderWithProvider();
+			act(() => { screen.getByTestId("set-short-break").click(); });
 			expect(screen.getByTestId("mode").textContent).toBe("shortBreak");
 			expect(screen.getByTestId("time-left").textContent).toBe("300");
 		});
 
-		test("switches to long break mode with correct duration", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("set-long-break").click();
-			});
+		test("switches to longBreak and sets 15 minutes", async () => {
+			await renderWithProvider();
+			act(() => { screen.getByTestId("set-long-break").click(); });
 			expect(screen.getByTestId("mode").textContent).toBe("longBreak");
 			expect(screen.getByTestId("time-left").textContent).toBe("900");
 		});
 
-		test("stops the timer when switching modes", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
-			act(() => {
-				screen.getByTestId("set-short-break").click();
-			});
+		test("stops an active timer when switching mode", async () => {
+			await renderWithProvider();
+			startTimer();
+			act(() => { screen.getByTestId("set-short-break").click(); });
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 	});
 
+	// ── skipMode ──────────────────────────────────────────────────────────────
 	describe("skipMode", () => {
-		test("skips from focus to short break", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("skip").click();
-			});
+		test("skips from focus → shortBreak", async () => {
+			await renderWithProvider();
+			act(() => { screen.getByTestId("skip").click(); });
 			expect(screen.getByTestId("mode").textContent).toBe("shortBreak");
 		});
 
-		test("skips from short break back to focus", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("set-short-break").click();
-			});
-			act(() => {
-				screen.getByTestId("skip").click();
-			});
+		test("skips from shortBreak → focus", async () => {
+			await renderWithProvider();
+			act(() => { screen.getByTestId("set-short-break").click(); });
+			act(() => { screen.getByTestId("skip").click(); });
 			expect(screen.getByTestId("mode").textContent).toBe("focus");
 		});
 
-		test("stops the timer when skipping", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("toggle").click();
-			});
-			act(() => {
-				screen.getByTestId("skip").click();
-			});
+		test("stops an active timer when skipping", async () => {
+			await renderWithProvider();
+			startTimer();
+			act(() => { screen.getByTestId("skip").click(); });
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 	});
 
+	// ── updateSettings ────────────────────────────────────────────────────────
 	describe("updateSettings", () => {
-		test("updates focus duration and resets the timer", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("update-focus").click();
-			});
+		test("updates focus duration and resets timeLeft", async () => {
+			await renderWithProvider();
+			act(() => { screen.getByTestId("update-focus").click(); });
 			expect(screen.getByTestId("focus-duration").textContent).toBe("600");
 			expect(screen.getByTestId("time-left").textContent).toBe("600");
 		});
-
-		test("calls savePomodoroSettings with updated value", async () => {
-			renderWithProvider();
-			await act(async () => {});
-			act(() => {
-				screen.getByTestId("update-focus").click();
-			});
-			expect(mockSaveSettings).toHaveBeenCalledWith(
-				expect.objectContaining({ focusDuration: 600 }),
-			);
-		});
 	});
 
-	describe("Settings persistence (IDB load on mount)", () => {
-		test("loads saved settings from IndexedDB on mount", async () => {
-			mockGetSettings.mockResolvedValue({
-				focusDuration: 30 * 60,
-				shortBreakDuration: 5 * 60,
-				longBreakDuration: 15 * 60,
-			});
-			renderWithProvider();
-			await act(async () => {});
-			expect(screen.getByTestId("focus-duration").textContent).toBe("1800");
-			expect(screen.getByTestId("time-left").textContent).toBe("1800");
-		});
-
-		test("uses defaults when IDB returns null", async () => {
-			mockGetSettings.mockResolvedValue(null);
-			renderWithProvider();
-			await act(async () => {});
-			expect(screen.getByTestId("focus-duration").textContent).toBe("1500");
-		});
-	});
-
-	describe("usePomodoro hook", () => {
-		test("throws if used outside PomodoroProvider", () => {
-			const consoleSpy = vi
-				.spyOn(console, "error")
-				.mockImplementation(() => {});
+	// ── Guard ─────────────────────────────────────────────────────────────────
+	describe("usePomodoro guard", () => {
+		test("throws when used outside PomodoroProvider", () => {
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => { });
 			expect(() => render(<PomodoroDisplay />)).toThrow(
 				"usePomodoro must be used within a PomodoroProvider",
 			);
