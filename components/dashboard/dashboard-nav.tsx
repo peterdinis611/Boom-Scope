@@ -12,6 +12,7 @@ import {
 import {
 	FileText,
 	FolderKanban,
+	Layout,
 	LayoutDashboard,
 	Menu,
 	Palette,
@@ -31,6 +32,7 @@ export type DashboardNavId =
 	| "projects"
 	| "notes"
 	| "design"
+	| "design-system"
 	| "generate"
 	| "settings";
 
@@ -71,11 +73,18 @@ const navItems: {
 		href: "/dashboard/canvas",
 	},
 	{
-		id: "generate",
+		id: "design-system",
 		label: "Design System",
-		description: "AI generátor vizuálnej identity",
+		description: "Vizuálna DNA projektu",
+		icon: Layout,
+		href: "/dashboard/design-system/v2",
+	},
+	{
+		id: "generate",
+		label: "AI Generator",
+		description: "Generovať multi-viewport dizajn",
 		icon: Sparkles,
-		href: "/dashboard/design-system",
+		href: "/dashboard/generator",
 	},
 	{
 		id: "settings",

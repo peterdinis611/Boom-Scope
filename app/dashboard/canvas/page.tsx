@@ -198,6 +198,29 @@ function DesignPageContent() {
 	}, [existingDesign]);
 
 	useEffect(() => {
+		const imported = localStorage.getItem("imported_design");
+		const viewport = localStorage.getItem("imported_viewport");
+		if (imported) {
+			try {
+				const parsed = JSON.parse(imported);
+				setElements(parsed);
+				setHistory([parsed]);
+				setHistoryIndex(0);
+				
+				if (viewport === "web") setCanvasSize({ width: 1920, height: 1080 });
+				else if (viewport === "tablet") setCanvasSize({ width: 768, height: 1024 });
+				else if (viewport === "mobile") setCanvasSize({ width: 375, height: 667 });
+
+				localStorage.removeItem("imported_design");
+				localStorage.removeItem("imported_viewport");
+				toast.success("Dizajn importovaný z generátora!");
+			} catch (e) {
+				console.error("Failed to import design", e);
+			}
+		}
+	}, []);
+
+	useEffect(() => {
 		if (projectIdParam && !selectedProjectId && !designIdParam) {
 			setSelectedProjectId(projectIdParam);
 		}

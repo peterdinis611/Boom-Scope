@@ -113,3 +113,67 @@ Return ONLY valid JSON.`,
 		return JSON.parse(content);
 	},
 });
+export const generateResponsiveDesign = action({
+	args: {
+		prompt: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const openai = getOpenAI();
+		const response = await openai.chat.completions.create({
+			model: "gpt-4o-mini",
+			messages: [
+				{
+					role: "system",
+					content: `You are a professional UI/UX designer and design engineer. 
+Your task is to generate a beautiful, premium UI design based on the user's prompt.
+You must provide THREE versions of the design: Web (1920x1080), Tablet (768x1024), and Mobile (375x667).
+
+Return a JSON object with:
+{
+  "web": { "elements": [...] },
+  "tablet": { "elements": [...] },
+  "mobile": { "elements": [...] }
+}
+
+Each "elements" array must contain objects matching this structure:
+{
+  "id": "unique-id",
+  "type": "rect" | "circle" | "text" | "star" | "arrow",
+  "x": number,
+  "y": number,
+  "width": number,
+  "height": number,
+  "stroke": "color-hex",
+  "fill": "color-hex" | "none",
+  "strokeWidth": number,
+  "rotation": number (0-360),
+  "opacity": number (0-1),
+  "cornerRadius": number (for rect),
+  "text": "string" (for text),
+  "fontSize": number (for text),
+  "fontFamily": "string" (for text)
+}
+
+Ensure:
+1. The design is consistent across all three viewports (same theme, colors, and branding).
+2. The layout is optimized for each specific size (e.g., stacked elements on mobile, side-by-side on web).
+3. Use a sophisticated, modern aesthetic with harmonious colors.
+4. Provide at least 10-15 elements per viewport to create a realistic UI section (hero, card group, etc.).
+5. Coordinates and sizes must fit within the respective canvas sizes.
+
+Return ONLY valid JSON.`,
+				},
+				{
+					role: "user",
+					content: args.prompt,
+				},
+			],
+			response_format: { type: "json_object" },
+		});
+
+		const content = response.choices[0].message.content;
+		if (!content) throw new ConvexError("Failed to get response from OpenAI");
+
+		return JSON.parse(content);
+	},
+});
