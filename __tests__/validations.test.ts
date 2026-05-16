@@ -15,7 +15,9 @@ describe("projectSchema", () => {
 		const result = projectSchema.safeParse(invalidProject);
 		expect(result.success).toBe(false);
 		if (!result.success) {
-			expect(result.error.issues[0].message).toBe("Názov projektu musí mať aspoň 3 znaky");
+			expect(result.error.issues[0].message).toBe(
+				"Názov projektu musí mať aspoň 3 znaky",
+			);
 		}
 	});
 
@@ -24,7 +26,9 @@ describe("projectSchema", () => {
 		const result = projectSchema.safeParse(invalidProject);
 		expect(result.success).toBe(false);
 		if (!result.success) {
-			expect(result.error.issues[0].message).toBe("Názov projektu je príliš dlhý (max 50 znakov)");
+			expect(result.error.issues[0].message).toBe(
+				"Názov projektu je príliš dlhý (max 50 znakov)",
+			);
 		}
 	});
 
@@ -58,7 +62,9 @@ describe("noteSchema", () => {
 		const result = noteSchema.safeParse(invalidNote);
 		expect(result.success).toBe(false);
 		if (!result.success) {
-			expect(result.error.issues[0].message).toBe("Obsah poznámky nemôže byť prázdny");
+			expect(result.error.issues[0].message).toBe(
+				"Obsah poznámky nemôže byť prázdny",
+			);
 		}
 	});
 

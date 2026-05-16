@@ -30,7 +30,7 @@ describe("Page: Project Detail", () => {
 
 	test("renders project title and description", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
-		
+
 		const mockProject = {
 			_id: "test-id" as unknown as Id<"projects">,
 			name: "Architecture Project",
@@ -57,7 +57,7 @@ describe("Page: Project Detail", () => {
 
 	test("shows the correct module sections", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
-		
+
 		const mockProject = {
 			_id: "test-id" as unknown as Id<"projects">,
 			name: "Test Project",
@@ -79,7 +79,7 @@ describe("Page: Project Detail", () => {
 
 	test("handles non-existent project", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "wrong-id" });
-		
+
 		// 1. project = useQuery returns null
 		vi.mocked(useQuery).mockReturnValueOnce(null);
 

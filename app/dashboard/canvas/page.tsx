@@ -206,10 +206,12 @@ function DesignPageContent() {
 				setElements(parsed);
 				setHistory([parsed]);
 				setHistoryIndex(0);
-				
+
 				if (viewport === "web") setCanvasSize({ width: 1920, height: 1080 });
-				else if (viewport === "tablet") setCanvasSize({ width: 768, height: 1024 });
-				else if (viewport === "mobile") setCanvasSize({ width: 375, height: 667 });
+				else if (viewport === "tablet")
+					setCanvasSize({ width: 768, height: 1024 });
+				else if (viewport === "mobile")
+					setCanvasSize({ width: 375, height: 667 });
 
 				localStorage.removeItem("imported_design");
 				localStorage.removeItem("imported_viewport");
@@ -443,7 +445,16 @@ function DesignPageContent() {
 				setSelectedIds([]);
 			}
 		},
-		[projects, commitElements, sharedDesignId, selectedProjectId, updateDesign, handleSaveToProject, canvasSize, artboardColor],
+		[
+			projects,
+			commitElements,
+			sharedDesignId,
+			selectedProjectId,
+			updateDesign,
+			handleSaveToProject,
+			canvasSize,
+			artboardColor,
+		],
 	);
 
 	const updateSelectedElement = useCallback(

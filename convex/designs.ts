@@ -61,7 +61,8 @@ export const updateDesign = mutation({
 		if (!userId) throw new ConvexError("User not found");
 
 		const existing = await ctx.db.get(args.id);
-		if (!existing || existing.userId !== userId) throw new ConvexError("Unauthorized");
+		if (!existing || existing.userId !== userId)
+			throw new ConvexError("Unauthorized");
 
 		await ctx.db.patch(args.id, {
 			elements: args.elements,
@@ -84,4 +85,3 @@ export const listByProject = query({
 			.collect();
 	},
 });
-

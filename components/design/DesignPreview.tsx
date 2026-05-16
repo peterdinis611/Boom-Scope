@@ -70,7 +70,8 @@ export function DesignPreview({
 						);
 					}
 					if (el.type === "circle") {
-						const r = Math.sqrt((el.width ?? 0) ** 2 + (el.height ?? 0) ** 2) / 2;
+						const r =
+							Math.sqrt((el.width ?? 0) ** 2 + (el.height ?? 0) ** 2) / 2;
 						return (
 							<circle
 								key={el.id}

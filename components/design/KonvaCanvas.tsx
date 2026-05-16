@@ -209,7 +209,7 @@ export default function KonvaCanvas({
 	const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
 		if (readOnly) return;
 		const clickedOnStage = e.target === e.target.getStage();
-		
+
 		if (clickedOnStage && activeTool === "select") {
 			onSelectionChange([]);
 			const stage = e.target.getStage();
@@ -344,37 +344,44 @@ export default function KonvaCanvas({
 				maxY: selectionBox.y + selectionBox.height,
 			};
 
-			const newSelection = elementsRef.current.filter((el) => {
-				if (el.isLocked || el.isVisible === false) return false;
-				
-				if (el.type === "pencil" && el.points) {
-					for (let i = 0; i < el.points.length; i += 2) {
-						const px = el.points[i] + el.x;
-						const py = el.points[i + 1] + el.y;
-						if (px >= box.minX && px <= box.maxX && py >= box.minY && py <= box.maxY) {
-							return true;
+			const newSelection = elementsRef.current
+				.filter((el) => {
+					if (el.isLocked || el.isVisible === false) return false;
+
+					if (el.type === "pencil" && el.points) {
+						for (let i = 0; i < el.points.length; i += 2) {
+							const px = el.points[i] + el.x;
+							const py = el.points[i + 1] + el.y;
+							if (
+								px >= box.minX &&
+								px <= box.maxX &&
+								py >= box.minY &&
+								py <= box.maxY
+							) {
+								return true;
+							}
 						}
+						return false;
 					}
-					return false;
-				}
 
-				const elMinX = el.x;
-				const elMinY = el.y;
-				const elMaxX = el.x + (el.width || 0);
-				const elMaxY = el.y + (el.height || 0);
-				
-				const nx1 = Math.min(elMinX, elMaxX);
-				const ny1 = Math.min(elMinY, elMaxY);
-				const nx2 = Math.max(elMinX, elMaxX);
-				const ny2 = Math.max(elMinY, elMaxY);
+					const elMinX = el.x;
+					const elMinY = el.y;
+					const elMaxX = el.x + (el.width || 0);
+					const elMaxY = el.y + (el.height || 0);
 
-				return !(
-					box.maxX < nx1 ||
-					box.minX > nx2 ||
-					box.maxY < ny1 ||
-					box.minY > ny2
-				);
-			}).map((el) => el.id);
+					const nx1 = Math.min(elMinX, elMaxX);
+					const ny1 = Math.min(elMinY, elMaxY);
+					const nx2 = Math.max(elMinX, elMaxX);
+					const ny2 = Math.max(elMinY, elMaxY);
+
+					return !(
+						box.maxX < nx1 ||
+						box.minX > nx2 ||
+						box.maxY < ny1 ||
+						box.minY > ny2
+					);
+				})
+				.map((el) => el.id);
 
 			onSelectionChange(newSelection);
 			setSelectionBox(null);
@@ -412,7 +419,7 @@ export default function KonvaCanvas({
 							y: snap(node.y()),
 							rotation: node.rotation(),
 							points: el.points.map((p, i) =>
-								i % 2 === 0 ? p * scaleX : p * scaleY
+								i % 2 === 0 ? p * scaleX : p * scaleY,
 							),
 						};
 					}
@@ -423,8 +430,12 @@ export default function KonvaCanvas({
 							x: snap(node.x()),
 							y: snap(node.y()),
 							rotation: node.rotation(),
-							width: el.width ? snap(Math.max(5, el.width * scaleX)) : undefined,
-							height: el.height ? snap(Math.max(5, el.height * scaleY)) : undefined,
+							width: el.width
+								? snap(Math.max(5, el.width * scaleX))
+								: undefined,
+							height: el.height
+								? snap(Math.max(5, el.height * scaleY))
+								: undefined,
 							fontSize: (el.fontSize || 24) * scaleY,
 						};
 					}
@@ -865,11 +876,12 @@ function RenderElement({
 	}
 
 	if (el.type === "circle") {
-		const radius = Math.max(Math.abs(el.width || 0), Math.abs(el.height || 0)) / 2;
+		const radius =
+			Math.max(Math.abs(el.width || 0), Math.abs(el.height || 0)) / 2;
 		return (
-			<Circle 
-				{...commonProps} 
-				radius={radius} 
+			<Circle
+				{...commonProps}
+				radius={radius}
 				offsetX={-(el.width || 0) / 2}
 				offsetY={-(el.height || 0) / 2}
 			/>
@@ -939,7 +951,8 @@ function RenderElement({
 	}
 
 	if (el.type === "star") {
-		const outerRadius = Math.max(Math.abs(el.width || 0), Math.abs(el.height || 0)) / 2;
+		const outerRadius =
+			Math.max(Math.abs(el.width || 0), Math.abs(el.height || 0)) / 2;
 		return (
 			<Star
 				{...commonProps}

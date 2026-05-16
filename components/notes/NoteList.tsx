@@ -1,7 +1,14 @@
 "use client";
 
 import { usePaginatedQuery } from "convex/react";
-import { Calendar, Download, FileText, Folder, Plus, Search } from "lucide-react";
+import {
+	Calendar,
+	Download,
+	FileText,
+	Folder,
+	Plus,
+	Search,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

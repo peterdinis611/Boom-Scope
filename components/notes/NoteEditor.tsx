@@ -183,9 +183,10 @@ const ColorPicker = ({
 	type: "text" | "highlight";
 }) => {
 	const colors = type === "text" ? TEXT_COLORS : HIGHLIGHT_COLORS;
-	const isActive = type === "text"
-		? !!editor.getAttributes("textStyle").color
-		: editor.isActive("highlight");
+	const isActive =
+		type === "text"
+			? !!editor.getAttributes("textStyle").color
+			: editor.isActive("highlight");
 
 	return (
 		<Popover>
@@ -222,11 +223,7 @@ const ColorPicker = ({
 								if (type === "text") {
 									editor.chain().focus().setColor(color).run();
 								} else {
-									editor
-										.chain()
-										.focus()
-										.toggleHighlight({ color })
-										.run();
+									editor.chain().focus().toggleHighlight({ color }).run();
 								}
 							}}
 							className="size-6 rounded border border-border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring"
@@ -261,16 +258,19 @@ const FONTS = [
 
 const FontSelector = ({ editor }: { editor: Editor }) => {
 	const current =
-		FONTS.find(
-			(f) => f.value === editor.getAttributes("textStyle").fontFamily,
-		)?.label ?? "Font";
+		FONTS.find((f) => f.value === editor.getAttributes("textStyle").fontFamily)
+			?.label ?? "Font";
 
 	return (
 		<DropdownMenu>
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs">
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-7 gap-1 px-2 text-xs"
+						>
 							<Type className="size-3" />
 							{current}
 							<ChevronDown className="size-3 opacity-60" />
@@ -295,7 +295,7 @@ const FontSelector = ({ editor }: { editor: Editor }) => {
 						className={cn(
 							"text-sm",
 							editor.getAttributes("textStyle").fontFamily === value &&
-							"bg-muted font-medium",
+								"bg-muted font-medium",
 						)}
 					>
 						<span style={{ fontFamily: value || undefined }}>{label}</span>
@@ -321,7 +321,11 @@ const HeadingSelector = ({ editor }: { editor: Editor }) => {
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs">
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-7 gap-1 px-2 text-xs"
+						>
 							{getActiveHeading()}
 							<ChevronDown className="size-3 opacity-60" />
 						</Button>
@@ -344,9 +348,7 @@ const HeadingSelector = ({ editor }: { editor: Editor }) => {
 						onClick={() =>
 							editor.chain().focus().toggleHeading({ level }).run()
 						}
-						className={
-							editor.isActive("heading", { level }) ? "bg-muted" : ""
-						}
+						className={editor.isActive("heading", { level }) ? "bg-muted" : ""}
 					>
 						<span
 							className="font-semibold"
@@ -878,9 +880,7 @@ const StatusBar = ({
 		<div className="flex items-center justify-between border-t border-border bg-muted/20 px-3 py-1 text-xs text-muted-foreground">
 			<div className="flex gap-4">
 				<span>{wordCount} words</span>
-				<span
-					className={cn(limitReached && "font-medium text-destructive")}
-				>
+				<span className={cn(limitReached && "font-medium text-destructive")}>
 					{charCount}
 					{characterLimit ? `/${characterLimit}` : ""} characters
 				</span>
@@ -1029,7 +1029,7 @@ export function NoteEditor({
 				"focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 overflow-hidden",
 				"transition-all duration-200",
 				isFocusMode &&
-				"fixed inset-4 z-50 shadow-2xl rounded-lg border-2 border-primary/30",
+					"fixed inset-4 z-50 shadow-2xl rounded-lg border-2 border-primary/30",
 			)}
 		>
 			{/* Backdrop for focus mode */}

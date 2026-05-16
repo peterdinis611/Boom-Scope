@@ -2,26 +2,26 @@
 
 import { useAction } from "convex/react";
 import {
+	ChevronRight,
+	Download,
+	ExternalLink,
+	Layers,
 	Loader2,
 	Monitor,
 	Smartphone,
 	Sparkles,
 	Tablet as TabletIcon,
-	ExternalLink,
-	Download,
-	Layers,
-	ChevronRight
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { DesignPreview } from "@/components/design/DesignPreview";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { DesignPreview } from "@/components/design/DesignPreview";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "motion/react";
-import { useRouter } from "next/navigation";
 
 interface GeneratedDesign {
 	web: { elements: any[] };
@@ -32,7 +32,8 @@ interface GeneratedDesign {
 export default function GeneratorPage() {
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [generatedDesign, setGeneratedDesign] = useState<GeneratedDesign | null>(null);
+	const [generatedDesign, setGeneratedDesign] =
+		useState<GeneratedDesign | null>(null);
 	const generateAction = useAction(api.openai.generateResponsiveDesign);
 	const router = useRouter();
 
@@ -56,7 +57,7 @@ export default function GeneratorPage() {
 	};
 
 	const openInCanvas = (elements: any[], viewport: string) => {
-		// In a real app, we might save this first. 
+		// In a real app, we might save this first.
 		// For now, let's simulate by passing via state or just showing a message
 		// Actually, we can save it to localStorage and pick it up in canvas
 		localStorage.setItem("imported_design", JSON.stringify(elements));
@@ -72,10 +73,13 @@ export default function GeneratorPage() {
 					<div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
 						<Sparkles className="size-5" />
 					</div>
-					<h1 className="text-3xl font-black uppercase tracking-tight italic">AI Design Generator</h1>
+					<h1 className="text-3xl font-black uppercase tracking-tight italic">
+						AI Design Generator
+					</h1>
 				</div>
 				<p className="text-muted-foreground max-w-2xl text-lg font-medium leading-relaxed">
-					Napíšte čo potrebujete a naša AI pripraví kompletnú vizuálnu identitu pre všetky zariadenia súčasne.
+					Napíšte čo potrebujete a naša AI pripraví kompletnú vizuálnu identitu
+					pre všetky zariadenia súčasne.
 				</p>
 			</div>
 
@@ -91,12 +95,18 @@ export default function GeneratorPage() {
 					/>
 					<div className="flex items-center justify-between pt-4 border-t border-border/50">
 						<div className="flex gap-4 text-xs font-black uppercase tracking-widest text-muted-foreground">
-							<span className="flex items-center gap-1.5"><Monitor className="size-3" /> Web</span>
-							<span className="flex items-center gap-1.5"><TabletIcon className="size-3" /> Tablet</span>
-							<span className="flex items-center gap-1.5"><Smartphone className="size-3" /> Mobile</span>
+							<span className="flex items-center gap-1.5">
+								<Monitor className="size-3" /> Web
+							</span>
+							<span className="flex items-center gap-1.5">
+								<TabletIcon className="size-3" /> Tablet
+							</span>
+							<span className="flex items-center gap-1.5">
+								<Smartphone className="size-3" /> Mobile
+							</span>
 						</div>
-						<Button 
-							onClick={handleGenerate} 
+						<Button
+							onClick={handleGenerate}
 							disabled={isGenerating || !prompt.trim()}
 							className="px-8 rounded-2xl h-12 bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
 						>
@@ -119,7 +129,7 @@ export default function GeneratorPage() {
 			{/* Previews */}
 			<AnimatePresence mode="wait">
 				{generatedDesign ? (
-					<motion.div 
+					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						className="grid grid-cols-1 xl:grid-cols-12 gap-8"
@@ -130,21 +140,23 @@ export default function GeneratorPage() {
 								<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
 									<Monitor className="size-4" /> Desktop Verzia (1920x1080)
 								</h3>
-								<Button 
-									variant="ghost" 
-									size="sm" 
-									onClick={() => openInCanvas(generatedDesign.web.elements, "web")}
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() =>
+										openInCanvas(generatedDesign.web.elements, "web")
+									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
 									Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
 								</Button>
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner overflow-x-auto">
-								<DesignPreview 
-									elements={generatedDesign.web.elements} 
-									width={1920} 
-									height={1080} 
-									scale={0.4} 
+								<DesignPreview
+									elements={generatedDesign.web.elements}
+									width={1920}
+									height={1080}
+									scale={0.4}
 									className="mx-auto shadow-[0_30px_100px_rgba(0,0,0,0.2)]"
 								/>
 							</div>
@@ -156,21 +168,23 @@ export default function GeneratorPage() {
 								<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
 									<TabletIcon className="size-4" /> Tablet Verzia (768x1024)
 								</h3>
-								<Button 
-									variant="ghost" 
-									size="sm" 
-									onClick={() => openInCanvas(generatedDesign.tablet.elements, "tablet")}
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() =>
+										openInCanvas(generatedDesign.tablet.elements, "tablet")
+									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
 									Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
 								</Button>
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
-								<DesignPreview 
-									elements={generatedDesign.tablet.elements} 
-									width={768} 
-									height={1024} 
-									scale={0.5} 
+								<DesignPreview
+									elements={generatedDesign.tablet.elements}
+									width={768}
+									height={1024}
+									scale={0.5}
 									className="shadow-[0_30px_80px_rgba(0,0,0,0.15)]"
 								/>
 							</div>
@@ -182,21 +196,23 @@ export default function GeneratorPage() {
 								<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
 									<Smartphone className="size-4" /> Mobilná Verzia (375x667)
 								</h3>
-								<Button 
-									variant="ghost" 
-									size="sm" 
-									onClick={() => openInCanvas(generatedDesign.mobile.elements, "mobile")}
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() =>
+										openInCanvas(generatedDesign.mobile.elements, "mobile")
+									}
 									className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 								>
 									Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
 								</Button>
 							</div>
 							<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
-								<DesignPreview 
-									elements={generatedDesign.mobile.elements} 
-									width={375} 
-									height={667} 
-									scale={0.8} 
+								<DesignPreview
+									elements={generatedDesign.mobile.elements}
+									width={375}
+									height={667}
+									scale={0.8}
 									className="shadow-[0_30px_60px_rgba(0,0,0,0.1)]"
 								/>
 							</div>
@@ -204,7 +220,7 @@ export default function GeneratorPage() {
 					</motion.div>
 				) : (
 					!isGenerating && (
-						<motion.div 
+						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							className="flex flex-col items-center justify-center py-20 space-y-6 opacity-20"
@@ -212,7 +228,9 @@ export default function GeneratorPage() {
 							<div className="p-10 rounded-full border-4 border-dashed border-muted-foreground/30">
 								<Layers className="size-20" />
 							</div>
-							<p className="text-xl font-bold uppercase tracking-[0.3em] text-center">Zadajte prompt pre začiatok generovania</p>
+							<p className="text-xl font-bold uppercase tracking-[0.3em] text-center">
+								Zadajte prompt pre začiatok generovania
+							</p>
 						</motion.div>
 					)
 				)}
@@ -229,8 +247,12 @@ export default function GeneratorPage() {
 							</div>
 						</div>
 						<div className="flex flex-col items-center space-y-2">
-							<h2 className="text-2xl font-black uppercase tracking-widest animate-pulse">Navrhujem Vizuál...</h2>
-							<p className="text-muted-foreground font-medium">Pripravujem Web, Tablet a Mobile verzie</p>
+							<h2 className="text-2xl font-black uppercase tracking-widest animate-pulse">
+								Navrhujem Vizuál...
+							</h2>
+							<p className="text-muted-foreground font-medium">
+								Pripravujem Web, Tablet a Mobile verzie
+							</p>
 						</div>
 					</div>
 				</div>

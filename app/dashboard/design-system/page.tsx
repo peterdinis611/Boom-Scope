@@ -22,7 +22,14 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
@@ -183,7 +190,13 @@ function DesignSystemPageContent() {
 					colors:
 						merged.colors.length > 0
 							? merged.colors
-							: [{ name: "Neutral", hex: "#71717a", rgb: "rgb(113, 113, 122)" }],
+							: [
+									{
+										name: "Neutral",
+										hex: "#71717a",
+										rgb: "rgb(113, 113, 122)",
+									},
+								],
 					fonts,
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,
