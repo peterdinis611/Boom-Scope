@@ -2,9 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { useQuery } from "convex/react";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import ProjectDetailPage from "../app/dashboard/projects/[projectId]/page";
-import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 
 // Mock Convex
@@ -25,59 +24,67 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("Page: Project Detail", () => {
-	test("renders project title and description", () => {
+	beforeEach(() => {
+		vi.resetAllMocks();
+	});
+
+	test("renders project title and description", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
-		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			// Project detail call
-			if (args?.projectId && !args?.paginationOpts && args?.projectId === "test-id") {
-				return {
-					_id: "test-id" as unknown as Id<"projects">,
-					name: "Architecture Project",
-					description: "A custom villa design",
-				};
-			}
-			// Lists (notes, designs, systems)
-			if (args?.paginationOpts) return { page: [] };
-			return [];
-		});
+		
+		const mockProject = {
+			_id: "test-id" as unknown as Id<"projects">,
+			name: "Architecture Project",
+			description: "A custom villa design",
+			_creationTime: Date.now(),
+		};
+
+		// Mock sequence of queries in ProjectDetailPage:
+		// 1. project = useQuery(api.projects.getById, ...)
+		// 2. designs = useQuery(api.designs.listByProject, ...)
+		// 3. designSystems = useQuery(api.design_systems.getByProject, ...)
+		// 4. notes = useQuery(api.notes.list, ...)
+		vi.mocked(useQuery)
+			.mockReturnValueOnce(mockProject) // project
+			.mockReturnValueOnce([]) // designs
+			.mockReturnValueOnce([]) // systems
+			.mockReturnValueOnce({ page: [] }); // notes
 
 		render(<ProjectDetailPage />);
 
-		expect(screen.getByText("Architecture Project")).toBeDefined();
+		expect(await screen.findByText("Architecture Project")).toBeDefined();
 		expect(screen.getByText("A custom villa design")).toBeDefined();
 	});
 
-	test("shows the correct module sections", () => {
+	test("shows the correct module sections", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
-		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			if (args?.projectId && !args?.paginationOpts && args?.projectId === "test-id") {
-				return {
-					_id: "test-id" as unknown as Id<"projects">,
-					name: "Test Project",
-				};
-			}
-			if (args?.paginationOpts) return { page: [] };
-			return [];
-		});
+		
+		const mockProject = {
+			_id: "test-id" as unknown as Id<"projects">,
+			name: "Test Project",
+			_creationTime: Date.now(),
+		};
+
+		vi.mocked(useQuery)
+			.mockReturnValueOnce(mockProject)
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce({ page: [] });
 
 		render(<ProjectDetailPage />);
 
-		expect(screen.getByText("Poznámky")).toBeDefined();
+		expect(await screen.findByText("Poznámky")).toBeDefined();
 		expect(screen.getByText("Canvas")).toBeDefined();
 		expect(screen.getByText("Design Systems")).toBeDefined();
 	});
 
-	test("handles non-existent project", () => {
+	test("handles non-existent project", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "wrong-id" });
-		vi.mocked(useQuery).mockImplementation((query: any, args: any) => {
-			if (args?.projectId && !args?.paginationOpts && args?.projectId === "wrong-id") {
-				return null;
-			}
-			return [];
-		});
+		
+		// 1. project = useQuery returns null
+		vi.mocked(useQuery).mockReturnValueOnce(null);
 
 		render(<ProjectDetailPage />);
 
-		expect(screen.getByText(/Projekt neexistuje/i)).toBeDefined();
+		expect(await screen.findByText(/Projekt neexistuje/i)).toBeDefined();
 	});
 });
