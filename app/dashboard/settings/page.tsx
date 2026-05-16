@@ -277,10 +277,16 @@ export default function SettingsPage() {
 								<div className="flex gap-4">
 									{[
 										"var(--primary)",
-										"var(--success)",
-										"#f59e0b",
-										"var(--destructive)",
-										"#8b5cf6",
+										"#06b6d4", // Cyan
+										"var(--success)", // Green
+										"#84cc16", // Lime
+										"#f59e0b", // Amber
+										"#f97316", // Orange
+										"var(--destructive)", // Red
+										"#f43f5e", // Rose
+										"#8b5cf6", // Violet
+										"#6366f1", // Indigo
+										"#475569", // Slate
 									].map((color) => (
 										<button
 											key={color}

@@ -138,29 +138,41 @@ const ToolbarSeparator = () => (
 // ─── Colour picker ────────────────────────────────────────────────────────────
 
 const TEXT_COLORS = [
-	"#000000",
-	"#374151",
-	"#6b7280",
-	"#ef4444",
-	"#f97316",
-	"#eab308",
-	"#22c55e",
-	"#3b82f6",
-	"#8b5cf6",
-	"#ec4899",
-	"#14b8a6",
-	"#ffffff",
+	"#000000", // Black
+	"#374151", // Dark Gray
+	"#6b7280", // Gray
+	"#9ca3af", // Light Gray
+	"#ffffff", // White
+	"#ef4444", // Red
+	"#f97316", // Orange
+	"#f59e0b", // Amber
+	"#eab308", // Yellow
+	"#84cc16", // Lime
+	"#22c55e", // Green
+	"#10b981", // Emerald
+	"#14b8a6", // Teal
+	"#06b6d4", // Cyan
+	"#0ea5e9", // Sky
+	"#3b82f6", // Blue
+	"#6366f1", // Indigo
+	"#8b5cf6", // Violet
+	"#a855f7", // Purple
+	"#d946ef", // Fuchsia
+	"#ec4899", // Pink
+	"#f43f5e", // Rose
 ];
 
 const HIGHLIGHT_COLORS = [
-	"#fef08a",
-	"#bbf7d0",
-	"#bfdbfe",
-	"#f5d0fe",
-	"#fed7aa",
-	"#fecaca",
-	"#ccfbf1",
-	"#e0e7ff",
+	"#fef08a", // Yellow
+	"#bbf7d0", // Green
+	"#bfdbfe", // Blue
+	"#f5d0fe", // Purple
+	"#fed7aa", // Orange
+	"#fecaca", // Red
+	"#ccfbf1", // Teal
+	"#e0e7ff", // Indigo
+	"#fae8ff", // Pink
+	"#f1f5f9", // Slate
 ];
 
 const ColorPicker = ({
