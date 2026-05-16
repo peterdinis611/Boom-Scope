@@ -1,7 +1,7 @@
 "use client";
 
 import { usePaginatedQuery } from "convex/react";
-import { Calendar, Download, Folder, Plus, Search } from "lucide-react";
+import { Calendar, Download, FileText, Folder, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { downloadNoteAsTxt } from "@/lib/notes";
+import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
 
 export function NoteList() {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -84,19 +84,34 @@ export function NoteList() {
 									<CardTitle className="line-clamp-1 text-base">
 										{note.title}
 									</CardTitle>
-									<Button
-										variant="ghost"
-										size="icon-xs"
-										className="size-7 opacity-0 group-hover:opacity-100 transition-opacity"
-										onClick={(e) => {
-											e.preventDefault();
-											e.stopPropagation();
-											downloadNoteAsTxt(note.title, note.content);
-										}}
-										title="Stiahnuť ako .txt"
-									>
-										<Download className="size-3.5" />
-									</Button>
+									<div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											className="size-7"
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												downloadNoteAsTxt(note.title, note.content);
+											}}
+											title="Stiahnuť ako .txt"
+										>
+											<Download className="size-3.5" />
+										</Button>
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											className="size-7"
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												downloadNoteAsPdf(note.title, note.content);
+											}}
+											title="Stiahnuť ako .pdf"
+										>
+											<FileText className="size-3.5" />
+										</Button>
+									</div>
 								</CardHeader>
 								<CardContent className="pb-3">
 									<div
