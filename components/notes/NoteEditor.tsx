@@ -88,7 +88,7 @@ interface NoteEditorProps {
 	onChange: (content: string) => void;
 	placeholder?: string;
 	/** Character limit for the editor (optional) */
-	characterLimit?: number;
+	characterLimit?: any;
 	/** Enable focus / zen mode toggle */
 	enableFocusMode?: boolean;
 	/** Callback when word count changes */
