@@ -14,6 +14,17 @@ import {
 	usePomodoro,
 } from "../components/dashboard/pomodoro-context";
 
+// ── IndexedDB mock ──────────────────────────────────────────────────────────
+// Replace the real lib functions with controllable vi.fn() so tests remain
+// synchronous and don't need a real IDB implementation in jsdom.
+const mockGetSettings = vi.fn<[], Promise<null | Record<string, unknown>>>();
+const mockSaveSettings = vi.fn<[unknown], Promise<void>>();
+
+vi.mock("@/lib/pomodoro-db", () => ({
+	getPomodoroSettings: () => mockGetSettings(),
+	savePomodoroSettings: (s: unknown) => mockSaveSettings(s),
+}));
+
 // Mock sonner
 vi.mock("sonner", () => ({
 	toast: {
@@ -22,7 +33,7 @@ vi.mock("sonner", () => ({
 	},
 }));
 
-// Helper component to expose the context values to tests
+// ── Helper component ────────────────────────────────────────────────────────
 function PomodoroDisplay() {
 	const {
 		timeLeft,
@@ -86,47 +97,61 @@ function renderWithProvider() {
 	);
 }
 
+// ── Tests ───────────────────────────────────────────────────────────────────
 describe("PomodoroContext", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
-		localStorage.clear();
+		// Default: no saved settings in IDB
+		mockGetSettings.mockResolvedValue(null);
+		mockSaveSettings.mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
-		vi.runOnlyPendingTimers();
+		act(() => {
+			vi.runOnlyPendingTimers();
+		});
 		vi.useRealTimers();
+		vi.clearAllMocks();
 	});
 
 	describe("Initial state", () => {
-		test("starts in focus mode with 25 minutes on the clock", () => {
+		test("starts in focus mode with 25 minutes on the clock", async () => {
 			renderWithProvider();
+			// Let the async IDB load settle
+			await act(async () => {});
 			expect(screen.getByTestId("mode").textContent).toBe("focus");
 			expect(screen.getByTestId("time-left").textContent).toBe("1500");
 			expect(screen.getByTestId("is-active").textContent).toBe("false");
 		});
 
-		test("starts with 0% progress", () => {
+		test("starts with 0% progress", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			expect(screen.getByTestId("progress").textContent).toBe("0.00");
 		});
 
-		test("loads default focus duration from settings", () => {
+		test("loads default focus duration from settings", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			expect(screen.getByTestId("focus-duration").textContent).toBe("1500");
 		});
 	});
 
 	describe("toggleTimer", () => {
-		test("activates the timer on first toggle", () => {
+		test("activates the timer on first toggle", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
+				// Flush the effect that sets up the interval
+				vi.advanceTimersByTime(0);
 			});
 			expect(screen.getByTestId("is-active").textContent).toBe("true");
 		});
 
-		test("pauses the timer on second toggle", () => {
+		test("pauses the timer on second toggle", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
 			});
@@ -138,20 +163,19 @@ describe("PomodoroContext", () => {
 	});
 
 	describe("Timer countdown", () => {
-		test("decrements timeLeft by 1 each second when active", () => {
+		test("decrements timeLeft by 1 each second when active", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
-			});
-			act(() => {
 				vi.advanceTimersByTime(3000);
 			});
 			expect(screen.getByTestId("time-left").textContent).toBe("1497");
 		});
 
-		test("does not decrement when paused", () => {
+		test("does not decrement when paused", async () => {
 			renderWithProvider();
-			// Start then immediately pause
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
 			});
@@ -165,18 +189,16 @@ describe("PomodoroContext", () => {
 			act(() => {
 				vi.advanceTimersByTime(3000);
 			});
-			// Time should not change after pausing
 			expect(screen.getByTestId("time-left").textContent).toBe(timeAfterPause);
 		});
 	});
 
 	describe("resetTimer", () => {
-		test("resets the timer to full duration and stops it", () => {
+		test("resets the timer to full duration and stops it", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
-			});
-			act(() => {
 				vi.advanceTimersByTime(5000);
 			});
 			act(() => {
@@ -188,8 +210,9 @@ describe("PomodoroContext", () => {
 	});
 
 	describe("setMode", () => {
-		test("switches to short break mode with correct duration", () => {
+		test("switches to short break mode with correct duration", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("set-short-break").click();
 			});
@@ -197,8 +220,9 @@ describe("PomodoroContext", () => {
 			expect(screen.getByTestId("time-left").textContent).toBe("300");
 		});
 
-		test("switches to long break mode with correct duration", () => {
+		test("switches to long break mode with correct duration", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("set-long-break").click();
 			});
@@ -206,8 +230,9 @@ describe("PomodoroContext", () => {
 			expect(screen.getByTestId("time-left").textContent).toBe("900");
 		});
 
-		test("stops the timer when switching modes", () => {
+		test("stops the timer when switching modes", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
 			});
@@ -219,16 +244,18 @@ describe("PomodoroContext", () => {
 	});
 
 	describe("skipMode", () => {
-		test("skips from focus to short break", () => {
+		test("skips from focus to short break", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("skip").click();
 			});
 			expect(screen.getByTestId("mode").textContent).toBe("shortBreak");
 		});
 
-		test("skips from short break back to focus", () => {
+		test("skips from short break back to focus", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("set-short-break").click();
 			});
@@ -238,8 +265,9 @@ describe("PomodoroContext", () => {
 			expect(screen.getByTestId("mode").textContent).toBe("focus");
 		});
 
-		test("stops the timer when skipping", () => {
+		test("stops the timer when skipping", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("toggle").click();
 			});
@@ -251,8 +279,9 @@ describe("PomodoroContext", () => {
 	});
 
 	describe("updateSettings", () => {
-		test("updates focus duration and resets the timer", () => {
+		test("updates focus duration and resets the timer", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("update-focus").click();
 			});
@@ -260,37 +289,41 @@ describe("PomodoroContext", () => {
 			expect(screen.getByTestId("time-left").textContent).toBe("600");
 		});
 
-		test("persists settings to localStorage", () => {
+		test("calls savePomodoroSettings with updated value", async () => {
 			renderWithProvider();
+			await act(async () => {});
 			act(() => {
 				screen.getByTestId("update-focus").click();
 			});
-			const saved = JSON.parse(
-				localStorage.getItem("pomodoro-settings") ?? "{}",
+			expect(mockSaveSettings).toHaveBeenCalledWith(
+				expect.objectContaining({ focusDuration: 600 }),
 			);
-			expect(saved.focusDuration).toBe(600);
 		});
 	});
 
-	describe("Settings persistence", () => {
-		test("loads saved settings from localStorage on mount", () => {
-			localStorage.setItem(
-				"pomodoro-settings",
-				JSON.stringify({
-					focusDuration: 30 * 60,
-					shortBreakDuration: 5 * 60,
-					longBreakDuration: 15 * 60,
-				}),
-			);
+	describe("Settings persistence (IDB load on mount)", () => {
+		test("loads saved settings from IndexedDB on mount", async () => {
+			mockGetSettings.mockResolvedValue({
+				focusDuration: 30 * 60,
+				shortBreakDuration: 5 * 60,
+				longBreakDuration: 15 * 60,
+			});
 			renderWithProvider();
+			await act(async () => {});
 			expect(screen.getByTestId("focus-duration").textContent).toBe("1800");
 			expect(screen.getByTestId("time-left").textContent).toBe("1800");
+		});
+
+		test("uses defaults when IDB returns null", async () => {
+			mockGetSettings.mockResolvedValue(null);
+			renderWithProvider();
+			await act(async () => {});
+			expect(screen.getByTestId("focus-duration").textContent).toBe("1500");
 		});
 	});
 
 	describe("usePomodoro hook", () => {
 		test("throws if used outside PomodoroProvider", () => {
-			// Suppress expected error output during this test
 			const consoleSpy = vi
 				.spyOn(console, "error")
 				.mockImplementation(() => {});

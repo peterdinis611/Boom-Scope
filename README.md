@@ -25,7 +25,7 @@ Built with Next.js 16, Convex, TipTap, and AI — Boom Scope brings project mana
 | 🎨 **Canvas** | Konva-based infinite canvas for sketching and visual design |
 | 🎭 **Design System** | AI-generated design tokens — colors, fonts, suggestions — with public sharing |
 | 🤖 **AI Generator** | OpenAI-powered multi-viewport layout generator |
-| ⏱️ **Pomodoro Timer** | Built-in focus timer with configurable work/break intervals and localStorage persistence |
+| ⏱️ **Pomodoro Timer** | Built-in focus timer with configurable work/break intervals and IndexedDB persistence |
 | 🌗 **Dark Mode** | System-aware theme toggle powered by `next-themes` |
 | 🔐 **Auth** | Convex Auth with session management |
 
@@ -201,7 +201,7 @@ The built-in Pomodoro timer lives at `/dashboard/pomodoro`. It supports:
 - **Focus** (default 25 min), **Short Break** (5 min), **Long Break** (15 min)
 - Play / Pause / Reset / Skip controls
 - Fully customizable durations via the settings panel
-- Persistent settings via `localStorage`
+- Persistent settings via **IndexedDB** (`lib/pomodoro-db.ts`)
 - Toast notifications on session completion
 
 ---

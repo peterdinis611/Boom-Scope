@@ -3,6 +3,7 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { getPomodoroSettings, savePomodoroSettings } from "@/lib/pomodoro-db";
 
 export type PomodoroMode = "focus" | "shortBreak" | "longBreak";
 
@@ -31,29 +32,28 @@ const DEFAULT_SETTINGS: PomodoroSettings = {
 	longBreakDuration: 15 * 60,
 };
 
-const PomodoroContext = createContext<PomodoroContextType | undefined>(undefined);
+const PomodoroContext = createContext<PomodoroContextType | undefined>(
+	undefined,
+);
 
 export function PomodoroProvider({ children }: { children: React.ReactNode }) {
-	const [settings, setSettings] = useState<PomodoroSettings>(DEFAULT_SETTINGS);
+	const [settings, setSettings] =
+		useState<PomodoroSettings>(DEFAULT_SETTINGS);
 	const [mode, setModeState] = useState<PomodoroMode>("focus");
 	const [timeLeft, setTimeLeft] = useState(DEFAULT_SETTINGS.focusDuration);
 	const [isActive, setIsActive] = useState(false);
 
-	// Load settings from localStorage on mount
+	// Load settings from IndexedDB on mount
 	useEffect(() => {
-		const savedSettings = localStorage.getItem("pomodoro-settings");
-		if (savedSettings) {
-			try {
-				const parsed = JSON.parse(savedSettings);
-				setSettings(parsed);
-				setTimeLeft(parsed.focusDuration);
-			} catch (e) {
-				console.error("Failed to parse pomodoro settings", e);
+		getPomodoroSettings<PomodoroSettings>().then((saved) => {
+			if (saved) {
+				setSettings(saved);
+				setTimeLeft(saved.focusDuration);
 			}
-		}
+		});
 	}, []);
 
-	// Timer logic
+	// Timer countdown
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
 
@@ -71,13 +71,15 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 
 	const handleTimerComplete = () => {
 		const nextMode = mode === "focus" ? "shortBreak" : "focus";
-		
+
 		toast.success(mode === "focus" ? "Čas na prestávku!" : "Späť do práce!", {
-			description: mode === "focus" ? "Skvelá práca! Doprajte si oddych." : "Prestávka skončila, ideme na to!",
+			description:
+				mode === "focus"
+					? "Skvelá práca! Doprajte si oddych."
+					: "Prestávka skončila, ideme na to!",
 			duration: 5000,
 		});
 
-		// Play a sound if possible (optional)
 		try {
 			const audio = new Audio("/sounds/notification.mp3");
 			audio.play().catch(() => {});
@@ -86,7 +88,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 		setMode(nextMode);
 	};
 
-	const toggleTimer = () => setIsActive(!isActive);
+	const toggleTimer = () => setIsActive((prev) => !prev);
 
 	const resetTimer = () => {
 		setIsActive(false);
@@ -108,20 +110,26 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 	const updateSettings = (newSettings: Partial<PomodoroSettings>) => {
 		const updated = { ...settings, ...newSettings };
 		setSettings(updated);
-		localStorage.setItem("pomodoro-settings", JSON.stringify(updated));
-		
-		// If we're not active, update current timeLeft if the changed mode matches current mode
+		savePomodoroSettings(updated); // async, fire-and-forget
+
 		if (!isActive) {
 			setTimeLeft(getDurationForMode(mode, updated));
 		}
 	};
 
-	const getDurationForMode = (m: PomodoroMode, s: PomodoroSettings) => {
+	const getDurationForMode = (
+		m: PomodoroMode,
+		s: PomodoroSettings,
+	): number => {
 		switch (m) {
-			case "focus": return s.focusDuration;
-			case "shortBreak": return s.shortBreakDuration;
-			case "longBreak": return s.longBreakDuration;
-			default: return s.focusDuration;
+			case "focus":
+				return s.focusDuration;
+			case "shortBreak":
+				return s.shortBreakDuration;
+			case "longBreak":
+				return s.longBreakDuration;
+			default:
+				return s.focusDuration;
 		}
 	};
 
