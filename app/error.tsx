@@ -5,6 +5,112 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
+// ─── Error logging ────────────────────────────────────────────────────────────
+
+interface ErrorReport {
+	message: string;
+	digest?: string;
+	stack?: string;
+	// Runtime context
+	url: string;
+	userAgent: string;
+	timestamp: string;
+	// App context
+	appVersion: string;
+	environment: string;
+	// Breadcrumbs
+	sessionDuration: number; // seconds since page load
+	referrer: string;
+	viewport: string;
+	memoryMB?: number;
+}
+
+function collectErrorReport(error: Error & { digest?: string }): ErrorReport {
+	const now = new Date();
+
+	// Memory usage (Chrome only)
+	const memory = (performance as { memory?: { usedJSHeapSize: number } })
+		.memory;
+	const memoryMB = memory
+		? Math.round(memory.usedJSHeapSize / 1024 / 1024)
+		: undefined;
+
+	return {
+		message: error.message,
+		digest: error.digest,
+		stack: error.stack,
+		url: window.location.href,
+		userAgent: navigator.userAgent,
+		timestamp: now.toISOString(),
+		appVersion: process.env.NEXT_PUBLIC_APP_VERSION ?? "unknown",
+		environment: process.env.NODE_ENV,
+		sessionDuration: Math.round(performance.now() / 1000),
+		referrer: document.referrer || "(direct)",
+		viewport: `${window.innerWidth}×${window.innerHeight}`,
+		memoryMB,
+	};
+}
+
+function logError(error: Error & { digest?: string }): void {
+	const report = collectErrorReport(error);
+
+	// ── 1. Structured console group ──────────────────────────────────────────
+	console.group(
+		`%c🔴 GlobalError  %c${report.timestamp}`,
+		"color:#ef4444;font-weight:700;font-size:13px",
+		"color:#6b7280;font-weight:400;font-size:11px",
+	);
+
+	console.error("Error:", error);
+
+	console.groupCollapsed("📋 Context");
+	console.table({
+		URL: report.url,
+		Digest: report.digest ?? "—",
+		Environment: report.environment,
+		"App Version": report.appVersion,
+		"Session Age": `${report.sessionDuration}s`,
+		Referrer: report.referrer,
+		Viewport: report.viewport,
+		...(report.memoryMB !== undefined
+			? { "JS Heap": `${report.memoryMB} MB` }
+			: {}),
+	});
+	console.groupEnd();
+
+	if (report.stack) {
+		console.groupCollapsed("📚 Stack Trace");
+		// Pretty-print each frame on its own line
+		report.stack
+			.split("\n")
+			.slice(1)
+			.forEach((frame) => console.log(frame.trim()));
+		console.groupEnd();
+	}
+
+	console.groupCollapsed("📦 Full Report (JSON)");
+	console.log(JSON.stringify(report, null, 2));
+	console.groupEnd();
+
+	console.groupEnd(); // close GlobalError group
+
+	// ── 2. Send to your error-reporting service ──────────────────────────────
+	// Swap the block below for Sentry, Datadog, Highlight.io, etc.
+	//
+	// Example – Sentry:
+	//   Sentry.captureException(error, { extra: report });
+	//
+	// Example – custom ingest endpoint:
+	//   fetch("/api/errors", {
+	//     method: "POST",
+	//     headers: { "Content-Type": "application/json" },
+	//     body: JSON.stringify(report),
+	//     keepalive: true, // survives page unload
+	//   }).catch(() => {}); // never throw from an error handler
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function GlobalError({
 	error,
 	reset,
@@ -15,8 +121,7 @@ export default function GlobalError({
 	const [showDetails, setShowDetails] = useState(false);
 
 	useEffect(() => {
-		// Log the error to an error reporting service
-		console.error(error);
+		logError(error);
 	}, [error]);
 
 	return (
@@ -74,7 +179,7 @@ export default function GlobalError({
 				</div>
 
 				{/* Error Details Toggle */}
-				<div className="flex flex-col w-full gap-2">
+				<div className="flex w-full flex-col gap-2">
 					<Button
 						variant="ghost"
 						size="sm"
@@ -102,11 +207,11 @@ export default function GlobalError({
 								className="overflow-hidden"
 							>
 								<div className="rounded-xl border border-border/50 bg-muted/30 p-4 text-left font-mono text-xs text-muted-foreground break-all">
-									<p className="font-bold text-foreground mb-2">
+									<p className="mb-2 font-bold text-foreground">
 										Message: {error.message}
 									</p>
 									{error.stack && (
-										<pre className="whitespace-pre-wrap overflow-x-auto max-h-[200px]">
+										<pre className="max-h-[200px] overflow-x-auto whitespace-pre-wrap">
 											{error.stack}
 										</pre>
 									)}
