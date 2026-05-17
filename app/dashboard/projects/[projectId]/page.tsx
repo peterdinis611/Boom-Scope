@@ -12,6 +12,7 @@ import {
 	Settings2,
 	Sparkles,
 	Trash2,
+	Type,
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -49,9 +50,9 @@ export default function ProjectDetailPage() {
 		api.notes.list,
 		projectId
 			? {
-					projectId: projectId as Id<"projects">,
-					paginationOpts: { numItems: 100, cursor: null },
-				}
+				projectId: projectId as Id<"projects">,
+				paginationOpts: { numItems: 100, cursor: null },
+			}
 			: "skip",
 	);
 
