@@ -25,7 +25,6 @@ export function downloadNoteAsTxt(title: string, content: string) {
  */
 export async function downloadNoteAsPdf(title: string, content: string) {
 	// Use dynamic import to avoid SSR issues
-	// @ts-expect-error - html2pdf might not have types
 	const html2pdf = (await import("html2pdf.js")).default;
 
 	// Create a wrapper for the content to apply styles
