@@ -35,12 +35,28 @@ interface Message {
 	design?: GeneratedDesign;
 }
 
+const SUGGESTIONS = [
+	{ text: "Moderná SaaS landing page", icon: "🚀" },
+	{ text: "Prepínač pre tmavý režim", icon: "🌙" },
+	{ text: "Čistý layout kariet s tieňmi", icon: "✨" },
+	{ text: "Neon fialová a modrá téma", icon: "💜" },
+	{ text: "Sekcia s cenníkom a benefitmi", icon: "💸" },
+];
+
 export default function GeneratorPage() {
 	const [prompt, setPrompt] = useState("");
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const generateAction = useAction(api.openai.generateResponsiveDesign);
 	const router = useRouter();
+
+	const handleSuggestionClick = (text: string) => {
+		setPrompt((prev) => {
+			const cleaned = prev.trim();
+			if (!cleaned) return text;
+			return `${cleaned}, ${text.toLowerCase()}`;
+		});
+	};
 
 	const handleGenerate = async () => {
 		if (!prompt.trim()) {
@@ -128,7 +144,12 @@ export default function GeneratorPage() {
 
 			{/* Chat / Prompt Input Section */}
 			<div className="relative group">
-				<div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-500/10 to-blue-500/20 rounded-3xl blur-xl opacity-50 group-focus-within:opacity-100 transition duration-1000" />
+				<div className={cn(
+					"absolute -inset-1 rounded-3xl blur-xl opacity-50 transition duration-1000",
+					isGenerating
+						? "bg-gradient-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
+						: "bg-gradient-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100"
+				)} />
 				<Card className="relative bg-background/50 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl space-y-6">
 					{/* Message History (Simplified) */}
 					{messages.length > 0 && (
@@ -161,37 +182,71 @@ export default function GeneratorPage() {
 						</div>
 					)}
 
-					<Textarea
-						placeholder={
-							messages.length === 0
-								? "Napr.: Moderná landing page pre SaaS platformu..."
-								: "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."
-						}
-						className="min-h-[80px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/50 resize-none px-0"
-						value={prompt}
-						onChange={(e) => setPrompt(e.target.value)}
-						onKeyDown={(e) => {
-							if (e.key === "Enter" && !e.shiftKey) {
-								e.preventDefault();
-								handleGenerate();
+					<div className="relative">
+						<Textarea
+							placeholder={
+								messages.length === 0
+									? "Napr.: Moderná landing page pre SaaS platformu..."
+									: "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."
 							}
-						}}
-					/>
-					<div className="flex items-center justify-between pt-4">
-						<div className="flex gap-4 text-xs font-black uppercase tracking-widest text-muted-foreground opacity-50">
-							<span>Web</span>
-							<span>Tablet</span>
-							<span>Mobile</span>
+							className="min-h-[100px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/30 resize-none px-0 focus-visible:border-none focus-visible:ring-offset-0"
+							value={prompt}
+							onChange={(e) => setPrompt(e.target.value)}
+							disabled={isGenerating}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" && !e.shiftKey) {
+									e.preventDefault();
+									handleGenerate();
+								}
+							}}
+						/>
+						{prompt.length > 0 && (
+							<div className="absolute right-0 bottom-0 text-[10px] font-bold text-muted-foreground/40 tracking-wider">
+								{prompt.length} znakov
+							</div>
+						)}
+					</div>
+
+					{/* Suggestion Pills */}
+					<div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
+						{SUGGESTIONS.map((s, idx) => (
+							<button
+								key={idx}
+								type="button"
+								onClick={() => handleSuggestionClick(s.text)}
+								disabled={isGenerating}
+								className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 hover:bg-primary/10 hover:text-primary border border-border/40 hover:border-primary/20 text-xs font-semibold transition-all duration-300 active:scale-95 text-muted-foreground disabled:opacity-50 disabled:pointer-events-none"
+							>
+								<span>{s.icon}</span>
+								<span>{s.text}</span>
+							</button>
+						))}
+					</div>
+
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+						<div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40">
+							<span className="flex items-center gap-1">
+								<span className="size-1.5 rounded-full bg-green-500" /> Web
+							</span>
+							<span className="flex items-center gap-1">
+								<span className="size-1.5 rounded-full bg-purple-500" /> Tablet
+							</span>
+							<span className="flex items-center gap-1">
+								<span className="size-1.5 rounded-full bg-blue-500" /> Mobile
+							</span>
+							<span className="ml-auto sm:ml-0 text-[9px] lowercase opacity-60">
+								(Enter pre odoslanie, Shift+Enter pre nový riadok)
+							</span>
 						</div>
 						<Button
 							onClick={handleGenerate}
 							disabled={isGenerating || !prompt.trim()}
-							className="px-8 rounded-2xl h-12 bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+							className="px-8 rounded-2xl h-12 bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 w-full sm:w-auto"
 						>
 							{isGenerating ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Premýšľam...
+									Navrhujem...
 								</>
 							) : (
 								<>

@@ -115,78 +115,100 @@ export default function ProjectsPage() {
 
 				{/* Projects Grid */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-					<AnimatePresence mode="popLayout">
-						{filteredProjects?.map((project, i) => (
-							<motion.div
-								key={project._id}
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.9 }}
-								transition={{ delay: i * 0.05 }}
-								className="group relative"
+					{!projects ? (
+						// Render 6 beautiful glassmorphic skeleton cards with pulsing animations
+						Array.from({ length: 6 }).map((_, i) => (
+							<div
+								key={`project-sk-${i}`}
+								className="h-64 p-8 rounded-[40px] bg-background/40 backdrop-blur-3xl border border-border/50 flex flex-col justify-between overflow-hidden animate-pulse"
 							>
-								<Link href={`/dashboard/projects/${project._id}`}>
-									<div className="h-64 p-8 rounded-[40px] bg-background/40 backdrop-blur-3xl border border-border hover:border-primary/30 transition-all duration-500 shadow-xl group-hover:shadow-primary/5 group-hover:-translate-y-2 flex flex-col justify-between overflow-hidden">
-										{/* Background Accent */}
-										<div className="absolute -right-4 -top-4 size-32 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-colors" />
-
-										<div className="space-y-4">
-											<div className="flex items-start justify-between">
-												<div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform duration-500">
-													<FolderKanban className="size-6" />
-												</div>
-												<DropdownMenu>
-													<DropdownMenuTrigger
-														asChild
-														onClick={(e) => e.preventDefault()}
-													>
-														<Button
-															variant="ghost"
-															size="icon"
-															className="rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
-														>
-															<MoreVertical className="size-4" />
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent
-														align="end"
-														className="rounded-2xl border-border bg-background/90 backdrop-blur-xl"
-													>
-														<DropdownMenuItem
-															className="text-red-500 focus:text-red-500 focus:bg-red-500/10 rounded-xl"
-															onClick={(e) => {
-																e.preventDefault();
-																handleDelete(project._id);
-															}}
-														>
-															<Trash2 className="size-4 mr-2" /> Vymazať
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</div>
-											<h3 className="text-2xl font-black tracking-tight">
-												{project.name}
-											</h3>
-											<p className="text-sm font-medium opacity-40 line-clamp-2">
-												{project.description || "Žiadny popis projektu."}
-											</p>
-										</div>
-
-										<div className="flex items-center justify-between pt-6 border-t border-border/50">
-											<div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest opacity-30">
-												<span className="flex items-center gap-1.5">
-													<Clock className="size-3" /> Nedávno
-												</span>
-											</div>
-											<div className="size-10 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
-												<ArrowRight className="size-4" />
-											</div>
-										</div>
+								<div className="space-y-4">
+									<div className="flex items-start justify-between">
+										<div className="size-14 rounded-2xl bg-muted border border-border/20" />
 									</div>
-								</Link>
-							</motion.div>
-						))}
-					</AnimatePresence>
+									<div className="h-7 w-2/3 bg-muted rounded-xl" />
+									<div className="h-4 w-4/5 bg-muted rounded-lg" />
+								</div>
+								<div className="flex items-center justify-between pt-6 border-t border-border/40">
+									<div className="h-3.5 w-16 bg-muted rounded" />
+									<div className="size-10 rounded-full bg-muted" />
+								</div>
+							</div>
+						))
+					) : (
+						<AnimatePresence mode="popLayout">
+							{filteredProjects?.map((project, i) => (
+								<motion.div
+									key={project._id}
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									transition={{ delay: i * 0.05 }}
+									className="group relative"
+								>
+									<Link href={`/dashboard/projects/${project._id}`}>
+										<div className="h-64 p-8 rounded-[40px] bg-background/40 backdrop-blur-3xl border border-border hover:border-primary/30 transition-all duration-500 shadow-xl group-hover:shadow-primary/5 group-hover:-translate-y-2 flex flex-col justify-between overflow-hidden">
+											{/* Background Accent */}
+											<div className="absolute -right-4 -top-4 size-32 bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-colors" />
+
+											<div className="space-y-4">
+												<div className="flex items-start justify-between">
+													<div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover:scale-110 transition-transform duration-500">
+														<FolderKanban className="size-6" />
+													</div>
+													<DropdownMenu>
+														<DropdownMenuTrigger
+															asChild
+															onClick={(e) => e.preventDefault()}
+														>
+															<Button
+																variant="ghost"
+																size="icon"
+																className="rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+															>
+																<MoreVertical className="size-4" />
+															</Button>
+														</DropdownMenuTrigger>
+														<DropdownMenuContent
+															align="end"
+															className="rounded-2xl border-border bg-background/90 backdrop-blur-xl"
+														>
+															<DropdownMenuItem
+																className="text-red-500 focus:text-red-500 focus:bg-red-500/10 rounded-xl"
+																onClick={(e) => {
+																	e.preventDefault();
+																	handleDelete(project._id);
+																}}
+															>
+																<Trash2 className="size-4 mr-2" /> Vymazať
+															</DropdownMenuItem>
+														</DropdownMenuContent>
+													</DropdownMenu>
+												</div>
+												<h3 className="text-2xl font-black tracking-tight">
+													{project.name}
+												</h3>
+												<p className="text-sm font-medium opacity-40 line-clamp-2">
+													{project.description || "Žiadny popis projektu."}
+												</p>
+											</div>
+
+											<div className="flex items-center justify-between pt-6 border-t border-border/50">
+												<div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest opacity-30">
+													<span className="flex items-center gap-1.5">
+														<Clock className="size-3" /> Nedávno
+													</span>
+												</div>
+												<div className="size-10 rounded-full bg-foreground/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
+													<ArrowRight className="size-4" />
+												</div>
+											</div>
+										</div>
+									</Link>
+								</motion.div>
+							))}
+						</AnimatePresence>
+					)}
 
 					{/* Empty State */}
 					{projects && filteredProjects?.length === 0 && (
