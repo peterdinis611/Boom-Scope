@@ -33,7 +33,6 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +46,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
 import { cn } from "@/lib/utils";
 
@@ -193,12 +193,12 @@ function DesignSystemPageContent() {
 						merged.colors.length > 0
 							? merged.colors
 							: [
-								{
-									name: "Neutral",
-									hex: "#71717a",
-									rgb: "rgb(113, 113, 122)",
-								},
-							],
+									{
+										name: "Neutral",
+										hex: "#71717a",
+										rgb: "rgb(113, 113, 122)",
+									},
+								],
 					fonts,
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,
@@ -911,7 +911,9 @@ function DesignSystemPageContent() {
 													>
 														<div>
 															<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20 mb-2">
-																{idx === 0 ? "Hlavné Písmo" : "Sekundárne Písmo"}
+																{idx === 0
+																	? "Hlavné Písmo"
+																	: "Sekundárne Písmo"}
 															</p>
 															<p
 																className="text-xl font-black"
@@ -934,55 +936,33 @@ function DesignSystemPageContent() {
 										{(merged.goodThings ||
 											merged.badThings ||
 											merged.suggestions) && (
-												<div className="pt-8 border-t border-border/50 space-y-8">
-													<div className="flex items-center gap-4">
-														<div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-															<Sparkles className="size-4" />
-														</div>
-														<span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-															Design Audit
-														</span>
+											<div className="pt-8 border-t border-border/50 space-y-8">
+												<div className="flex items-center gap-4">
+													<div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+														<Sparkles className="size-4" />
 													</div>
+													<span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+														Design Audit
+													</span>
+												</div>
 
-													<div className="space-y-6">
-														{merged.goodThings &&
-															merged.goodThings.length > 0 && (
-																<div className="space-y-3">
-																	<div className="flex items-center gap-2 text-emerald-500">
-																		<CheckCircle2 className="size-3.5" />
-																		<span className="text-[9px] font-black uppercase tracking-widest">
-																			Silné stránky
-																		</span>
-																	</div>
-																	<ul className="space-y-2">
-																		{merged.goodThings.map((item, i) => (
-																			<li
-																				key={i}
-																				className="text-xs font-medium text-foreground/60 flex items-start gap-2"
-																			>
-																				<span className="size-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-																				{item}
-																			</li>
-																		))}
-																	</ul>
-																</div>
-															)}
-
-														{merged.badThings && merged.badThings.length > 0 && (
+												<div className="space-y-6">
+													{merged.goodThings &&
+														merged.goodThings.length > 0 && (
 															<div className="space-y-3">
-																<div className="flex items-center gap-2 text-red-500">
-																	<AlertCircle className="size-3.5" />
+																<div className="flex items-center gap-2 text-emerald-500">
+																	<CheckCircle2 className="size-3.5" />
 																	<span className="text-[9px] font-black uppercase tracking-widest">
-																		Potenciálne chyby
+																		Silné stránky
 																	</span>
 																</div>
 																<ul className="space-y-2">
-																	{merged.badThings.map((item, i) => (
+																	{merged.goodThings.map((item, i) => (
 																		<li
 																			key={i}
 																			className="text-xs font-medium text-foreground/60 flex items-start gap-2"
 																		>
-																			<span className="size-1 rounded-full bg-red-500 mt-1.5 shrink-0" />
+																			<span className="size-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
 																			{item}
 																		</li>
 																	))}
@@ -990,31 +970,53 @@ function DesignSystemPageContent() {
 															</div>
 														)}
 
-														{merged.suggestions &&
-															merged.suggestions.length > 0 && (
-																<div className="space-y-3">
-																	<div className="flex items-center gap-2 text-amber-500">
-																		<Lightbulb className="size-3.5" />
-																		<span className="text-[9px] font-black uppercase tracking-widest">
-																			Návrhy na zlepšenie
-																		</span>
-																	</div>
-																	<ul className="space-y-2">
-																		{merged.suggestions.map((item, i) => (
-																			<li
-																				key={i}
-																				className="text-xs font-medium text-foreground/60 flex items-start gap-2"
-																			>
-																				<span className="size-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-																				{item}
-																			</li>
-																		))}
-																	</ul>
+													{merged.badThings && merged.badThings.length > 0 && (
+														<div className="space-y-3">
+															<div className="flex items-center gap-2 text-red-500">
+																<AlertCircle className="size-3.5" />
+																<span className="text-[9px] font-black uppercase tracking-widest">
+																	Potenciálne chyby
+																</span>
+															</div>
+															<ul className="space-y-2">
+																{merged.badThings.map((item, i) => (
+																	<li
+																		key={i}
+																		className="text-xs font-medium text-foreground/60 flex items-start gap-2"
+																	>
+																		<span className="size-1 rounded-full bg-red-500 mt-1.5 shrink-0" />
+																		{item}
+																	</li>
+																))}
+															</ul>
+														</div>
+													)}
+
+													{merged.suggestions &&
+														merged.suggestions.length > 0 && (
+															<div className="space-y-3">
+																<div className="flex items-center gap-2 text-amber-500">
+																	<Lightbulb className="size-3.5" />
+																	<span className="text-[9px] font-black uppercase tracking-widest">
+																		Návrhy na zlepšenie
+																	</span>
 																</div>
-															)}
-													</div>
+																<ul className="space-y-2">
+																	{merged.suggestions.map((item, i) => (
+																		<li
+																			key={i}
+																			className="text-xs font-medium text-foreground/60 flex items-start gap-2"
+																		>
+																			<span className="size-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+																			{item}
+																		</li>
+																	))}
+																</ul>
+															</div>
+														)}
 												</div>
-											)}
+											</div>
+										)}
 
 										<div className="flex gap-3">
 											<Button

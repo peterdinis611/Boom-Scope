@@ -37,7 +37,6 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,6 +51,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
 import { cn } from "@/lib/utils";
 
@@ -187,12 +187,12 @@ export default function DesignSystemV2() {
 						merged.colors.length > 0
 							? merged.colors
 							: [
-								{
-									name: "Neutral",
-									hex: "#71717a",
-									rgb: "rgb(113, 113, 122)",
-								},
-							],
+									{
+										name: "Neutral",
+										hex: "#71717a",
+										rgb: "rgb(113, 113, 122)",
+									},
+								],
 					fonts: merged.fonts.length > 0 ? merged.fonts : ["Inter, sans-serif"],
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,

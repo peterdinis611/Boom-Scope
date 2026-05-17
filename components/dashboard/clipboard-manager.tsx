@@ -1,10 +1,10 @@
 "use client";
 
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-import { cn } from "@/lib/utils";
 import { Check, Clipboard, Copy, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { cn } from "@/lib/utils";
 
 export function ClipboardManager() {
 	const { history, copy, clearHistory, deleteHistoryItem, copiedValue } =
@@ -83,7 +83,8 @@ export function ClipboardManager() {
 									Schránka je prázdna
 								</p>
 								<p className="text-[10px] text-muted-foreground max-w-50">
-									Čokoľvek skopírujete z design systému sa zobrazí tu pre rýchly prístup.
+									Čokoľvek skopírujete z design systému sa zobrazí tu pre rýchly
+									prístup.
 								</p>
 							</div>
 						) : (
@@ -93,7 +94,12 @@ export function ClipboardManager() {
 									return (
 										<div
 											key={item.id}
-											onClick={() => copy(item.text, "Položka skopírovaná z histórie schránky")}
+											onClick={() =>
+												copy(
+													item.text,
+													"Položka skopírovaná z histórie schránky",
+												)
+											}
 											className="group relative p-3 rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer flex items-center justify-between gap-3"
 										>
 											<div className="flex items-center gap-3 min-w-0 flex-1">
@@ -113,11 +119,14 @@ export function ClipboardManager() {
 														{item.text}
 													</p>
 													<span className="text-[8px] text-muted-foreground opacity-60">
-														{new Date(item.timestamp).toLocaleTimeString("sk-SK", {
-															hour: "2-digit",
-															minute: "2-digit",
-															second: "2-digit",
-														})}
+														{new Date(item.timestamp).toLocaleTimeString(
+															"sk-SK",
+															{
+																hour: "2-digit",
+																minute: "2-digit",
+																second: "2-digit",
+															},
+														)}
 													</span>
 												</div>
 											</div>

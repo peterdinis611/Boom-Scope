@@ -71,7 +71,11 @@ export default function GeneratorPage() {
 		}
 	}, []);
 
-	const saveToHistory = (promptText: string, design: GeneratedDesign, currentMessages: Message[]) => {
+	const saveToHistory = (
+		promptText: string,
+		design: GeneratedDesign,
+		currentMessages: Message[],
+	) => {
 		const newItem: HistoryItem = {
 			id: Math.random().toString(36).substring(2, 9),
 			timestamp: Date.now(),
@@ -81,7 +85,10 @@ export default function GeneratorPage() {
 		};
 		setHistoryItems((prev) => {
 			const updated = [newItem, ...prev].slice(0, 20);
-			localStorage.setItem("boom_scope_generation_history", JSON.stringify(updated));
+			localStorage.setItem(
+				"boom_scope_generation_history",
+				JSON.stringify(updated),
+			);
 			return updated;
 		});
 	};
@@ -96,7 +103,10 @@ export default function GeneratorPage() {
 		e.stopPropagation();
 		setHistoryItems((prev) => {
 			const updated = prev.filter((item) => item.id !== id);
-			localStorage.setItem("boom_scope_generation_history", JSON.stringify(updated));
+			localStorage.setItem(
+				"boom_scope_generation_history",
+				JSON.stringify(updated),
+			);
 			return updated;
 		});
 		toast.info("Generácia vymazaná.");
@@ -203,12 +213,14 @@ export default function GeneratorPage() {
 				<div className="lg:col-span-9 space-y-8">
 					{/* Chat / Prompt Input Section */}
 					<div className="relative group">
-						<div className={cn(
-							"absolute -inset-1 rounded-3xl blur-xl opacity-50 transition duration-1000",
-							isGenerating
-								? "bg-linear-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
-								: "bg-linear-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100"
-						)} />
+						<div
+							className={cn(
+								"absolute -inset-1 rounded-3xl blur-xl opacity-50 transition duration-1000",
+								isGenerating
+									? "bg-linear-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
+									: "bg-linear-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100",
+							)}
+						/>
 						<Card className="relative bg-background/50 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl space-y-6">
 							{/* Message History (Simplified) */}
 							{messages.length > 0 && (
@@ -288,10 +300,12 @@ export default function GeneratorPage() {
 										<span className="size-1.5 rounded-full bg-green-500" /> Web
 									</span>
 									<span className="flex items-center gap-1">
-										<span className="size-1.5 rounded-full bg-purple-500" /> Tablet
+										<span className="size-1.5 rounded-full bg-purple-500" />{" "}
+										Tablet
 									</span>
 									<span className="flex items-center gap-1">
-										<span className="size-1.5 rounded-full bg-blue-500" /> Mobile
+										<span className="size-1.5 rounded-full bg-blue-500" />{" "}
+										Mobile
 									</span>
 									<span className="ml-auto sm:ml-0 text-[9px] lowercase opacity-60">
 										(Enter pre odoslanie, Shift+Enter pre nový riadok)
@@ -336,7 +350,9 @@ export default function GeneratorPage() {
 										<Button
 											variant="ghost"
 											size="sm"
-											onClick={() => openInCanvas(latestDesign.web.elements, "web")}
+											onClick={() =>
+												openInCanvas(latestDesign.web.elements, "web")
+											}
 											className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
 										>
 											Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
@@ -454,7 +470,9 @@ export default function GeneratorPage() {
 						{historyItems.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-12 opacity-35 text-center space-y-3">
 								<Clock className="size-8 text-muted-foreground" />
-								<p className="text-xs font-semibold tracking-wider uppercase">Žiadna história</p>
+								<p className="text-xs font-semibold tracking-wider uppercase">
+									Žiadna história
+								</p>
 								<p className="text-[10px] text-muted-foreground leading-normal max-w-40">
 									Vaše úspešne vygenerované dizajny sa uložia sem.
 								</p>
@@ -472,7 +490,9 @@ export default function GeneratorPage() {
 												{new Date(item.timestamp).toLocaleTimeString("sk-SK", {
 													hour: "2-digit",
 													minute: "2-digit",
-												})} - {new Date(item.timestamp).toLocaleDateString("sk-SK", {
+												})}{" "}
+												-{" "}
+												{new Date(item.timestamp).toLocaleDateString("sk-SK", {
 													day: "numeric",
 													month: "short",
 												})}

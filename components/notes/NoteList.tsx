@@ -23,8 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { cn } from "@/lib/utils";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
+import { cn } from "@/lib/utils";
 
 export function NoteList() {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -54,7 +54,8 @@ export function NoteList() {
 		}
 	}, [results, status]);
 
-	const isSearching = searchTerm !== debouncedSearchTerm || status === "LoadingFirstPage";
+	const isSearching =
+		searchTerm !== debouncedSearchTerm || status === "LoadingFirstPage";
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -80,10 +81,14 @@ export function NoteList() {
 				</Link>
 			</div>
 
-			{preservedResults.length === 0 && (isFirstLoad || status === "LoadingFirstPage") ? (
+			{preservedResults.length === 0 &&
+			(isFirstLoad || status === "LoadingFirstPage") ? (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{[1, 2, 3, 4, 5, 6].map((i) => (
-						<Card key={i} className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
+						<Card
+							key={i}
+							className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm"
+						>
 							<CardHeader>
 								<Skeleton className="h-5 w-2/3 rounded-lg" />
 							</CardHeader>
@@ -115,7 +120,9 @@ export function NoteList() {
 				<div
 					className={cn(
 						"grid gap-4 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-300",
-						status === "LoadingFirstPage" ? "opacity-60 pointer-events-none" : "opacity-100"
+						status === "LoadingFirstPage"
+							? "opacity-60 pointer-events-none"
+							: "opacity-100",
 					)}
 				>
 					{preservedResults.map((note) => (
@@ -183,7 +190,10 @@ export function NoteList() {
 					{status === "LoadingMore" && (
 						<>
 							{[1, 2, 3].map((i) => (
-								<Card key={`more-${i}`} className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
+								<Card
+									key={`more-${i}`}
+									className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm"
+								>
 									<CardHeader>
 										<Skeleton className="h-5 w-2/3 rounded-lg" />
 									</CardHeader>

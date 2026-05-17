@@ -50,9 +50,9 @@ export default function ProjectDetailPage() {
 		api.notes.list,
 		projectId
 			? {
-				projectId: projectId as Id<"projects">,
-				paginationOpts: { numItems: 100, cursor: null },
-			}
+					projectId: projectId as Id<"projects">,
+					paginationOpts: { numItems: 100, cursor: null },
+				}
 			: "skip",
 	);
 

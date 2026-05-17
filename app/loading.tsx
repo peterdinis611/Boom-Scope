@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useTransform, animate } from "motion/react";
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useState } from "react";
 
 const RINGS = [
@@ -181,7 +181,10 @@ export default function GlobalLoading() {
 							scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
 						}}
 						className="relative flex size-8 items-center justify-center rounded-sm bg-primary shadow-[0_0_24px_4px_var(--primary)]"
-						style={{ boxShadow: "0 0 28px 6px color-mix(in srgb, var(--primary) 60%, transparent)" }}
+						style={{
+							boxShadow:
+								"0 0 28px 6px color-mix(in srgb, var(--primary) 60%, transparent)",
+						}}
 					>
 						<motion.div
 							animate={{ opacity: [0.4, 1, 0.4] }}
@@ -236,7 +239,11 @@ export default function GlobalLoading() {
 										"linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary) 80%, white), transparent)",
 								}}
 								animate={{ x: ["0%", "400%"] }}
-								transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+								transition={{
+									duration: 1.8,
+									repeat: Infinity,
+									ease: "easeInOut",
+								}}
 							/>
 						</div>
 

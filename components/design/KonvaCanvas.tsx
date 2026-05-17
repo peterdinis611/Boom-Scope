@@ -89,7 +89,7 @@ function useImage(src: string) {
 		}
 
 		const img = new Image();
-		
+
 		const handleLoad = () => {
 			setImage(img);
 		};
@@ -98,15 +98,15 @@ function useImage(src: string) {
 			setImage(null);
 		};
 
-		img.addEventListener('load', handleLoad);
-		img.addEventListener('error', handleError);
-		
+		img.addEventListener("load", handleLoad);
+		img.addEventListener("error", handleError);
+
 		img.src = src;
-		img.crossOrigin = 'Anonymous';
+		img.crossOrigin = "Anonymous";
 
 		return () => {
-			img.removeEventListener('load', handleLoad);
-			img.removeEventListener('error', handleError);
+			img.removeEventListener("load", handleLoad);
+			img.removeEventListener("error", handleError);
 		};
 	}, [src]);
 

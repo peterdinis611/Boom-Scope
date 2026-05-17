@@ -48,7 +48,10 @@ export function useCopyToClipboard(resetInterval = 2000) {
 
 		return () => {
 			window.removeEventListener("storage", handleStorage);
-			window.removeEventListener("boom-scope-clipboard-update", handleCopyEvent);
+			window.removeEventListener(
+				"boom-scope-clipboard-update",
+				handleCopyEvent,
+			);
 		};
 	}, [loadHistory]);
 
@@ -88,7 +91,10 @@ export function useCopyToClipboard(resetInterval = 2000) {
 
 				// Cap at 10 items
 				const updated = [newItem, ...filtered].slice(0, 10);
-				localStorage.setItem("boom_scope_clipboard_history", JSON.stringify(updated));
+				localStorage.setItem(
+					"boom_scope_clipboard_history",
+					JSON.stringify(updated),
+				);
 
 				// Broadcast change
 				window.dispatchEvent(new Event("boom-scope-clipboard-update"));
@@ -118,7 +124,10 @@ export function useCopyToClipboard(resetInterval = 2000) {
 			try {
 				const currentHistory: CopiedItem[] = JSON.parse(stored);
 				const updated = currentHistory.filter((item) => item.id !== id);
-				localStorage.setItem("boom_scope_clipboard_history", JSON.stringify(updated));
+				localStorage.setItem(
+					"boom_scope_clipboard_history",
+					JSON.stringify(updated),
+				);
 				window.dispatchEvent(new Event("boom-scope-clipboard-update"));
 				toast.info("Položka zmazaná zo schránky.");
 			} catch (e) {

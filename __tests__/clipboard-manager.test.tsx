@@ -1,4 +1,10 @@
-import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";
+import {
+	act,
+	fireEvent,
+	render,
+	renderHook,
+	screen,
+} from "@testing-library/react";
 import React from "react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -54,7 +60,7 @@ describe("Hook: useCopyToClipboard & History Manager", () => {
 
 		// History length must be capped at 10
 		expect(result.current.history.length).toBe(10);
-		
+
 		// The oldest item (item-1) should have been overridden/evicted,
 		// and the newest item (item-11) should be at the top of the stack.
 		expect(result.current.history[0].text).toBe("item-11");
@@ -94,7 +100,9 @@ describe("Hook: useCopyToClipboard & History Manager", () => {
 			await result.current.copy("item-b");
 		});
 
-		const itemToDeleteId = result.current.history.find((h) => h.text === "item-a")?.id;
+		const itemToDeleteId = result.current.history.find(
+			(h) => h.text === "item-a",
+		)?.id;
 
 		await act(async () => {
 			if (itemToDeleteId) {
@@ -120,7 +128,10 @@ describe("Component: ClipboardManager Widget UI", () => {
 			{ id: "2", text: "Inter", timestamp: Date.now() - 1000 },
 			{ id: "3", text: "font-family: Roboto", timestamp: Date.now() - 2000 },
 		];
-		localStorage.setItem("boom_scope_clipboard_history", JSON.stringify(mockHistory));
+		localStorage.setItem(
+			"boom_scope_clipboard_history",
+			JSON.stringify(mockHistory),
+		);
 
 		render(<ClipboardManager />);
 
@@ -134,7 +145,10 @@ describe("Component: ClipboardManager Widget UI", () => {
 			{ id: "col1", text: "#00ff00", timestamp: Date.now() },
 			{ id: "font1", text: "Outfit", timestamp: Date.now() - 1000 },
 		];
-		localStorage.setItem("boom_scope_clipboard_history", JSON.stringify(mockHistory));
+		localStorage.setItem(
+			"boom_scope_clipboard_history",
+			JSON.stringify(mockHistory),
+		);
 
 		render(<ClipboardManager />);
 
@@ -149,8 +163,13 @@ describe("Component: ClipboardManager Widget UI", () => {
 	});
 
 	test("re-copies item to clipboard when clicked from list", async () => {
-		const mockHistory = [{ id: "col1", text: "#aa55ff", timestamp: Date.now() }];
-		localStorage.setItem("boom_scope_clipboard_history", JSON.stringify(mockHistory));
+		const mockHistory = [
+			{ id: "col1", text: "#aa55ff", timestamp: Date.now() },
+		];
+		localStorage.setItem(
+			"boom_scope_clipboard_history",
+			JSON.stringify(mockHistory),
+		);
 
 		// Mock navigator.clipboard
 		Object.defineProperty(navigator, "clipboard", {
@@ -174,6 +193,8 @@ describe("Component: ClipboardManager Widget UI", () => {
 		});
 
 		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("#aa55ff");
-		expect(toast.success).toHaveBeenCalledWith("Položka skopírovaná z histórie schránky");
+		expect(toast.success).toHaveBeenCalledWith(
+			"Položka skopírovaná z histórie schránky",
+		);
 	});
 });

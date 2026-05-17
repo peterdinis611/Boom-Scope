@@ -1055,10 +1055,7 @@ export function NoteEditor({
 			)}
 
 			<div
-				className={cn(
-					"overflow-y-auto",
-					isFocusMode ? "flex-1" : "max-h-150",
-				)}
+				className={cn("overflow-y-auto", isFocusMode ? "flex-1" : "max-h-150")}
 			>
 				<EditorContent editor={editor} />
 			</div>
