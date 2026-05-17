@@ -706,7 +706,7 @@ export default function DesignSystemV2() {
 			<QuickNoteDialog
 				open={isNoteOpen}
 				onOpenChange={setIsNoteOpen}
-				projectId={(selectedProjectId as Id<"projects">) || undefined}
+				defaultProjectId={selectedProjectId}
 			/>
 		</div>
 	);
