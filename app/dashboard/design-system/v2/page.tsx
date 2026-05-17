@@ -3,6 +3,7 @@
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
 	AlertCircle,
+	Check,
 	CheckCircle2,
 	Copy,
 	Download,
@@ -103,7 +104,7 @@ export default function DesignSystemV2() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
-	const [copiedValue, copyToClipboard] = useCopyToClipboard();
+	const { copiedValue, copy: copyToClipboard } = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);

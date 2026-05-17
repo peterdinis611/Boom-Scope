@@ -96,7 +96,7 @@ function DesignSystemPageContent() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
-	const [copiedValue, copyToClipboard] = useCopyToClipboard();
+	const { copiedValue, copy: copyToClipboard } = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
