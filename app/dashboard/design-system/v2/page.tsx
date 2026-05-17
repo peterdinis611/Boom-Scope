@@ -293,7 +293,7 @@ export default function DesignSystemV2() {
 		<div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/20">
 			{/* Top Hero Bar */}
 			<div className="relative h-64 lg:h-80 overflow-hidden bg-muted/40 dark:bg-muted/10 flex flex-col justify-end p-8 lg:p-16 border-b border-border/80">
-				<div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
+				<div className="absolute inset-0 bg-linear-to-t from-background to-transparent z-10" />
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)]" />
 
 				<div className="relative z-20 space-y-4 max-w-7xl mx-auto w-full">
@@ -368,7 +368,7 @@ export default function DesignSystemV2() {
 						<button
 							onClick={() => setActiveTab("assets")}
 							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.1em] text-xs",
+								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
 								activeTab === "assets"
 									? "bg-background shadow-xl text-primary scale-105"
 									: "text-muted-foreground hover:text-foreground",
@@ -379,7 +379,7 @@ export default function DesignSystemV2() {
 						<button
 							onClick={() => setActiveTab("visual")}
 							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.1em] text-xs",
+								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
 								activeTab === "visual"
 									? "bg-background shadow-xl text-primary scale-105"
 									: "text-muted-foreground hover:text-foreground",
@@ -595,7 +595,7 @@ export default function DesignSystemV2() {
 								<div
 									onClick={() => fileInputRef.current?.click()}
 									className={cn(
-										"relative group min-h-[400px] rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
+										"relative group min-h-100 rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
 										"bg-background/20 backdrop-blur-3xl border-foreground/5 hover:border-primary/30 hover:bg-primary/5 shadow-inner",
 									)}
 								>

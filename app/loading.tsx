@@ -52,7 +52,7 @@ export default function GlobalLoading() {
 	}, []);
 
 	return (
-		<div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-background">
+		<div className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Subtle grid background */}
 			<div
 				className="pointer-events-none absolute inset-0 opacity-[0.03]"
@@ -71,7 +71,7 @@ export default function GlobalLoading() {
 				className="pointer-events-none absolute inset-0 flex items-center justify-center"
 			>
 				<div
-					className="size-[340px] rounded-full opacity-20 blur-[80px]"
+					className="size-85 rounded-full opacity-20 blur-[80px]"
 					style={{ background: "var(--primary)" }}
 				/>
 			</motion.div>

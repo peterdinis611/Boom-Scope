@@ -104,7 +104,7 @@ export function PomodoroTimer() {
 			</div>
 
 			<Card className="w-full relative overflow-hidden border-none bg-card/50 backdrop-blur-xl shadow-2xl">
-				<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+				<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
 
 				<CardHeader className="text-center relative z-10">
 					<div className="flex items-center justify-center gap-2 text-primary mb-2">

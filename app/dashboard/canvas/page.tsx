@@ -723,7 +723,7 @@ function DesignPageContent() {
 					>
 						<ZoomOut className="size-3.5" />
 					</Button>
-					<div className="px-3 text-[10px] font-black uppercase tracking-widest min-w-[60px] text-center">
+					<div className="px-3 text-[10px] font-black uppercase tracking-widest min-w-15 text-center">
 						{Math.round(zoom * 100)}%
 					</div>
 					<Button

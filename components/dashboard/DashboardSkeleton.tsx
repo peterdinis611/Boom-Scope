@@ -206,7 +206,7 @@ export function DashboardSkeleton() {
 				{/* Header */}
 				<motion.header
 					variants={slideUp}
-					className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6"
+					className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur supports-backdrop-filter:bg-background/75 md:px-6"
 				>
 					{/* Mobile menu button */}
 					<Sk className="size-8 rounded-md md:hidden" />

@@ -83,7 +83,7 @@ export function NoteList() {
 			{preservedResults.length === 0 && (isFirstLoad || status === "LoadingFirstPage") ? (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{[1, 2, 3, 4, 5, 6].map((i) => (
-						<Card key={i} className="h-[200px] rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
+						<Card key={i} className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
 							<CardHeader>
 								<Skeleton className="h-5 w-2/3 rounded-lg" />
 							</CardHeader>
@@ -170,7 +170,7 @@ export function NoteList() {
 									{note.projectName && (
 										<div className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-primary border border-primary/10 text-[10px] font-black uppercase tracking-wider">
 											<Folder className="size-3 opacity-80" />
-											<span className="truncate max-w-[80px]">
+											<span className="truncate max-w-20">
 												{note.projectName}
 											</span>
 										</div>
@@ -183,7 +183,7 @@ export function NoteList() {
 					{status === "LoadingMore" && (
 						<>
 							{[1, 2, 3].map((i) => (
-								<Card key={`more-${i}`} className="h-[200px] rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
+								<Card key={`more-${i}`} className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
 									<CardHeader>
 										<Skeleton className="h-5 w-2/3 rounded-lg" />
 									</CardHeader>
@@ -204,7 +204,7 @@ export function NoteList() {
 					<Button
 						variant="outline"
 						onClick={() => loadMore(9)}
-						className="min-w-[120px] rounded-2xl h-11 font-bold uppercase tracking-wider text-[10px] border-border/60 hover:bg-muted"
+						className="min-w-30 rounded-2xl h-11 font-bold uppercase tracking-wider text-[10px] border-border/60 hover:bg-muted"
 					>
 						Načítať viac
 					</Button>

@@ -2,9 +2,7 @@
 
 import { useAction } from "convex/react";
 import {
-	ChevronRight,
 	Clock,
-	Download,
 	ExternalLink,
 	History,
 	Layers,
@@ -208,13 +206,13 @@ export default function GeneratorPage() {
 						<div className={cn(
 							"absolute -inset-1 rounded-3xl blur-xl opacity-50 transition duration-1000",
 							isGenerating
-								? "bg-gradient-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
-								: "bg-gradient-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100"
+								? "bg-linear-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
+								: "bg-linear-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100"
 						)} />
 						<Card className="relative bg-background/50 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl space-y-6">
 							{/* Message History (Simplified) */}
 							{messages.length > 0 && (
-								<div className="max-h-[200px] overflow-y-auto space-y-4 pb-4 border-b border-border/50 scrollbar-hide">
+								<div className="max-h-50 overflow-y-auto space-y-4 pb-4 border-b border-border/50 scrollbar-hide">
 									{messages.map((m, i) => (
 										<div
 											key={i}
@@ -250,7 +248,7 @@ export default function GeneratorPage() {
 											? "Napr.: Moderná landing page pre SaaS platformu..."
 											: "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."
 									}
-									className="min-h-[100px] text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/30 resize-none px-0 focus-visible:border-none focus-visible:ring-offset-0"
+									className="min-h-25 text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/30 resize-none px-0 focus-visible:border-none focus-visible:ring-offset-0"
 									value={prompt}
 									onChange={(e) => setPrompt(e.target.value)}
 									disabled={isGenerating}
@@ -457,12 +455,12 @@ export default function GeneratorPage() {
 							<div className="flex flex-col items-center justify-center py-12 opacity-35 text-center space-y-3">
 								<Clock className="size-8 text-muted-foreground" />
 								<p className="text-xs font-semibold tracking-wider uppercase">Žiadna história</p>
-								<p className="text-[10px] text-muted-foreground leading-normal max-w-[160px]">
+								<p className="text-[10px] text-muted-foreground leading-normal max-w-40">
 									Vaše úspešne vygenerované dizajny sa uložia sem.
 								</p>
 							</div>
 						) : (
-							<div className="overflow-y-auto space-y-3 max-h-[500px] pr-1 scrollbar-hide">
+							<div className="overflow-y-auto space-y-3 max-h-125 pr-1 scrollbar-hide">
 								{historyItems.map((item) => (
 									<div
 										key={item.id}

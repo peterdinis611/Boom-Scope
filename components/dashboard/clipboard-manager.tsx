@@ -82,12 +82,12 @@ export function ClipboardManager() {
 								<p className="text-xs font-bold uppercase tracking-wider">
 									Schránka je prázdna
 								</p>
-								<p className="text-[10px] text-muted-foreground max-w-[200px]">
+								<p className="text-[10px] text-muted-foreground max-w-50">
 									Čokoľvek skopírujete z design systému sa zobrazí tu pre rýchly prístup.
 								</p>
 							</div>
 						) : (
-							<div className="overflow-y-auto space-y-2.5 max-h-[350px] pr-1 scrollbar-hide">
+							<div className="overflow-y-auto space-y-2.5 max-h-87.5 pr-1 scrollbar-hide">
 								{history.map((item) => {
 									const isHex = isColor(item.text);
 									return (
