@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ClipboardManager } from "./clipboard-manager";
 import { DashboardHeader } from "./dashboard-header";
 import { DashboardSidebarNav } from "./dashboard-nav";
 import { PomodoroProvider } from "./pomodoro-context";
@@ -27,6 +28,8 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 					<div className="h-full">{children}</div>
 				</main>
 			</div>
+
+			<ClipboardManager />
 		</div>
 	);
 }
