@@ -184,12 +184,12 @@ export default function DesignSystemV2() {
 						merged.colors.length > 0
 							? merged.colors
 							: [
-									{
-										name: "Neutral",
-										hex: "#71717a",
-										rgb: "rgb(113, 113, 122)",
-									},
-								],
+								{
+									name: "Neutral",
+									hex: "#71717a",
+									rgb: "rgb(113, 113, 122)",
+								},
+							],
 					fonts: merged.fonts.length > 0 ? merged.fonts : ["Inter, sans-serif"],
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,
@@ -289,9 +289,9 @@ export default function DesignSystemV2() {
 	return (
 		<div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/20">
 			{/* Top Hero Bar */}
-			<div className="relative h-64 lg:h-80 overflow-hidden bg-slate-950 flex flex-col justify-end p-8 lg:p-16 border-b border-white/5">
+			<div className="relative h-64 lg:h-80 overflow-hidden bg-muted/40 dark:bg-muted/10 flex flex-col justify-end p-8 lg:p-16 border-b border-border/80">
 				<div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.1),transparent_70%)]" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)]" />
 
 				<div className="relative z-20 space-y-4 max-w-7xl mx-auto w-full">
 					<motion.div
@@ -302,11 +302,11 @@ export default function DesignSystemV2() {
 						<div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 backdrop-blur-xl">
 							<Palette className="size-6 text-primary" />
 						</div>
-						<h1 className="text-4xl lg:text-6xl font-black uppercase tracking-tighter italic">
+						<h1 className="text-4xl lg:text-6xl font-black uppercase tracking-tighter italic text-foreground">
 							Design System Lab
 						</h1>
 					</motion.div>
-					<p className="text-muted-foreground max-w-xl text-lg font-medium opacity-60">
+					<p className="text-muted-foreground max-w-xl text-lg font-medium">
 						Definujte vizuálnu DNA vášho projektu pomocou manuálnych tokenov
 						alebo AI analýzy.
 					</p>
@@ -704,7 +704,7 @@ export default function DesignSystemV2() {
 			</main>
 
 			<QuickNoteDialog
-				isOpen={isNoteOpen}
+				open={isNoteOpen}
 				onOpenChange={setIsNoteOpen}
 				projectId={(selectedProjectId as Id<"projects">) || undefined}
 			/>

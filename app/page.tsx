@@ -6,7 +6,7 @@ export default async function Home() {
 	const isAuthenticated = await isAuthenticatedNextjs();
 
 	return (
-		<div className="flex flex-1 flex-col items-center justify-center bg-zinc-50 px-6 py-16 font-sans dark:bg-black">
+		<div className="flex flex-1 flex-col items-center justify-center bg-background px-6 py-16 font-sans">
 			<main className="flex w-full max-w-2xl flex-col items-center gap-10 rounded-2xl border border-border bg-background px-10 py-16 text-center shadow-sm">
 				<div className="flex flex-col items-center gap-4">
 					<span className="rounded-full border border-border bg-muted px-3 py-1 text-xs uppercase tracking-wide text-muted-foreground">

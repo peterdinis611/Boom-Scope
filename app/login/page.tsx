@@ -84,7 +84,7 @@ export default function LoginPage() {
 	}
 
 	return (
-		<div className="relative flex flex-1 items-center justify-center bg-zinc-50 px-4 py-16 dark:bg-black">
+		<div className="relative flex flex-1 items-center justify-center bg-background px-4 py-16">
 			<motion.div
 				initial={{ opacity: 0, y: 12 }}
 				animate={{ opacity: 1, y: 0 }}

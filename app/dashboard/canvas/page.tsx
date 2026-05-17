@@ -838,7 +838,7 @@ function DesignPageContent() {
 						transition={{ type: "spring", damping: 25, stiffness: 120 }}
 						className={cn(
 							"absolute left-8 top-8 bottom-36 w-72 rounded-[32px] border border-border",
-							"bg-background/80 dark:bg-background/20 backdrop-blur-3xl p-8 hidden lg:flex flex-col z-40",
+							"bg-background/95 dark:bg-background/90 backdrop-blur-3xl p-8 hidden lg:flex flex-col z-40",
 							"shadow-[0_30px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
 						)}
 					>
@@ -1196,7 +1196,7 @@ function DesignPageContent() {
 						transition={{ type: "spring", damping: 25, stiffness: 120 }}
 						className={cn(
 							"absolute right-8 top-8 bottom-36 w-80 rounded-[32px] border border-border",
-							"bg-background/80 dark:bg-background/20 backdrop-blur-3xl p-8 hidden xl:flex flex-col z-40",
+							"bg-background/95 dark:bg-background/90 backdrop-blur-3xl p-8 hidden xl:flex flex-col z-40",
 							"shadow-[0_30px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
 						)}
 					>

@@ -28,7 +28,7 @@ export function DesignPreview({
 	return (
 		<div
 			className={cn(
-				"relative overflow-hidden rounded-lg bg-white shadow-lg border border-border",
+				"relative overflow-hidden rounded-lg bg-card shadow-lg border border-border",
 				className,
 			)}
 			style={{
