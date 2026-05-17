@@ -36,6 +36,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -102,6 +103,7 @@ export default function DesignSystemV2() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
+	const [copiedValue, copyToClipboard] = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -430,14 +432,24 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 											{merged.colors.map((c, i) => (
-												<div
+												<button
 													key={i}
-													className="group relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all"
+													type="button"
+													onClick={() => copyToClipboard(c.hex)}
+													className="group text-left relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all cursor-pointer w-full flex flex-col items-start"
 												>
 													<div
-														className="h-16 w-full rounded-xl mb-3 shadow-inner"
+														className="h-16 w-full rounded-xl mb-3 shadow-inner relative flex items-center justify-center overflow-hidden"
 														style={{ backgroundColor: c.hex }}
-													/>
+													>
+														<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
+															{copiedValue === c.hex ? (
+																<Check className="size-5 text-emerald-400" />
+															) : (
+																<Copy className="size-5 text-white/80" />
+															)}
+														</div>
+													</div>
 													<p className="text-[10px] font-black uppercase truncate">
 														{c.name}
 													</p>
@@ -445,19 +457,21 @@ export default function DesignSystemV2() {
 														{c.hex}
 													</p>
 													<button
-														onClick={() =>
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
 															setLocalColors((prev) =>
 																prev.filter(
 																	(_, idx) =>
 																		idx !== i - (system?.colors.length || 0),
 																),
-															)
-														}
-														className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all"
+															);
+														}}
+														className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all z-10"
 													>
 														<Trash2 className="size-3" />
 													</button>
-												</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -487,9 +501,11 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="space-y-3">
 											{merged.fonts.map((f, i) => (
-												<div
+												<button
 													key={i}
-													className="flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 group"
+													type="button"
+													onClick={() => copyToClipboard(f)}
+													className="w-full text-left flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/10 transition-all group cursor-pointer"
 												>
 													<span
 														className="font-medium text-lg"
@@ -497,10 +513,32 @@ export default function DesignSystemV2() {
 													>
 														{f}
 													</span>
-													<button className="opacity-0 group-hover:opacity-100 text-red-500">
-														<Trash2 className="size-4" />
-													</button>
-												</div>
+													<div className="flex items-center gap-2">
+														{copiedValue === f ? (
+															<Check className="size-4 text-emerald-500" />
+														) : (
+															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity" />
+														)}
+														{i >= (system?.fonts.length || 0) && (
+															<button
+																type="button"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	setLocalFonts((prev) =>
+																		prev.filter(
+																			(_, idx) =>
+																				idx !== i - (system?.fonts.length || 0),
+																		),
+																	);
+																	toast.info("Font zmazaný");
+																}}
+																className="size-6 rounded-lg flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+															>
+																<Trash2 className="size-3.5" />
+															</button>
+														)}
+													</div>
+												</button>
 											))}
 										</div>
 									</div>

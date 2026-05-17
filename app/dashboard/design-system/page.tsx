@@ -33,6 +33,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,7 +96,7 @@ function DesignSystemPageContent() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
-	const [copiedColor, setCopiedColor] = useState<string | null>(null);
+	const [copiedValue, copyToClipboard] = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -404,21 +405,13 @@ function DesignSystemPageContent() {
 		}
 	};
 
-	const copyToClipboard = (text: string) => {
-		navigator.clipboard.writeText(text);
-		setCopiedColor(text);
-		setTimeout(() => setCopiedColor(null), 2000);
-		toast.success(`Copied ${text}`);
-	};
-
 	const copyAsCSS = () => {
 		if (merged.colors.length === 0 && merged.fonts.length === 0) return;
 		const css = `:root {
   ${merged.colors.map((c) => `--color-${c.name.toLowerCase().replace(/\s+/g, "-")}: ${c.hex};`).join("\n  ")}
   ${merged.fonts.map((f, i) => `--font-${i === 0 ? "primary" : `family-${i}`}: '${f}';`).join("\n  ")}
 }`;
-		navigator.clipboard.writeText(css);
-		toast.success("CSS variables copied!");
+		copyToClipboard(css, "CSS premenné skopírované!");
 	};
 
 	return (
@@ -890,7 +883,7 @@ function DesignSystemPageContent() {
 																</span>
 															</div>
 														</div>
-														{copiedColor === color.hex ? (
+														{copiedValue === color.hex ? (
 															<Check className="size-4 text-emerald-500" />
 														) : (
 															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity" />
@@ -911,20 +904,28 @@ function DesignSystemPageContent() {
 											</div>
 											<div className="space-y-4">
 												{merged.fonts.map((font, idx) => (
-													<div
+													<button
 														key={font}
-														className="p-5 rounded-2xl bg-foreground/5 border border-border/50"
+														onClick={() => copyToClipboard(font)}
+														className="w-full text-left p-5 rounded-2xl bg-foreground/5 hover:bg-foreground/10 border border-border/50 transition-all duration-300 group flex items-center justify-between"
 													>
-														<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20 mb-2">
-															{idx === 0 ? "Hlavné Písmo" : "Sekundárne Písmo"}
-														</p>
-														<p
-															className="text-xl font-black"
-															style={{ fontFamily: font }}
-														>
-															{font}
-														</p>
-													</div>
+														<div>
+															<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20 mb-2">
+																{idx === 0 ? "Hlavné Písmo" : "Sekundárne Písmo"}
+															</p>
+															<p
+																className="text-xl font-black"
+																style={{ fontFamily: font }}
+															>
+																{font}
+															</p>
+														</div>
+														{copiedValue === font ? (
+															<Check className="size-4 text-emerald-500 shrink-0" />
+														) : (
+															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity shrink-0" />
+														)}
+													</button>
 												))}
 											</div>
 										</div>
