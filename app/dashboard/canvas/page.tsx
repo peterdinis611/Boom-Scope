@@ -77,7 +77,9 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
 	cloneElementsForPaste,
+	getDefaultVisualStyle,
 	groupElementsAtIndices,
+	isVisualConfigured,
 	ungroupElement,
 } from "@/lib/canvas-elements";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
@@ -595,10 +597,7 @@ function DesignPageContent() {
 		selectedIds.length === 1
 			? elements.find((el) => el.id === selectedIds[0])
 			: undefined;
-	const hasVisualConfigured = selectedElement
-		? (selectedElement.fill !== undefined && selectedElement.fill !== "none") ||
-			(selectedElement.strokeWidth ?? 0) > 0
-		: false;
+	const hasVisualConfigured = isVisualConfigured(selectedElement);
 
 	const handleGroupSelection = useCallback(() => {
 		const ids = selectedIdsRef.current;
@@ -1473,13 +1472,7 @@ function DesignPageContent() {
 													size="sm"
 													className="h-8 rounded-xl border-amber-500/30 bg-amber-500/10 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-amber-500/20 hover:text-amber-500"
 													onClick={() =>
-														updateSelectedElement({
-															fillType: "solid",
-															fill: "var(--primary)",
-															stroke: "var(--primary)",
-															strokeWidth: 2,
-															opacity: 1,
-														})
+														updateSelectedElement(getDefaultVisualStyle())
 													}
 												>
 													Nastaviť predvolený vizuál
