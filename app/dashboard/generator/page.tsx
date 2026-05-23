@@ -167,7 +167,7 @@ export default function GeneratorPage() {
 		.filter((m) => m.role === "assistant" && m.design)
 		.slice(-1)[0]?.design;
 
-	const openInCanvas = (elements: any[], viewport: string) => {
+	const openInCanvas = (elements: [], viewport: string) => {
 		localStorage.setItem("imported_design", JSON.stringify(elements));
 		localStorage.setItem("imported_viewport", viewport);
 		router.push("/dashboard/canvas");
