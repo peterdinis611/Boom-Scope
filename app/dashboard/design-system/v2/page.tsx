@@ -3,6 +3,7 @@
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
 	AlertCircle,
+	Check,
 	CheckCircle2,
 	Copy,
 	Download,
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +104,7 @@ export default function DesignSystemV2() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
+	const { copiedValue, copy: copyToClipboard } = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -184,12 +187,12 @@ export default function DesignSystemV2() {
 						merged.colors.length > 0
 							? merged.colors
 							: [
-								{
-									name: "Neutral",
-									hex: "#71717a",
-									rgb: "rgb(113, 113, 122)",
-								},
-							],
+									{
+										name: "Neutral",
+										hex: "#71717a",
+										rgb: "rgb(113, 113, 122)",
+									},
+								],
 					fonts: merged.fonts.length > 0 ? merged.fonts : ["Inter, sans-serif"],
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,
@@ -290,7 +293,7 @@ export default function DesignSystemV2() {
 		<div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/20">
 			{/* Top Hero Bar */}
 			<div className="relative h-64 lg:h-80 overflow-hidden bg-muted/40 dark:bg-muted/10 flex flex-col justify-end p-8 lg:p-16 border-b border-border/80">
-				<div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
+				<div className="absolute inset-0 bg-linear-to-t from-background to-transparent z-10" />
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)]" />
 
 				<div className="relative z-20 space-y-4 max-w-7xl mx-auto w-full">
@@ -365,7 +368,7 @@ export default function DesignSystemV2() {
 						<button
 							onClick={() => setActiveTab("assets")}
 							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.1em] text-xs",
+								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
 								activeTab === "assets"
 									? "bg-background shadow-xl text-primary scale-105"
 									: "text-muted-foreground hover:text-foreground",
@@ -376,7 +379,7 @@ export default function DesignSystemV2() {
 						<button
 							onClick={() => setActiveTab("visual")}
 							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-[0.1em] text-xs",
+								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
 								activeTab === "visual"
 									? "bg-background shadow-xl text-primary scale-105"
 									: "text-muted-foreground hover:text-foreground",
@@ -430,14 +433,24 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 											{merged.colors.map((c, i) => (
-												<div
+												<button
 													key={i}
-													className="group relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all"
+													type="button"
+													onClick={() => copyToClipboard(c.hex)}
+													className="group text-left relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all cursor-pointer w-full flex flex-col items-start"
 												>
 													<div
-														className="h-16 w-full rounded-xl mb-3 shadow-inner"
+														className="h-16 w-full rounded-xl mb-3 shadow-inner relative flex items-center justify-center overflow-hidden"
 														style={{ backgroundColor: c.hex }}
-													/>
+													>
+														<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
+															{copiedValue === c.hex ? (
+																<Check className="size-5 text-emerald-400" />
+															) : (
+																<Copy className="size-5 text-white/80" />
+															)}
+														</div>
+													</div>
 													<p className="text-[10px] font-black uppercase truncate">
 														{c.name}
 													</p>
@@ -445,19 +458,21 @@ export default function DesignSystemV2() {
 														{c.hex}
 													</p>
 													<button
-														onClick={() =>
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
 															setLocalColors((prev) =>
 																prev.filter(
 																	(_, idx) =>
 																		idx !== i - (system?.colors.length || 0),
 																),
-															)
-														}
-														className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all"
+															);
+														}}
+														className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all z-10"
 													>
 														<Trash2 className="size-3" />
 													</button>
-												</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -487,9 +502,11 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="space-y-3">
 											{merged.fonts.map((f, i) => (
-												<div
+												<button
 													key={i}
-													className="flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 group"
+													type="button"
+													onClick={() => copyToClipboard(f)}
+													className="w-full text-left flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/10 transition-all group cursor-pointer"
 												>
 													<span
 														className="font-medium text-lg"
@@ -497,10 +514,32 @@ export default function DesignSystemV2() {
 													>
 														{f}
 													</span>
-													<button className="opacity-0 group-hover:opacity-100 text-red-500">
-														<Trash2 className="size-4" />
-													</button>
-												</div>
+													<div className="flex items-center gap-2">
+														{copiedValue === f ? (
+															<Check className="size-4 text-emerald-500" />
+														) : (
+															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity" />
+														)}
+														{i >= (system?.fonts.length || 0) && (
+															<button
+																type="button"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	setLocalFonts((prev) =>
+																		prev.filter(
+																			(_, idx) =>
+																				idx !== i - (system?.fonts.length || 0),
+																		),
+																	);
+																	toast.info("Font zmazaný");
+																}}
+																className="size-6 rounded-lg flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+															>
+																<Trash2 className="size-3.5" />
+															</button>
+														)}
+													</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -556,7 +595,7 @@ export default function DesignSystemV2() {
 								<div
 									onClick={() => fileInputRef.current?.click()}
 									className={cn(
-										"relative group min-h-[400px] rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
+										"relative group min-h-100 rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
 										"bg-background/20 backdrop-blur-3xl border-foreground/5 hover:border-primary/30 hover:bg-primary/5 shadow-inner",
 									)}
 								>

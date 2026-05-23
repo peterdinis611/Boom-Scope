@@ -186,7 +186,7 @@ export default function ProjectSettingsPage() {
 										setDescription(e.target.value)
 									}
 									placeholder="Pridajte krátky popis projektu..."
-									className="min-h-[120px] bg-background border-border rounded-2xl p-6 text-sm font-medium resize-y focus:border-primary transition-all"
+									className="min-h-30 bg-background border-border rounded-2xl p-6 text-sm font-medium resize-y focus:border-primary transition-all"
 								/>
 							</div>
 

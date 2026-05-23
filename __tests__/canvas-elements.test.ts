@@ -2,7 +2,9 @@ import { describe, expect, test } from "vitest";
 import type { CanvasElement } from "../components/design/KonvaCanvas";
 import {
 	cloneElementsForPaste,
+	getDefaultVisualStyle,
 	groupElementsAtIndices,
+	isVisualConfigured,
 	regenerateIds,
 	ungroupElement,
 } from "../lib/canvas-elements";
@@ -97,5 +99,87 @@ describe("Lib: Canvas Elements", () => {
 		expect(next).toHaveLength(1);
 		expect(next![0].x).toBe(110);
 		expect(next![0].y).toBe(110);
+	});
+
+	test("groupElementsAtIndices returns null for fewer than two indices", () => {
+		expect(groupElementsAtIndices([mockRect], [0])).toBeNull();
+		expect(groupElementsAtIndices([mockRect, mockCircle], [])).toBeNull();
+	});
+
+	test("groupElementsAtIndices returns null when a picked element is locked", () => {
+		const locked: CanvasElement = { ...mockCircle, isLocked: true };
+		expect(groupElementsAtIndices([mockRect, locked], [0, 1])).toBeNull();
+	});
+
+	test("ungroupElement returns null for unknown group id", () => {
+		expect(ungroupElement([mockRect], "missing")).toBeNull();
+	});
+
+	test("ungroupElement returns null for non-group element", () => {
+		expect(ungroupElement([mockRect], "1")).toBeNull();
+	});
+
+	test("groupElementsAtIndices normalizes pencil points into group space", () => {
+		const pencil: CanvasElement = {
+			id: "p1",
+			type: "pencil",
+			x: 0,
+			y: 0,
+			points: [20, 30, 40, 50],
+			stroke: "#000",
+			fill: "none",
+			strokeWidth: 2,
+		};
+		const next = groupElementsAtIndices([mockRect, pencil], [0, 1]);
+		expect(next).toHaveLength(1);
+		const group = next![0];
+		expect(group.type).toBe("group");
+		const groupedPencil = group.children?.find((c) => c.type === "pencil");
+		// Pencil points are shifted by the group bbox origin (minX=10, minY=10)
+		expect(groupedPencil?.points).toEqual([10, 20, 30, 40]);
+		expect(groupedPencil?.x).toBe(0);
+		expect(groupedPencil?.y).toBe(0);
+	});
+});
+
+describe("Lib: Canvas Visual", () => {
+	const baseRect: CanvasElement = {
+		id: "1",
+		type: "rect",
+		x: 0,
+		y: 0,
+		width: 100,
+		height: 50,
+		stroke: "transparent",
+		fill: "none",
+		strokeWidth: 0,
+	};
+
+	test("isVisualConfigured is false for undefined element", () => {
+		expect(isVisualConfigured(undefined)).toBe(false);
+	});
+
+	test("isVisualConfigured is false when fill is none and stroke width is zero", () => {
+		expect(isVisualConfigured(baseRect)).toBe(false);
+	});
+
+	test("isVisualConfigured is true when fill is set", () => {
+		expect(isVisualConfigured({ ...baseRect, fill: "#ff0000" })).toBe(true);
+	});
+
+	test("isVisualConfigured is true when stroke width is greater than zero", () => {
+		expect(
+			isVisualConfigured({ ...baseRect, fill: "none", strokeWidth: 1 }),
+		).toBe(true);
+	});
+
+	test("getDefaultVisualStyle returns primary stroke and fill", () => {
+		expect(getDefaultVisualStyle()).toEqual({
+			fillType: "solid",
+			fill: "var(--primary)",
+			stroke: "var(--primary)",
+			strokeWidth: 2,
+			opacity: 1,
+		});
 	});
 });

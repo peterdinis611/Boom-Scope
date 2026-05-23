@@ -77,10 +77,13 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
 	cloneElementsForPaste,
+	getDefaultVisualStyle,
 	groupElementsAtIndices,
+	isVisualConfigured,
 	ungroupElement,
 } from "@/lib/canvas-elements";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
+import { IDB_KEYS, idbGet, idbRemove } from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
 
 const KonvaCanvas = dynamic(() => import("@/components/design/KonvaCanvas"), {
@@ -198,13 +201,17 @@ function DesignPageContent() {
 	}, [existingDesign]);
 
 	useEffect(() => {
-		const imported = localStorage.getItem("imported_design");
-		const viewport = localStorage.getItem("imported_viewport");
-		if (imported) {
+		let cancelled = false;
+
+		(async () => {
 			try {
-				const parsed = JSON.parse(imported);
-				setElements(parsed);
-				setHistory([parsed]);
+				const imported = await idbGet<CanvasElement[]>(IDB_KEYS.importedDesign);
+				const viewport = await idbGet<string>(IDB_KEYS.importedViewport);
+
+				if (!imported || cancelled) return;
+
+				setElements(imported);
+				setHistory([imported]);
 				setHistoryIndex(0);
 
 				if (viewport === "web") setCanvasSize({ width: 1920, height: 1080 });
@@ -213,13 +220,17 @@ function DesignPageContent() {
 				else if (viewport === "mobile")
 					setCanvasSize({ width: 375, height: 667 });
 
-				localStorage.removeItem("imported_design");
-				localStorage.removeItem("imported_viewport");
+				await idbRemove(IDB_KEYS.importedDesign);
+				await idbRemove(IDB_KEYS.importedViewport);
 				toast.success("Dizajn importovaný z generátora!");
 			} catch (e) {
 				console.error("Failed to import design", e);
 			}
-		}
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	useEffect(() => {
@@ -595,10 +606,7 @@ function DesignPageContent() {
 		selectedIds.length === 1
 			? elements.find((el) => el.id === selectedIds[0])
 			: undefined;
-	const hasVisualConfigured = selectedElement
-		? (selectedElement.fill !== undefined && selectedElement.fill !== "none") ||
-			(selectedElement.strokeWidth ?? 0) > 0
-		: false;
+	const hasVisualConfigured = isVisualConfigured(selectedElement);
 
 	const handleGroupSelection = useCallback(() => {
 		const ids = selectedIdsRef.current;
@@ -723,7 +731,7 @@ function DesignPageContent() {
 					>
 						<ZoomOut className="size-3.5" />
 					</Button>
-					<div className="px-3 text-[10px] font-black uppercase tracking-widest min-w-[60px] text-center">
+					<div className="px-3 text-[10px] font-black uppercase tracking-widest min-w-15 text-center">
 						{Math.round(zoom * 100)}%
 					</div>
 					<Button
@@ -1473,13 +1481,7 @@ function DesignPageContent() {
 													size="sm"
 													className="h-8 rounded-xl border-amber-500/30 bg-amber-500/10 text-[9px] font-black uppercase tracking-widest text-amber-500 hover:bg-amber-500/20 hover:text-amber-500"
 													onClick={() =>
-														updateSelectedElement({
-															fillType: "solid",
-															fill: "var(--primary)",
-															stroke: "var(--primary)",
-															strokeWidth: 2,
-															opacity: 1,
-														})
+														updateSelectedElement(getDefaultVisualStyle())
 													}
 												>
 													Nastaviť predvolený vizuál

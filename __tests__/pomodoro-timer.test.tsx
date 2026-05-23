@@ -2,6 +2,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import type React from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { idbClear } from "@/lib/idb-storage";
 import { PomodoroProvider } from "../components/dashboard/pomodoro-context";
 import { PomodoroTimer } from "../components/dashboard/pomodoro-timer";
 
@@ -58,9 +59,9 @@ function getPlayPauseButton() {
 }
 
 describe("Component: PomodoroTimer", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		vi.useFakeTimers();
-		localStorage.clear();
+		await idbClear();
 	});
 
 	afterEach(() => {

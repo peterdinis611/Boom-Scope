@@ -26,7 +26,6 @@ import {
 	Text,
 	Transformer,
 } from "react-konva";
-import useImage from "use-image";
 import { getCSSVariable } from "@/lib/utils";
 
 export interface CanvasElement {
@@ -78,6 +77,41 @@ interface KonvaCanvasProps {
 }
 
 const GRID_SIZE = 20;
+
+// Custom useImage hook
+function useImage(src: string) {
+	const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+	useEffect(() => {
+		if (!src) {
+			setImage(null);
+			return;
+		}
+
+		const img = new Image();
+
+		const handleLoad = () => {
+			setImage(img);
+		};
+
+		const handleError = () => {
+			setImage(null);
+		};
+
+		img.addEventListener("load", handleLoad);
+		img.addEventListener("error", handleError);
+
+		img.src = src;
+		img.crossOrigin = "Anonymous";
+
+		return () => {
+			img.removeEventListener("load", handleLoad);
+			img.removeEventListener("error", handleError);
+		};
+	}, [src]);
+
+	return [image];
+}
 
 export default function KonvaCanvas({
 	activeTool = "select",
@@ -703,7 +737,7 @@ export default function KonvaCanvas({
 			{/* Context Menu */}
 			{contextMenu && (
 				<div
-					className="absolute z-[100] bg-background/80 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl p-1.5 min-w-[180px] animate-in zoom-in-95 duration-200"
+					className="absolute z-100 bg-background/80 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl p-1.5 min-w-45 animate-in zoom-in-95 duration-200"
 					style={{ top: contextMenu.y, left: contextMenu.x }}
 				>
 					<button

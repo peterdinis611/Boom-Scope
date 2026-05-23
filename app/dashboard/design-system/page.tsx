@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
 import { cn } from "@/lib/utils";
 
@@ -95,7 +96,7 @@ function DesignSystemPageContent() {
 		null,
 	);
 	const [sharePublic, setSharePublic] = useState(false);
-	const [copiedColor, setCopiedColor] = useState<string | null>(null);
+	const { copiedValue, copy: copyToClipboard } = useCopyToClipboard();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -192,12 +193,12 @@ function DesignSystemPageContent() {
 						merged.colors.length > 0
 							? merged.colors
 							: [
-								{
-									name: "Neutral",
-									hex: "#71717a",
-									rgb: "rgb(113, 113, 122)",
-								},
-							],
+									{
+										name: "Neutral",
+										hex: "#71717a",
+										rgb: "rgb(113, 113, 122)",
+									},
+								],
 					fonts,
 					description: merged.description || "Design system",
 					goodThings: merged.goodThings,
@@ -404,21 +405,13 @@ function DesignSystemPageContent() {
 		}
 	};
 
-	const copyToClipboard = (text: string) => {
-		navigator.clipboard.writeText(text);
-		setCopiedColor(text);
-		setTimeout(() => setCopiedColor(null), 2000);
-		toast.success(`Copied ${text}`);
-	};
-
 	const copyAsCSS = () => {
 		if (merged.colors.length === 0 && merged.fonts.length === 0) return;
 		const css = `:root {
   ${merged.colors.map((c) => `--color-${c.name.toLowerCase().replace(/\s+/g, "-")}: ${c.hex};`).join("\n  ")}
   ${merged.fonts.map((f, i) => `--font-${i === 0 ? "primary" : `family-${i}`}: '${f}';`).join("\n  ")}
 }`;
-		navigator.clipboard.writeText(css);
-		toast.success("CSS variables copied!");
+		copyToClipboard(css, "CSS premenné skopírované!");
 	};
 
 	return (
@@ -890,7 +883,7 @@ function DesignSystemPageContent() {
 																</span>
 															</div>
 														</div>
-														{copiedColor === color.hex ? (
+														{copiedValue === color.hex ? (
 															<Check className="size-4 text-emerald-500" />
 														) : (
 															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity" />
@@ -911,20 +904,30 @@ function DesignSystemPageContent() {
 											</div>
 											<div className="space-y-4">
 												{merged.fonts.map((font, idx) => (
-													<div
+													<button
 														key={font}
-														className="p-5 rounded-2xl bg-foreground/5 border border-border/50"
+														onClick={() => copyToClipboard(font)}
+														className="w-full text-left p-5 rounded-2xl bg-foreground/5 hover:bg-foreground/10 border border-border/50 transition-all duration-300 group flex items-center justify-between"
 													>
-														<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20 mb-2">
-															{idx === 0 ? "Hlavné Písmo" : "Sekundárne Písmo"}
-														</p>
-														<p
-															className="text-xl font-black"
-															style={{ fontFamily: font }}
-														>
-															{font}
-														</p>
-													</div>
+														<div>
+															<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20 mb-2">
+																{idx === 0
+																	? "Hlavné Písmo"
+																	: "Sekundárne Písmo"}
+															</p>
+															<p
+																className="text-xl font-black"
+																style={{ fontFamily: font }}
+															>
+																{font}
+															</p>
+														</div>
+														{copiedValue === font ? (
+															<Check className="size-4 text-emerald-500 shrink-0" />
+														) : (
+															<Copy className="size-4 opacity-0 group-hover:opacity-20 transition-opacity shrink-0" />
+														)}
+													</button>
 												))}
 											</div>
 										</div>
@@ -933,55 +936,33 @@ function DesignSystemPageContent() {
 										{(merged.goodThings ||
 											merged.badThings ||
 											merged.suggestions) && (
-												<div className="pt-8 border-t border-border/50 space-y-8">
-													<div className="flex items-center gap-4">
-														<div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-															<Sparkles className="size-4" />
-														</div>
-														<span className="text-[10px] font-black uppercase tracking-widest opacity-60">
-															Design Audit
-														</span>
+											<div className="pt-8 border-t border-border/50 space-y-8">
+												<div className="flex items-center gap-4">
+													<div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+														<Sparkles className="size-4" />
 													</div>
+													<span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+														Design Audit
+													</span>
+												</div>
 
-													<div className="space-y-6">
-														{merged.goodThings &&
-															merged.goodThings.length > 0 && (
-																<div className="space-y-3">
-																	<div className="flex items-center gap-2 text-emerald-500">
-																		<CheckCircle2 className="size-3.5" />
-																		<span className="text-[9px] font-black uppercase tracking-widest">
-																			Silné stránky
-																		</span>
-																	</div>
-																	<ul className="space-y-2">
-																		{merged.goodThings.map((item, i) => (
-																			<li
-																				key={i}
-																				className="text-xs font-medium text-foreground/60 flex items-start gap-2"
-																			>
-																				<span className="size-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-																				{item}
-																			</li>
-																		))}
-																	</ul>
-																</div>
-															)}
-
-														{merged.badThings && merged.badThings.length > 0 && (
+												<div className="space-y-6">
+													{merged.goodThings &&
+														merged.goodThings.length > 0 && (
 															<div className="space-y-3">
-																<div className="flex items-center gap-2 text-red-500">
-																	<AlertCircle className="size-3.5" />
+																<div className="flex items-center gap-2 text-emerald-500">
+																	<CheckCircle2 className="size-3.5" />
 																	<span className="text-[9px] font-black uppercase tracking-widest">
-																		Potenciálne chyby
+																		Silné stránky
 																	</span>
 																</div>
 																<ul className="space-y-2">
-																	{merged.badThings.map((item, i) => (
+																	{merged.goodThings.map((item, i) => (
 																		<li
 																			key={i}
 																			className="text-xs font-medium text-foreground/60 flex items-start gap-2"
 																		>
-																			<span className="size-1 rounded-full bg-red-500 mt-1.5 shrink-0" />
+																			<span className="size-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
 																			{item}
 																		</li>
 																	))}
@@ -989,31 +970,53 @@ function DesignSystemPageContent() {
 															</div>
 														)}
 
-														{merged.suggestions &&
-															merged.suggestions.length > 0 && (
-																<div className="space-y-3">
-																	<div className="flex items-center gap-2 text-amber-500">
-																		<Lightbulb className="size-3.5" />
-																		<span className="text-[9px] font-black uppercase tracking-widest">
-																			Návrhy na zlepšenie
-																		</span>
-																	</div>
-																	<ul className="space-y-2">
-																		{merged.suggestions.map((item, i) => (
-																			<li
-																				key={i}
-																				className="text-xs font-medium text-foreground/60 flex items-start gap-2"
-																			>
-																				<span className="size-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-																				{item}
-																			</li>
-																		))}
-																	</ul>
+													{merged.badThings && merged.badThings.length > 0 && (
+														<div className="space-y-3">
+															<div className="flex items-center gap-2 text-red-500">
+																<AlertCircle className="size-3.5" />
+																<span className="text-[9px] font-black uppercase tracking-widest">
+																	Potenciálne chyby
+																</span>
+															</div>
+															<ul className="space-y-2">
+																{merged.badThings.map((item, i) => (
+																	<li
+																		key={i}
+																		className="text-xs font-medium text-foreground/60 flex items-start gap-2"
+																	>
+																		<span className="size-1 rounded-full bg-red-500 mt-1.5 shrink-0" />
+																		{item}
+																	</li>
+																))}
+															</ul>
+														</div>
+													)}
+
+													{merged.suggestions &&
+														merged.suggestions.length > 0 && (
+															<div className="space-y-3">
+																<div className="flex items-center gap-2 text-amber-500">
+																	<Lightbulb className="size-3.5" />
+																	<span className="text-[9px] font-black uppercase tracking-widest">
+																		Návrhy na zlepšenie
+																	</span>
 																</div>
-															)}
-													</div>
+																<ul className="space-y-2">
+																	{merged.suggestions.map((item, i) => (
+																		<li
+																			key={i}
+																			className="text-xs font-medium text-foreground/60 flex items-start gap-2"
+																		>
+																			<span className="size-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+																			{item}
+																		</li>
+																	))}
+																</ul>
+															</div>
+														)}
 												</div>
-											)}
+											</div>
+										)}
 
 										<div className="flex gap-3">
 											<Button

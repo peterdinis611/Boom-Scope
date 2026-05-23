@@ -29,7 +29,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 	return (
 		<AnimatePresence>
 			{isOpen && (
-				<div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+				<div className="fixed inset-0 z-100 flex items-center justify-center p-4">
 					<motion.div
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
@@ -43,7 +43,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 						exit={{ scale: 0.9, opacity: 0, y: 20 }}
 						className="relative w-full max-w-lg bg-background border border-border rounded-[40px] shadow-2xl overflow-hidden p-10"
 					>
-						<div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
+						<div className="absolute top-0 right-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-pink-500" />
 
 						<button
 							onClick={onClose}

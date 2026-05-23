@@ -50,9 +50,9 @@ export default function ProjectDetailPage() {
 		api.notes.list,
 		projectId
 			? {
-				projectId: projectId as Id<"projects">,
-				paginationOpts: { numItems: 100, cursor: null },
-			}
+					projectId: projectId as Id<"projects">,
+					paginationOpts: { numItems: 100, cursor: null },
+				}
 			: "skip",
 	);
 
@@ -162,9 +162,7 @@ export default function ProjectDetailPage() {
 								variant="outline"
 								className="h-14 px-8 rounded-2xl border-border bg-background/40 backdrop-blur-3xl"
 								onClick={() =>
-									router.push(
-										`/dashboard/projects/${projectId}/settings` as any,
-									)
+									router.push(`/dashboard/projects/${projectId}/settings`)
 								}
 							>
 								<Settings2 className="size-5 mr-2 opacity-40" />
@@ -269,14 +267,14 @@ export default function ProjectDetailPage() {
 								href={`/dashboard/canvas?projectId=${projectId}&designId=${design._id}`}
 							>
 								<div className="group relative aspect-video rounded-3xl border border-border bg-background/40 backdrop-blur-3xl overflow-hidden hover:border-emerald-500/50 transition-all duration-500 shadow-xl">
-									<div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+									<div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
 									{/* Preview Placeholder */}
 									<div className="h-full w-full flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
 										<Palette className="size-12" />
 									</div>
 
-									<div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background to-transparent translate-y-2 group-hover:translate-y-0 transition-transform">
+									<div className="absolute inset-x-0 bottom-0 p-6 bg-linear-to-t from-background to-transparent translate-y-2 group-hover:translate-y-0 transition-transform">
 										<p className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-1">
 											Design
 										</p>
@@ -336,13 +334,13 @@ export default function ProjectDetailPage() {
 								href={`/dashboard/canvas?projectId=${projectId}&designId=${design._id}`}
 							>
 								<div className="group relative aspect-video rounded-3xl border border-border bg-background/40 backdrop-blur-3xl overflow-hidden hover:border-emerald-500/50 transition-all duration-500 shadow-xl">
-									<div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+									<div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
 									<div className="h-full w-full flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
 										<Palette className="size-12" />
 									</div>
 
-									<div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background to-transparent translate-y-2 group-hover:translate-y-0 transition-transform">
+									<div className="absolute inset-x-0 bottom-0 p-6 bg-linear-to-t from-background to-transparent translate-y-2 group-hover:translate-y-0 transition-transform">
 										<p className="text-xs font-black uppercase tracking-widest text-emerald-500 mb-1">
 											Design
 										</p>

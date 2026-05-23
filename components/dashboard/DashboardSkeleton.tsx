@@ -30,13 +30,7 @@ const fadeIn: Variants = {
 
 // ─── Tiny helpers ─────────────────────────────────────────────────────────────
 
-function Sk({
-	className,
-	delay = 0,
-}: {
-	className: string;
-	delay?: number;
-}) {
+function Sk({ className, delay = 0 }: { className: string; delay?: number }) {
 	return <AnimatedSkeleton className={className} delay={delay} />;
 }
 
@@ -47,11 +41,20 @@ function SidebarDivider() {
 
 // ─── Sidebar nav item skeleton ────────────────────────────────────────────────
 
-function SidebarNavItem({ delay = 0, wide = false }: { delay?: number; wide?: boolean }) {
+function SidebarNavItem({
+	delay = 0,
+	wide = false,
+}: {
+	delay?: number;
+	wide?: boolean;
+}) {
 	return (
 		<div className="flex items-center gap-3 rounded-lg px-3 py-2.5">
 			<Sk className="size-5 shrink-0 rounded-md" delay={delay} />
-			<Sk className={`h-3.5 ${wide ? "w-28" : "w-20"} rounded`} delay={delay + 0.02} />
+			<Sk
+				className={`h-3.5 ${wide ? "w-28" : "w-20"} rounded`}
+				delay={delay + 0.02}
+			/>
 		</div>
 	);
 }
@@ -88,7 +91,10 @@ function TableRow({ delay = 0 }: { delay?: number }) {
 				<Sk className="h-3.5 w-32 rounded" delay={delay + 0.02} />
 				<Sk className="h-3 w-48 rounded" delay={delay + 0.03} />
 			</div>
-			<Sk className="hidden h-5 w-16 rounded-full sm:block" delay={delay + 0.04} />
+			<Sk
+				className="hidden h-5 w-16 rounded-full sm:block"
+				delay={delay + 0.04}
+			/>
 			<Sk className="h-3.5 w-20 rounded" delay={delay + 0.05} />
 			<Sk className="size-7 rounded-md" delay={delay + 0.06} />
 		</div>
@@ -123,7 +129,11 @@ function ChartSkeleton({ delay = 0 }: { delay?: number }) {
 			{/* X-axis */}
 			<div className="flex gap-2 px-1">
 				{heights.map((_, i) => (
-					<Sk key={i} className="h-2.5 flex-1 rounded" delay={delay + 0.1 + i * 0.02} />
+					<Sk
+						key={i}
+						className="h-2.5 flex-1 rounded"
+						delay={delay + 0.1 + i * 0.02}
+					/>
 				))}
 			</div>
 		</div>
@@ -170,7 +180,7 @@ export function DashboardSkeleton() {
 						{ wide: false, delay: 0.11 },
 						{ wide: true, delay: 0.14 },
 						{ wide: false, delay: 0.17 },
-						{ wide: true, delay: 0.20 },
+						{ wide: true, delay: 0.2 },
 					].map((p, i) => (
 						<SidebarNavItem key={i} {...p} />
 					))}
@@ -206,7 +216,7 @@ export function DashboardSkeleton() {
 				{/* Header */}
 				<motion.header
 					variants={slideUp}
-					className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:px-6"
+					className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur supports-backdrop-filter:bg-background/75 md:px-6"
 				>
 					{/* Mobile menu button */}
 					<Sk className="size-8 rounded-md md:hidden" />
@@ -250,10 +260,7 @@ export function DashboardSkeleton() {
 					</motion.div>
 
 					{/* Chart + mini-panel row */}
-					<motion.div
-						variants={slideUp}
-						className="grid gap-4 lg:grid-cols-3"
-					>
+					<motion.div variants={slideUp} className="grid gap-4 lg:grid-cols-3">
 						{/* Chart card — spans 2 cols */}
 						<Card className="overflow-hidden lg:col-span-2">
 							<CardHeader className="pb-3">
@@ -312,11 +319,19 @@ export function DashboardSkeleton() {
 
 								{/* Table header */}
 								<div className="mt-4 flex items-center gap-4 border-b border-border/40 px-4 pb-2">
-									{["w-28", "flex-1", "w-16 hidden sm:block", "w-20", "w-7"].map(
-										(w, i) => (
-											<Sk key={i} className={`h-3 ${w} rounded`} delay={0.1 + i * 0.02} />
-										),
-									)}
+									{[
+										"w-28",
+										"flex-1",
+										"w-16 hidden sm:block",
+										"w-20",
+										"w-7",
+									].map((w, i) => (
+										<Sk
+											key={i}
+											className={`h-3 ${w} rounded`}
+											delay={0.1 + i * 0.02}
+										/>
+									))}
 								</div>
 							</CardHeader>
 

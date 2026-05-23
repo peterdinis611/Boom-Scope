@@ -1,5 +1,29 @@
 import type { CanvasElement } from "@/components/design/KonvaCanvas";
 
+/** True when the element has a visible fill or a non-zero stroke. */
+export function isVisualConfigured(
+	element: CanvasElement | undefined,
+): boolean {
+	if (!element) return false;
+	return (
+		(element.fill !== undefined && element.fill !== "none") ||
+		(element.strokeWidth ?? 0) > 0
+	);
+}
+
+export function getDefaultVisualStyle(): Pick<
+	CanvasElement,
+	"fillType" | "fill" | "stroke" | "strokeWidth" | "opacity"
+> {
+	return {
+		fillType: "solid",
+		fill: "var(--primary)",
+		stroke: "var(--primary)",
+		strokeWidth: 2,
+		opacity: 1,
+	};
+}
+
 export function regenerateIds(el: CanvasElement): CanvasElement {
 	const id = `el-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 	if (el.type === "group" && el.children?.length) {

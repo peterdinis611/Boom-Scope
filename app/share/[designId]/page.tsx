@@ -40,7 +40,8 @@ export default function SharePage() {
 			<div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-8 py-4 rounded-full bg-card/80 border border-border backdrop-blur-2xl shadow-2xl">
 				<div className="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
 				<span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">
-					Režim prezerania: <span className="text-foreground">{design.name}</span>
+					Režim prezerania:{" "}
+					<span className="text-foreground">{design.name}</span>
 				</span>
 			</div>
 

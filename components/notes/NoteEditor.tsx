@@ -918,7 +918,7 @@ const FloatingLinkToolbar = ({ editor }: { editor: Editor }) => {
 				href={href}
 				target="_blank"
 				rel="noopener noreferrer"
-				className="max-w-[200px] truncate text-primary underline underline-offset-2"
+				className="max-w-50 truncate text-primary underline underline-offset-2"
 			>
 				{href}
 			</a>
@@ -1055,10 +1055,7 @@ export function NoteEditor({
 			)}
 
 			<div
-				className={cn(
-					"overflow-y-auto",
-					isFocusMode ? "flex-1" : "max-h-[600px]",
-				)}
+				className={cn("overflow-y-auto", isFocusMode ? "flex-1" : "max-h-150")}
 			>
 				<EditorContent editor={editor} />
 			</div>

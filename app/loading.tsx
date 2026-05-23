@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useTransform, animate } from "motion/react";
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { useEffect, useState } from "react";
 
 const RINGS = [
@@ -52,7 +52,7 @@ export default function GlobalLoading() {
 	}, []);
 
 	return (
-		<div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden bg-background">
+		<div className="fixed inset-0 z-100 flex flex-col items-center justify-center overflow-hidden bg-background">
 			{/* Subtle grid background */}
 			<div
 				className="pointer-events-none absolute inset-0 opacity-[0.03]"
@@ -71,7 +71,7 @@ export default function GlobalLoading() {
 				className="pointer-events-none absolute inset-0 flex items-center justify-center"
 			>
 				<div
-					className="size-[340px] rounded-full opacity-20 blur-[80px]"
+					className="size-85 rounded-full opacity-20 blur-[80px]"
 					style={{ background: "var(--primary)" }}
 				/>
 			</motion.div>
@@ -181,7 +181,10 @@ export default function GlobalLoading() {
 							scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
 						}}
 						className="relative flex size-8 items-center justify-center rounded-sm bg-primary shadow-[0_0_24px_4px_var(--primary)]"
-						style={{ boxShadow: "0 0 28px 6px color-mix(in srgb, var(--primary) 60%, transparent)" }}
+						style={{
+							boxShadow:
+								"0 0 28px 6px color-mix(in srgb, var(--primary) 60%, transparent)",
+						}}
 					>
 						<motion.div
 							animate={{ opacity: [0.4, 1, 0.4] }}
@@ -236,7 +239,11 @@ export default function GlobalLoading() {
 										"linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary) 80%, white), transparent)",
 								}}
 								animate={{ x: ["0%", "400%"] }}
-								transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+								transition={{
+									duration: 1.8,
+									repeat: Infinity,
+									ease: "easeInOut",
+								}}
 							/>
 						</div>
 

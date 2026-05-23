@@ -125,7 +125,7 @@ export default function GlobalError({
 	}, [error]);
 
 	return (
-		<div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background p-4">
+		<div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background p-4">
 			<motion.div
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
@@ -211,7 +211,7 @@ export default function GlobalError({
 										Message: {error.message}
 									</p>
 									{error.stack && (
-										<pre className="max-h-[200px] overflow-x-auto whitespace-pre-wrap">
+										<pre className="max-h-50 overflow-x-auto whitespace-pre-wrap">
 											{error.stack}
 										</pre>
 									)}
@@ -249,8 +249,8 @@ export default function GlobalError({
 
 			{/* Decorative background elements */}
 			<div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-				<div className="absolute -top-[10%] -left-[10%] size-96 rounded-full bg-destructive/5 blur-3xl" />
-				<div className="absolute -bottom-[10%] -right-[10%] size-96 rounded-full bg-primary/5 blur-3xl" />
+				<div className="absolute top-[-10%] left-[-10%] size-96 rounded-full bg-destructive/5 blur-3xl" />
+				<div className="absolute bottom-[-10%] right-[-10%] size-96 rounded-full bg-primary/5 blur-3xl" />
 			</div>
 		</div>
 	);
