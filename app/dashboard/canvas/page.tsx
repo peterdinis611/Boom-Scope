@@ -83,12 +83,7 @@ import {
 	ungroupElement,
 } from "@/lib/canvas-elements";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
-import {
-	IDB_KEYS,
-	idbGet,
-	idbRemove,
-	migrateFromLocalStorage,
-} from "@/lib/idb-storage";
+import { IDB_KEYS, idbGet, idbRemove } from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
 
 const KonvaCanvas = dynamic(() => import("@/components/design/KonvaCanvas"), {
@@ -210,9 +205,6 @@ function DesignPageContent() {
 
 		(async () => {
 			try {
-				await migrateFromLocalStorage(IDB_KEYS.importedDesign);
-				await migrateFromLocalStorage(IDB_KEYS.importedViewport);
-
 				const imported = await idbGet<CanvasElement[]>(IDB_KEYS.importedDesign);
 				const viewport = await idbGet<string>(IDB_KEYS.importedViewport);
 

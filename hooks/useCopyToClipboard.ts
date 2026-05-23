@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-	IDB_KEYS,
-	idbGet,
-	idbRemove,
-	idbSet,
-	migrateFromLocalStorage,
-} from "@/lib/idb-storage";
+import { IDB_KEYS, idbGet, idbRemove, idbSet } from "@/lib/idb-storage";
 
 export interface CopiedItem {
 	id: string;
@@ -25,7 +19,6 @@ export function useCopyToClipboard(resetInterval = 2000) {
 	const loadHistory = useCallback(async () => {
 		if (typeof window === "undefined") return;
 		try {
-			await migrateFromLocalStorage(IDB_KEYS.clipboardHistory);
 			const stored = await idbGet<CopiedItem[]>(IDB_KEYS.clipboardHistory);
 			setHistory(stored ?? []);
 		} catch (e) {

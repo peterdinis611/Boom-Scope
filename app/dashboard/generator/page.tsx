@@ -22,13 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
-import {
-	IDB_KEYS,
-	idbGet,
-	idbRemove,
-	idbSet,
-	migrateFromLocalStorage,
-} from "@/lib/idb-storage";
+import { IDB_KEYS, idbGet, idbRemove, idbSet } from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
 
 interface GeneratedDesign {
@@ -72,7 +66,6 @@ export default function GeneratorPage() {
 
 		(async () => {
 			try {
-				await migrateFromLocalStorage(IDB_KEYS.generationHistory);
 				const stored = await idbGet<HistoryItem[]>(
 					IDB_KEYS.generationHistory,
 				);

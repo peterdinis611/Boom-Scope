@@ -1,12 +1,13 @@
 const DB_NAME = "boom-scope";
 const STORE_NAME = "kv";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export const IDB_KEYS = {
 	generationHistory: "boom_scope_generation_history",
 	clipboardHistory: "boom_scope_clipboard_history",
 	importedDesign: "imported_design",
 	importedViewport: "imported_viewport",
+	pomodoroSettings: "pomodoro_settings",
 } as const;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -69,21 +70,29 @@ export async function idbClear(): Promise<void> {
 	await runTransaction("readwrite", (store) => store.clear());
 }
 
-/** One-time migration from localStorage for users with existing data. */
-export async function migrateFromLocalStorage(key: string): Promise<void> {
-	if (typeof window === "undefined") return;
-
-	const legacy = localStorage.getItem(key);
-	if (legacy === null) return;
-
-	try {
-		const existing = await idbGet<unknown>(key);
-		if (existing === null) {
-			await idbSet(key, JSON.parse(legacy) as unknown);
-		}
-	} catch (error) {
-		console.error(`Failed to migrate localStorage key "${key}"`, error);
-	} finally {
-		localStorage.removeItem(key);
+/** Reset the cached DB connection (for tests). */
+export function idbResetConnection(): void {
+	if (dbPromise) {
+		void dbPromise.then((db) => db.close()).catch(() => {});
 	}
+	dbPromise = null;
+}
+
+/** Read from a legacy object store (pre-unified schema). */
+export async function idbReadLegacyStore<T>(
+	storeName: string,
+	key: string,
+): Promise<T | null> {
+	const db = await openDb();
+	if (!db.objectStoreNames.contains(storeName)) return null;
+
+	return new Promise<T | null>((resolve, reject) => {
+		const tx = db.transaction(storeName, "readonly");
+		const request = tx.objectStore(storeName).get(key);
+		request.onerror = () => reject(request.error ?? new Error("IDB read failed"));
+		request.onsuccess = () => {
+			const value = request.result;
+			resolve(value === undefined ? null : (value as T));
+		};
+	});
 }
