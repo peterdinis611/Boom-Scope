@@ -4,7 +4,7 @@ import {
 	Brain,
 	Clock,
 	Coffee,
-	LucideIcon,
+	type LucideIcon,
 	Pause,
 	Play,
 	RotateCcw,

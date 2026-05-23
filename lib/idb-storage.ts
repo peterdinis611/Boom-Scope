@@ -21,7 +21,8 @@ function openDb(): Promise<IDBDatabase> {
 		dbPromise = new Promise((resolve, reject) => {
 			const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-			request.onerror = () => reject(request.error ?? new Error("IDB open failed"));
+			request.onerror = () =>
+				reject(request.error ?? new Error("IDB open failed"));
 			request.onsuccess = () => resolve(request.result);
 			request.onupgradeneeded = () => {
 				const db = request.result;
@@ -89,7 +90,8 @@ export async function idbReadLegacyStore<T>(
 	return new Promise<T | null>((resolve, reject) => {
 		const tx = db.transaction(storeName, "readonly");
 		const request = tx.objectStore(storeName).get(key);
-		request.onerror = () => reject(request.error ?? new Error("IDB read failed"));
+		request.onerror = () =>
+			reject(request.error ?? new Error("IDB read failed"));
 		request.onsuccess = () => {
 			const value = request.result;
 			resolve(value === undefined ? null : (value as T));

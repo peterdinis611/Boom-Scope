@@ -162,9 +162,7 @@ export default function ProjectDetailPage() {
 								variant="outline"
 								className="h-14 px-8 rounded-2xl border-border bg-background/40 backdrop-blur-3xl"
 								onClick={() =>
-									router.push(
-										`/dashboard/projects/${projectId}/settings`,
-									)
+									router.push(`/dashboard/projects/${projectId}/settings`)
 								}
 							>
 								<Settings2 className="size-5 mr-2 opacity-40" />

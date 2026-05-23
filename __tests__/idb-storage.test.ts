@@ -29,9 +29,7 @@ describe("Lib: idb-storage", () => {
 	});
 
 	test("idbReadLegacyStore returns null when store does not exist", async () => {
-		expect(
-			await idbReadLegacyStore("nonexistent-store", "key"),
-		).toBeNull();
+		expect(await idbReadLegacyStore("nonexistent-store", "key")).toBeNull();
 	});
 });
 
@@ -50,6 +48,4 @@ describe("Lib: pomodoro-db", () => {
 		await savePomodoroSettings(settings);
 		expect(await getPomodoroSettings()).toEqual(settings);
 	});
-
-
 });

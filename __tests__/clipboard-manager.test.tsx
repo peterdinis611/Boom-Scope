@@ -9,9 +9,9 @@ import {
 import React from "react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, test, vi } from "vitest";
+import { IDB_KEYS, idbSet } from "@/lib/idb-storage";
 import { ClipboardManager } from "../components/dashboard/clipboard-manager";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
-import { IDB_KEYS, idbSet } from "@/lib/idb-storage";
 
 vi.mock("sonner", () => ({
 	toast: {

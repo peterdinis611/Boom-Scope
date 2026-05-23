@@ -10,10 +10,7 @@ export async function getPomodoroSettings<T>(): Promise<T | null> {
 		const saved = await idbGet<T>(IDB_KEYS.pomodoroSettings);
 		if (saved) return saved;
 
-		const legacy = await idbReadLegacyStore<T>(
-			"pomodoro-settings",
-			"settings",
-		);
+		const legacy = await idbReadLegacyStore<T>("pomodoro-settings", "settings");
 		if (legacy) {
 			await idbSet(IDB_KEYS.pomodoroSettings, legacy);
 		}

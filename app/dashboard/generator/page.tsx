@@ -66,9 +66,7 @@ export default function GeneratorPage() {
 
 		(async () => {
 			try {
-				const stored = await idbGet<HistoryItem[]>(
-					IDB_KEYS.generationHistory,
-				);
+				const stored = await idbGet<HistoryItem[]>(IDB_KEYS.generationHistory);
 				if (!cancelled && stored) {
 					setHistoryItems(stored);
 				}

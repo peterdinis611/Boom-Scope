@@ -9,9 +9,7 @@ describe("Lib: Notes", () => {
 	test("downloadNoteAsTxt strips HTML and downloads plain text", () => {
 		const clickMock = vi.fn();
 		const revokeMock = vi.fn();
-		const createObjectURLMock = vi
-			.fn()
-			.mockReturnValue("blob:mock-note");
+		const createObjectURLMock = vi.fn().mockReturnValue("blob:mock-note");
 
 		vi.stubGlobal("URL", {
 			createObjectURL: createObjectURLMock,
@@ -28,7 +26,10 @@ describe("Lib: Notes", () => {
 				return createElementOriginal(tag);
 			});
 
-		downloadNoteAsTxt("Moja poznámka", "<p>Obsah <strong>poznámky</strong></p>");
+		downloadNoteAsTxt(
+			"Moja poznámka",
+			"<p>Obsah <strong>poznámky</strong></p>",
+		);
 
 		expect(createElementSpy).toHaveBeenCalledWith("a");
 		expect(anchor.download).toBe("Moja poznámka.txt");
