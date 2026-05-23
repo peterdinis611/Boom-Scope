@@ -83,6 +83,12 @@ import {
 	ungroupElement,
 } from "@/lib/canvas-elements";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
+import {
+	IDB_KEYS,
+	idbGet,
+	idbRemove,
+	migrateFromLocalStorage,
+} from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
 
 const KonvaCanvas = dynamic(() => import("@/components/design/KonvaCanvas"), {
@@ -200,13 +206,20 @@ function DesignPageContent() {
 	}, [existingDesign]);
 
 	useEffect(() => {
-		const imported = localStorage.getItem("imported_design");
-		const viewport = localStorage.getItem("imported_viewport");
-		if (imported) {
+		let cancelled = false;
+
+		(async () => {
 			try {
-				const parsed = JSON.parse(imported);
-				setElements(parsed);
-				setHistory([parsed]);
+				await migrateFromLocalStorage(IDB_KEYS.importedDesign);
+				await migrateFromLocalStorage(IDB_KEYS.importedViewport);
+
+				const imported = await idbGet<CanvasElement[]>(IDB_KEYS.importedDesign);
+				const viewport = await idbGet<string>(IDB_KEYS.importedViewport);
+
+				if (!imported || cancelled) return;
+
+				setElements(imported);
+				setHistory([imported]);
 				setHistoryIndex(0);
 
 				if (viewport === "web") setCanvasSize({ width: 1920, height: 1080 });
@@ -215,13 +228,17 @@ function DesignPageContent() {
 				else if (viewport === "mobile")
 					setCanvasSize({ width: 375, height: 667 });
 
-				localStorage.removeItem("imported_design");
-				localStorage.removeItem("imported_viewport");
+				await idbRemove(IDB_KEYS.importedDesign);
+				await idbRemove(IDB_KEYS.importedViewport);
 				toast.success("Dizajn importovaný z generátora!");
 			} catch (e) {
 				console.error("Failed to import design", e);
 			}
-		}
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	useEffect(() => {

@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+	IDB_KEYS,
+	idbGet,
+	idbRemove,
+	idbSet,
+	migrateFromLocalStorage,
+} from "@/lib/idb-storage";
 
 export interface CopiedItem {
 	id: string;
@@ -15,39 +22,29 @@ export function useCopyToClipboard(resetInterval = 2000) {
 	const [copiedValue, setCopiedValue] = useState<string | null>(null);
 	const [history, setHistory] = useState<CopiedItem[]>([]);
 
-	const loadHistory = useCallback(() => {
+	const loadHistory = useCallback(async () => {
 		if (typeof window === "undefined") return;
-		const stored = localStorage.getItem("boom_scope_clipboard_history");
-		if (stored) {
-			try {
-				setHistory(JSON.parse(stored));
-			} catch (e) {
-				console.error(e);
-			}
-		} else {
+		try {
+			await migrateFromLocalStorage(IDB_KEYS.clipboardHistory);
+			const stored = await idbGet<CopiedItem[]>(IDB_KEYS.clipboardHistory);
+			setHistory(stored ?? []);
+		} catch (e) {
+			console.error(e);
 			setHistory([]);
 		}
 	}, []);
 
 	// Synchronize history lists reactively on mount
 	useEffect(() => {
-		loadHistory();
-
-		const handleStorage = (e: StorageEvent) => {
-			if (e.key === "boom_scope_clipboard_history") {
-				loadHistory();
-			}
-		};
+		void loadHistory();
 
 		const handleCopyEvent = () => {
-			loadHistory();
+			void loadHistory();
 		};
 
-		window.addEventListener("storage", handleStorage);
 		window.addEventListener("boom-scope-clipboard-update", handleCopyEvent);
 
 		return () => {
-			window.removeEventListener("storage", handleStorage);
 			window.removeEventListener(
 				"boom-scope-clipboard-update",
 				handleCopyEvent,
@@ -71,15 +68,8 @@ export function useCopyToClipboard(resetInterval = 2000) {
 						}`,
 				);
 
-				const stored = localStorage.getItem("boom_scope_clipboard_history");
-				let currentHistory: CopiedItem[] = [];
-				if (stored) {
-					try {
-						currentHistory = JSON.parse(stored);
-					} catch (e) {
-						console.error(e);
-					}
-				}
+				const currentHistory =
+					(await idbGet<CopiedItem[]>(IDB_KEYS.clipboardHistory)) ?? [];
 
 				// Remove duplicates to push new copy to the top
 				const filtered = currentHistory.filter((item) => item.text !== value);
@@ -91,10 +81,7 @@ export function useCopyToClipboard(resetInterval = 2000) {
 
 				// Cap at 10 items
 				const updated = [newItem, ...filtered].slice(0, 10);
-				localStorage.setItem(
-					"boom_scope_clipboard_history",
-					JSON.stringify(updated),
-				);
+				await idbSet(IDB_KEYS.clipboardHistory, updated);
 
 				// Broadcast change
 				window.dispatchEvent(new Event("boom-scope-clipboard-update"));
@@ -112,27 +99,22 @@ export function useCopyToClipboard(resetInterval = 2000) {
 		[resetInterval],
 	);
 
-	const clearHistory = useCallback(() => {
-		localStorage.removeItem("boom_scope_clipboard_history");
+	const clearHistory = useCallback(async () => {
+		await idbRemove(IDB_KEYS.clipboardHistory);
 		window.dispatchEvent(new Event("boom-scope-clipboard-update"));
 		toast.success("História schránky vymazaná.");
 	}, []);
 
-	const deleteHistoryItem = useCallback((id: string) => {
-		const stored = localStorage.getItem("boom_scope_clipboard_history");
-		if (stored) {
-			try {
-				const currentHistory: CopiedItem[] = JSON.parse(stored);
-				const updated = currentHistory.filter((item) => item.id !== id);
-				localStorage.setItem(
-					"boom_scope_clipboard_history",
-					JSON.stringify(updated),
-				);
-				window.dispatchEvent(new Event("boom-scope-clipboard-update"));
-				toast.info("Položka zmazaná zo schránky.");
-			} catch (e) {
-				console.error(e);
-			}
+	const deleteHistoryItem = useCallback(async (id: string) => {
+		try {
+			const currentHistory =
+				(await idbGet<CopiedItem[]>(IDB_KEYS.clipboardHistory)) ?? [];
+			const updated = currentHistory.filter((item) => item.id !== id);
+			await idbSet(IDB_KEYS.clipboardHistory, updated);
+			window.dispatchEvent(new Event("boom-scope-clipboard-update"));
+			toast.info("Položka zmazaná zo schránky.");
+		} catch (e) {
+			console.error(e);
 		}
 	}, []);
 

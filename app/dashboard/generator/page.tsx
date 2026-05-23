@@ -22,6 +22,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
+import {
+	IDB_KEYS,
+	idbGet,
+	idbRemove,
+	idbSet,
+	migrateFromLocalStorage,
+} from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
 
 interface GeneratedDesign {
@@ -61,14 +68,25 @@ export default function GeneratorPage() {
 	const router = useRouter();
 
 	useEffect(() => {
-		const stored = localStorage.getItem("boom_scope_generation_history");
-		if (stored) {
+		let cancelled = false;
+
+		(async () => {
 			try {
-				setHistoryItems(JSON.parse(stored));
+				await migrateFromLocalStorage(IDB_KEYS.generationHistory);
+				const stored = await idbGet<HistoryItem[]>(
+					IDB_KEYS.generationHistory,
+				);
+				if (!cancelled && stored) {
+					setHistoryItems(stored);
+				}
 			} catch (e) {
 				console.error(e);
 			}
-		}
+		})();
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
 	const saveToHistory = (
@@ -85,10 +103,7 @@ export default function GeneratorPage() {
 		};
 		setHistoryItems((prev) => {
 			const updated = [newItem, ...prev].slice(0, 20);
-			localStorage.setItem(
-				"boom_scope_generation_history",
-				JSON.stringify(updated),
-			);
+			void idbSet(IDB_KEYS.generationHistory, updated);
 			return updated;
 		});
 	};
@@ -103,10 +118,7 @@ export default function GeneratorPage() {
 		e.stopPropagation();
 		setHistoryItems((prev) => {
 			const updated = prev.filter((item) => item.id !== id);
-			localStorage.setItem(
-				"boom_scope_generation_history",
-				JSON.stringify(updated),
-			);
+			void idbSet(IDB_KEYS.generationHistory, updated);
 			return updated;
 		});
 		toast.info("Generácia vymazaná.");
@@ -167,9 +179,9 @@ export default function GeneratorPage() {
 		.filter((m) => m.role === "assistant" && m.design)
 		.slice(-1)[0]?.design;
 
-	const openInCanvas = (elements: [], viewport: string) => {
-		localStorage.setItem("imported_design", JSON.stringify(elements));
-		localStorage.setItem("imported_viewport", viewport);
+	const openInCanvas = async (elements: [], viewport: string) => {
+		await idbSet(IDB_KEYS.importedDesign, elements);
+		await idbSet(IDB_KEYS.importedViewport, viewport);
 		router.push("/dashboard/canvas");
 	};
 
@@ -456,7 +468,7 @@ export default function GeneratorPage() {
 									onClick={() => {
 										if (confirm("Naozaj chcete vymazať celú históriu?")) {
 											setHistoryItems([]);
-											localStorage.removeItem("boom_scope_generation_history");
+											void idbRemove(IDB_KEYS.generationHistory);
 											toast.success("História vymazaná.");
 										}
 									}}
