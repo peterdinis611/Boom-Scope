@@ -25,9 +25,9 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 
 interface GeneratedDesign {
-	web: { elements: any[] };
-	tablet: { elements: any[] };
-	mobile: { elements: any[] };
+	web: { elements: [] };
+	tablet: { elements: [] };
+	mobile: { elements: [] };
 }
 
 interface Message {
@@ -142,7 +142,7 @@ export default function GeneratorPage() {
 
 			const result = await generateAction({
 				prompt: promptText,
-				history: history as any,
+				history: history,
 			});
 
 			const assistantMessage: Message = {

@@ -163,7 +163,7 @@ export default function ProjectDetailPage() {
 								className="h-14 px-8 rounded-2xl border-border bg-background/40 backdrop-blur-3xl"
 								onClick={() =>
 									router.push(
-										`/dashboard/projects/${projectId}/settings` as any,
+										`/dashboard/projects/${projectId}/settings`,
 									)
 								}
 							>

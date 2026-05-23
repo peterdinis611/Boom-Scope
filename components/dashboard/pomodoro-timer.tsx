@@ -4,6 +4,7 @@ import {
 	Brain,
 	Clock,
 	Coffee,
+	LucideIcon,
 	Pause,
 	Play,
 	RotateCcw,
@@ -54,7 +55,7 @@ export function PomodoroTimer() {
 
 	const modeConfig: Record<
 		PomodoroMode,
-		{ label: string; icon: any; color: string; description: string }
+		{ label: string; icon: LucideIcon; color: string; description: string }
 	> = {
 		focus: {
 			label: "Focus",
