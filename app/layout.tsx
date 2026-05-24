@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree, Geist, Geist_Mono, Raleway } from "next/font/google";
+import { Geist, Geist_Mono, Raleway } from "next/font/google";
 import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Suspense } from "react";
@@ -14,11 +14,9 @@ const ralewayHeading = Raleway({
 	variable: "--font-heading",
 });
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
-
 const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
+	variable: "--font-sans",
+	subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
@@ -46,7 +44,6 @@ export default function RootLayout({
 				geistSans.variable,
 				geistMono.variable,
 				"font-sans",
-				figtree.variable,
 				ralewayHeading.variable,
 			)}
 		>

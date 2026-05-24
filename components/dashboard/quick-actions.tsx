@@ -119,24 +119,24 @@ export function QuickActions() {
 										whileTap={{ scale: 0.96 }}
 										onClick={() => runAction(action.onClick)}
 										className={cn(
-											"group flex items-center gap-3 rounded-2xl border px-3 py-2.5 shadow-lg backdrop-blur-xl transition-colors",
-											"bg-background/80 dark:bg-background/60",
+											"group flex min-w-[11.5rem] items-center gap-3 rounded-2xl border px-3.5 py-3 shadow-lg backdrop-blur-xl transition-colors",
+											"bg-background/90 dark:bg-background/75",
 											action.color,
 										)}
 									>
 										<span
 											className={cn(
-												"flex size-9 shrink-0 items-center justify-center rounded-xl border",
+												"flex size-10 shrink-0 items-center justify-center rounded-xl border",
 												action.color,
 											)}
 										>
-											<Icon className="size-4" />
+											<Icon className="size-5" />
 										</span>
-										<span className="min-w-0 pr-1 text-left">
-											<span className="block text-[10px] font-black uppercase tracking-widest">
+										<span className="min-w-0 pr-1 text-left font-sans">
+											<span className="block text-sm font-semibold leading-tight text-foreground">
 												{action.label}
 											</span>
-											<span className="block text-[9px] font-medium opacity-60">
+											<span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
 												{action.description}
 											</span>
 										</span>
