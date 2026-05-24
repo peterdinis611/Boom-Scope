@@ -11,6 +11,11 @@ vi.mock("sonner", () => ({
 	toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+vi.mock("@/lib/pomodoro-db", () => ({
+	getPomodoroSettings: vi.fn(() => Promise.resolve(null)),
+	savePomodoroSettings: vi.fn(() => Promise.resolve()),
+}));
+
 // ── Helper component ─────────────────────────────────────────────────────────
 function PomodoroDisplay() {
 	const {
@@ -73,8 +78,9 @@ async function renderWithProvider() {
 			<PomodoroDisplay />
 		</PomodoroProvider>,
 	);
-	// Always wait for the async IDB load to settle before any assertion
-	await act(async () => {});
+	await act(async () => {
+		await Promise.resolve();
+	});
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -99,10 +105,7 @@ describe("PomodoroContext", () => {
 	});
 
 	afterEach(() => {
-		// Flush any remaining pending timers inside act so React can clean up
-		act(() => {
-			vi.runOnlyPendingTimers();
-		});
+		vi.clearAllTimers();
 		vi.useRealTimers();
 		vi.clearAllMocks();
 	});

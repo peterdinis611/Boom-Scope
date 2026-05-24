@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import type React from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { idbClear } from "@/lib/idb-storage";
 import { PomodoroProvider } from "../components/dashboard/pomodoro-context";
 import { PomodoroTimer } from "../components/dashboard/pomodoro-timer";
 
@@ -29,6 +28,11 @@ vi.mock("sonner", () => ({
 	},
 }));
 
+vi.mock("@/lib/pomodoro-db", () => ({
+	getPomodoroSettings: vi.fn(() => Promise.resolve(null)),
+	savePomodoroSettings: vi.fn(() => Promise.resolve()),
+}));
+
 // Mock the Popover to render its content inline so that inputs are always visible
 vi.mock("@/components/ui/popover", () => ({
 	Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -45,11 +49,15 @@ vi.mock("@/components/ui/popover", () => ({
 }));
 
 function renderTimer() {
-	return render(
+	const view = render(
 		<PomodoroProvider>
 			<PomodoroTimer />
 		</PomodoroProvider>,
 	);
+	act(() => {
+		vi.advanceTimersByTime(0);
+	});
+	return view;
 }
 
 // Helper: get the main play/pause button (sits between Reset and Skip)
@@ -59,13 +67,12 @@ function getPlayPauseButton() {
 }
 
 describe("Component: PomodoroTimer", () => {
-	beforeEach(async () => {
+	beforeEach(() => {
 		vi.useFakeTimers();
-		await idbClear();
 	});
 
 	afterEach(() => {
-		vi.runOnlyPendingTimers();
+		vi.clearAllTimers();
 		vi.useRealTimers();
 	});
 

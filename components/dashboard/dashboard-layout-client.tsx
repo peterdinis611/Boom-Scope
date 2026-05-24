@@ -6,6 +6,7 @@ import { ClipboardManager } from "./clipboard-manager";
 import { DashboardHeader } from "./dashboard-header";
 import { DashboardSidebarNav } from "./dashboard-nav";
 import { PomodoroProvider } from "./pomodoro-context";
+import { QuickActions } from "./quick-actions";
 import { SidebarProvider, useSidebar } from "./sidebar-context";
 
 function DashboardLayoutContent({ children }: { children: ReactNode }) {
@@ -29,6 +30,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 				</main>
 			</div>
 
+			<QuickActions />
 			<ClipboardManager />
 		</div>
 	);
