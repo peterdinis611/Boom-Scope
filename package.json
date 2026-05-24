@@ -9,7 +9,8 @@
 		"lint": "eslint",
 		"format": "bunx --bun @biomejs/biome check --write",
 		"convex": "npx convex dev",
-		"test": "vitest"
+		"test": "vitest",
+		"convex-deploy": "npx convex deploy"
 	},
 	"dependencies": {
 		"@auth/core": "0.37.0",
