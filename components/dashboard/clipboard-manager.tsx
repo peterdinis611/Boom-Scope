@@ -60,7 +60,9 @@ export function ClipboardManager() {
 						<div className="flex items-center justify-between pb-3 border-b border-border/20">
 							<div className="flex items-center gap-2">
 								<Clipboard className="size-4 text-primary" />
-								<h3 className="text-sm font-semibold">Schránka ({history.length}/10)</h3>
+								<h3 className="text-sm font-semibold">
+									Schránka ({history.length}/10)
+								</h3>
 							</div>
 							{history.length > 0 && (
 								<button
