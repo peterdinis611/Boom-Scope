@@ -9,9 +9,9 @@ import {
 	X,
 	Zap,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
 import type { ElementType } from "react";
 import { useState } from "react";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
@@ -42,7 +42,8 @@ export function QuickActions() {
 			label: "Poznámka",
 			description: "Rýchla poznámka",
 			icon: FileText,
-			color: "bg-emerald-500/15 text-emerald-500 border-emerald-500/25 hover:bg-emerald-500/25",
+			color:
+				"bg-emerald-500/15 text-emerald-500 border-emerald-500/25 hover:bg-emerald-500/25",
 			onClick: () => setIsNoteOpen(true),
 		},
 		{
@@ -58,7 +59,8 @@ export function QuickActions() {
 			label: "AI Studio",
 			description: "Generovať dizajn",
 			icon: Sparkles,
-			color: "bg-violet-500/15 text-violet-500 border-violet-500/25 hover:bg-violet-500/25",
+			color:
+				"bg-violet-500/15 text-violet-500 border-violet-500/25 hover:bg-violet-500/25",
 			onClick: () => router.push("/dashboard/generator" as Route),
 		},
 		{
@@ -66,7 +68,8 @@ export function QuickActions() {
 			label: "Pomodoro",
 			description: "Spustiť timer",
 			icon: Timer,
-			color: "bg-amber-500/15 text-amber-500 border-amber-500/25 hover:bg-amber-500/25",
+			color:
+				"bg-amber-500/15 text-amber-500 border-amber-500/25 hover:bg-amber-500/25",
 			onClick: () => router.push("/dashboard/pomodoro" as Route),
 		},
 		{
