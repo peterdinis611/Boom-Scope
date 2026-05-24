@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
 	devIndicators: {
 		position: "bottom-right",
 	},
+	logging: false,
 	experimental: {
 		typedEnv: true,
 		optimizeCss: true,
