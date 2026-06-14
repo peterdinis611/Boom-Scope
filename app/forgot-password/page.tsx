@@ -29,6 +29,7 @@ import {
 	credentialsSchema,
 	firstZodIssueMessage,
 } from "@/lib/auth-forms";
+import { toastAppError } from "@/lib/errors";
 import { api } from "@/convex/_generated/api";
 
 type Step = "request" | { email: string };
@@ -97,9 +98,7 @@ export default function ForgotPasswordPage() {
 			setStep({ email: parsed.data });
 			setVerificationCode("");
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Obnovenie hesla zlyhalo.";
-			toast.error("Nepodarilo sa odoslať kód.", { description: message });
+			toastAppError("Nepodarilo sa odoslať kód.", error);
 		} finally {
 			setSubmitting(false);
 		}
@@ -146,9 +145,7 @@ export default function ForgotPasswordPage() {
 				router.refresh();
 			});
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Obnovenie hesla zlyhalo.";
-			toast.error("Nepodarilo sa zmeniť heslo.", { description: message });
+			toastAppError("Nepodarilo sa zmeniť heslo.", error);
 		} finally {
 			setSubmitting(false);
 		}

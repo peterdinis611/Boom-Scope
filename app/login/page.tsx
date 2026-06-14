@@ -29,6 +29,7 @@ import {
 	credentialsSchema,
 	firstZodIssueMessage,
 } from "@/lib/auth-forms";
+import { toastAppError } from "@/lib/errors";
 import { api } from "@/convex/_generated/api";
 
 export default function LoginPage() {
@@ -92,9 +93,7 @@ export default function LoginPage() {
 				router.refresh();
 			});
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Prihlásenie zlyhalo.";
-			toast.error("Prihlásenie zlyhalo.", { description: message });
+			toastAppError("Prihlásenie zlyhalo.", error);
 		} finally {
 			setSubmitting(false);
 		}
@@ -132,9 +131,7 @@ export default function LoginPage() {
 				router.refresh();
 			});
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Overenie zlyhalo.";
-			toast.error("Overenie zlyhalo.", { description: message });
+			toastAppError("Overenie zlyhalo.", error);
 		} finally {
 			setSubmitting(false);
 		}

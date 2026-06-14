@@ -46,7 +46,7 @@ function createOtpProvider(config: OtpProviderConfig): EmailConfig {
 			return generateRandomString(random, "0123456789", 8);
 		},
 		sendVerificationRequest:
-			sendVerificationRequest as SendVerificationRequest,
+			sendVerificationRequest as unknown as SendVerificationRequest,
 		options: config,
 	};
 }

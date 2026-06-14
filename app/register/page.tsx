@@ -30,6 +30,7 @@ import {
 	credentialsSchema,
 	firstZodIssueMessage,
 } from "@/lib/auth-forms";
+import { toastAppError } from "@/lib/errors";
 
 export default function RegisterPage() {
 	const { signIn } = useAuthActions();
@@ -114,11 +115,7 @@ export default function RegisterPage() {
 			}
 			await completeRegistration(parsed.data.email);
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Registrácia zlyhala.";
-			toast.error("Registráciu sa nepodarilo dokončiť.", {
-				description: message,
-			});
+			toastAppError("Registráciu sa nepodarilo dokončiť.", error);
 		} finally {
 			setSubmitting(false);
 		}
@@ -154,9 +151,7 @@ export default function RegisterPage() {
 			}
 			await completeRegistration(step.email);
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Overenie zlyhalo.";
-			toast.error("Overenie zlyhalo.", { description: message });
+			toastAppError("Overenie zlyhalo.", error);
 		} finally {
 			setSubmitting(false);
 		}
