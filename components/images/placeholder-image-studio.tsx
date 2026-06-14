@@ -79,7 +79,7 @@ export function PlaceholderImageStudio() {
 								updateParams({
 									width: preset.width,
 									height: "height" in preset ? preset.height : preset.width,
-									square: preset.square ?? false,
+									square: "square" in preset ? preset.square : false,
 								})
 							}
 						>
