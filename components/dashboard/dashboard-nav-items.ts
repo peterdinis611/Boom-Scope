@@ -4,6 +4,7 @@ import {
 	Image as ImageIcon,
 	Layout,
 	LayoutDashboard,
+	Link2,
 	Palette,
 	Settings as SettingsIcon,
 	Sparkles,
@@ -16,6 +17,7 @@ export type DashboardNavId =
 	| "overview"
 	| "projects"
 	| "notes"
+	| "links"
 	| "design"
 	| "design-system"
 	| "generate"
@@ -80,6 +82,17 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				activeIconClassName:
 					"bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
 				href: "/dashboard/notes",
+			},
+			{
+				id: "links",
+				label: "Link Hub",
+				description: "Save project links and resources",
+				icon: Link2,
+				iconClassName:
+					"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/15 group-hover:bg-indigo-500/15",
+				activeIconClassName:
+					"bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/25",
+				href: "/dashboard/links",
 			},
 		],
 	},

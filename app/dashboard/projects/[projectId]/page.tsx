@@ -1,11 +1,12 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import {
 	ArrowLeft,
 	Clock,
 	FileText,
 	Layout,
+	Link2,
 	Palette,
 	Plus,
 	Settings2,
@@ -13,6 +14,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -20,6 +22,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LinkLibrary } from "@/components/links/link-library";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -54,6 +57,11 @@ export default function ProjectDetailPage() {
 					paginationOpts: { numItems: 100, cursor: null },
 				}
 			: "skip",
+	);
+
+	const projectLinks = useQuery(
+		api.project_links.list,
+		projectId ? { projectId: projectId as Id<"projects"> } : "skip",
 	);
 
 	if (project === undefined) {
@@ -115,12 +123,18 @@ export default function ProjectDetailPage() {
 				}
 			/>
 
-			<div className="grid gap-4 sm:grid-cols-3">
+			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 				<StatCard
 					title="Notes"
 					value={notes?.page?.length ?? 0}
 					icon={FileText}
 					href={`/dashboard/notes?projectId=${projectId}`}
+				/>
+				<StatCard
+					title="Links"
+					value={projectLinks?.length ?? 0}
+					icon={Link2}
+					href={`/dashboard/links?projectId=${projectId}` as Route}
 				/>
 				<StatCard
 					title="Canvas"
@@ -135,6 +149,29 @@ export default function ProjectDetailPage() {
 					href={`/dashboard/design-system/v2?projectId=${projectId}`}
 				/>
 			</div>
+
+			<section className="space-y-4">
+				<div className="flex items-center justify-between">
+					<h2 className="section-title">Important links</h2>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={() =>
+							router.push(
+								`/dashboard/links?projectId=${projectId}` as Route,
+							)
+						}
+						className="gap-2"
+					>
+						<Link2 className="size-4" />
+						Open Link Hub
+					</Button>
+				</div>
+				<LinkLibrary
+					defaultProjectId={projectId as Id<"projects">}
+					compact
+				/>
+			</section>
 
 			<section className="space-y-4">
 				<div className="flex items-center justify-between">

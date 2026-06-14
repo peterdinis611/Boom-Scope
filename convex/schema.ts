@@ -63,4 +63,22 @@ export default defineSchema({
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),
+	project_links: defineTable({
+		title: v.string(),
+		url: v.string(),
+		description: v.optional(v.string()),
+		category: v.union(
+			v.literal("general"),
+			v.literal("design"),
+			v.literal("docs"),
+			v.literal("tools"),
+			v.literal("reference"),
+			v.literal("other"),
+		),
+		projectId: v.optional(v.id("projects")),
+		userId: v.id("users"),
+		isPinned: v.optional(v.boolean()),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_projectId", ["projectId"]),
 });

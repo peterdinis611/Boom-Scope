@@ -25,6 +25,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 	const labels: Record<string, string> = {
 		projects: "Projects",
 		notes: "Notes",
+		links: "Link Hub",
 		canvas: "Canvas",
 		"design-system": "Design System",
 		v2: "Lab",
