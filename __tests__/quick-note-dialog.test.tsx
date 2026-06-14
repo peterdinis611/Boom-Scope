@@ -22,21 +22,21 @@ describe("Component: QuickNoteDialog", () => {
 	test("renders correctly when open", () => {
 		render(<QuickNoteDialog open={true} onOpenChange={() => {}} />);
 
-		expect(screen.getByText(/Rýchla poznámka/i)).toBeDefined();
-		expect(screen.getByPlaceholderText(/Napr. Farebná paleta/i)).toBeDefined();
+		expect(screen.getByText(/Quick note/i)).toBeDefined();
+		expect(screen.getByPlaceholderText(/e.g. Color palette/i)).toBeDefined();
 	});
 
 	test("does not render when closed", () => {
 		const { queryByText } = render(
 			<QuickNoteDialog open={false} onOpenChange={() => {}} />,
 		);
-		expect(queryByText(/Rýchla poznámka/i)).toBeNull();
+		expect(queryByText(/Quick note/i)).toBeNull();
 	});
 
 	test("validates required fields before saving", async () => {
 		render(<QuickNoteDialog open={true} onOpenChange={() => {}} />);
 
-		const saveBtn = screen.getByText(/Uložiť/i);
+		const saveBtn = screen.getByText(/Save/i);
 		fireEvent.click(saveBtn);
 
 		// Button should be disabled if fields are empty (based on component logic)
@@ -47,10 +47,10 @@ describe("Component: QuickNoteDialog", () => {
 		render(<QuickNoteDialog open={true} onOpenChange={() => {}} />);
 
 		const titleInput = screen.getByPlaceholderText(
-			/Napr. Farebná paleta/i,
+			/e.g. Color palette/i,
 		) as HTMLInputElement;
 		const contentArea = screen.getByPlaceholderText(
-			/Napíšte vaše poznámky/i,
+			/Write your notes/i,
 		) as HTMLTextAreaElement;
 
 		fireEvent.change(titleInput, { target: { value: "New Note" } });

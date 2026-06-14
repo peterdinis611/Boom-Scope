@@ -26,9 +26,9 @@ export default async function EditNotePage({
 		return (
 			<div className="flex h-[60vh] flex-col items-center justify-center gap-4">
 				<AlertCircle className="size-12 text-destructive" />
-				<h2 className="text-xl font-semibold">Poznámka sa nenašla</h2>
+				<h2 className="text-xl font-semibold">Note not found</h2>
 				<Link href="/dashboard/notes">
-					<Button>Späť na zoznam</Button>
+					<Button>Back to list</Button>
 				</Link>
 			</div>
 		);

@@ -46,7 +46,7 @@ describe("Hook: useCopyToClipboard & History Manager", () => {
 		});
 
 		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("#123456");
-		expect(toast.success).toHaveBeenCalledWith("Skopírované: #123456");
+		expect(toast.success).toHaveBeenCalledWith("Copied: #123456");
 		expect(result.current.history[0].text).toBe("#123456");
 	});
 
@@ -95,7 +95,7 @@ describe("Hook: useCopyToClipboard & History Manager", () => {
 			expect(result.current.history.length).toBe(0);
 		});
 
-		expect(toast.success).toHaveBeenCalledWith("História schránky vymazaná.");
+		expect(toast.success).toHaveBeenCalledWith("Clipboard history cleared.");
 	});
 
 	test("deletes an individual item from clipboard history", async () => {
@@ -164,7 +164,7 @@ describe("Component: ClipboardManager Widget UI", () => {
 		const toggleBtn = screen.getByRole("button");
 		fireEvent.click(toggleBtn);
 
-		expect(screen.getByText(/Schránka \(2\/10\)/i)).toBeDefined();
+		expect(screen.getByText(/Clipboard \(2\/10\)/i)).toBeDefined();
 		expect(screen.getByText("#00ff00")).toBeDefined();
 		expect(screen.getByText("Outfit")).toBeDefined();
 	});
@@ -199,7 +199,7 @@ describe("Component: ClipboardManager Widget UI", () => {
 
 		expect(navigator.clipboard.writeText).toHaveBeenCalledWith("#aa55ff");
 		expect(toast.success).toHaveBeenCalledWith(
-			"Položka skopírovaná z histórie schránky",
+			"Item copied from clipboard history",
 		);
 	});
 });

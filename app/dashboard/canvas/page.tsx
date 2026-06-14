@@ -11,21 +11,16 @@ import {
 	Eye,
 	EyeOff,
 	FolderKanban,
-	Grid,
 	Group,
 	Image as ImageIcon,
 	Layers,
 	Lock,
 	Maximize2,
-	NotebookPen,
 	Palette,
-	PanelLeft,
-	PanelRight,
 	Pencil,
 	Redo,
 	RefreshCw,
 	RotateCw,
-	Settings2,
 	Sliders,
 	Smartphone,
 	Sparkles,
@@ -37,15 +32,14 @@ import {
 	Ungroup,
 	Unlock,
 	Upload,
-	ZoomIn,
-	ZoomOut,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Dock } from "@/components/design/Dock";
+import { CanvasTopBar } from "@/components/design/canvas/CanvasTopBar";
+import { CanvasZoomControls } from "@/components/design/canvas/CanvasZoomControls";
 import type { CanvasElement } from "@/components/design/KonvaCanvas";
 import { ShareDialog } from "@/components/design/ShareDialog";
 import {
@@ -82,6 +76,11 @@ import {
 	isVisualConfigured,
 	ungroupElement,
 } from "@/lib/canvas-elements";
+import {
+	DEFAULT_CANVAS_SIZE,
+	normalizeCanvasSize,
+	type CanvasSize,
+} from "@/lib/canvas-defaults";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
 import { IDB_KEYS, idbGet, idbRemove } from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
@@ -137,10 +136,7 @@ function DesignPageContent() {
 	const [leftPanelOpen, setLeftPanelOpen] = useState(true);
 	const [rightPanelOpen, setRightPanelOpen] = useState(true);
 	const [activeTab, setActiveTab] = useState<"layers" | "templates">("layers");
-	const [canvasSize, setCanvasSize] = useState<{
-		width: number;
-		height: number;
-	} | null>(null);
+	const [canvasSize, setCanvasSize] = useState<CanvasSize>(DEFAULT_CANVAS_SIZE);
 	const [zoom, setZoom] = useState(1);
 	const [snapToGrid, setSnapToGrid] = useState(true);
 	const [artboardColor, setArtboardColor] = useState<string | null>(null);
@@ -183,20 +179,27 @@ function DesignPageContent() {
 	);
 
 	useEffect(() => {
-		if (existingDesign) {
-			try {
-				const parsed = JSON.parse(existingDesign.elements);
-				setElements(parsed);
-				setHistory([parsed]);
-				setHistoryIndex(0);
-				if (existingDesign.canvasSize) setCanvasSize(existingDesign.canvasSize);
-				if (existingDesign.artboardColor)
-					setArtboardColor(existingDesign.artboardColor);
-				setSharedDesignId(existingDesign._id);
-				setSelectedProjectId(existingDesign.projectId);
-			} catch (e) {
-				console.error("Failed to parse design elements", e);
+		if (!existingDesign?.elements || typeof existingDesign.elements !== "string") {
+			return;
+		}
+
+		try {
+			const parsed = JSON.parse(existingDesign.elements);
+			if (!Array.isArray(parsed)) return;
+
+			setElements(parsed);
+			setHistory([parsed]);
+			setHistoryIndex(0);
+			if (existingDesign.canvasSize) {
+				setCanvasSize(normalizeCanvasSize(existingDesign.canvasSize));
 			}
+			if (existingDesign.artboardColor) {
+				setArtboardColor(existingDesign.artboardColor);
+			}
+			setSharedDesignId(existingDesign._id);
+			setSelectedProjectId(existingDesign.projectId);
+		} catch (e) {
+			console.error("Failed to parse design elements", e);
 		}
 	}, [existingDesign]);
 
@@ -222,7 +225,7 @@ function DesignPageContent() {
 
 				await idbRemove(IDB_KEYS.importedDesign);
 				await idbRemove(IDB_KEYS.importedViewport);
-				toast.success("Dizajn importovaný z generátora!");
+				toast.success("Design imported from generator!");
 			} catch (e) {
 				console.error("Failed to import design", e);
 			}
@@ -322,8 +325,8 @@ function DesignPageContent() {
 
 	const exportSVG = useCallback(() => {
 		const els = elementsRef.current;
-		const w = canvasSize?.width ?? 1920;
-		const h = canvasSize?.height ?? 1080;
+		const w = canvasSize.width;
+		const h = canvasSize.height;
 		const svgEls = els.map(elementToSvg).join("\n");
 		const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">\n${svgEls}\n</svg>`;
 		const blob = new Blob([svg], { type: "image/svg+xml" });
@@ -331,7 +334,7 @@ function DesignPageContent() {
 		link.href = URL.createObjectURL(blob);
 		link.download = "boom-scope-design.svg";
 		link.click();
-		toast.success("SVG exportovaný!");
+		toast.success("SVG exported!");
 	}, [canvasSize, elementToSvg]);
 
 	// JSON export helper
@@ -344,14 +347,14 @@ function DesignPageContent() {
 		link.href = URL.createObjectURL(blob);
 		link.download = "boom-scope-design.json";
 		link.click();
-		toast.success("JSON exportovaný!");
+		toast.success("JSON exported!");
 	}, [canvasSize, artboardColor]);
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleSaveToProject = useCallback(async () => {
 		if (!selectedProjectId) {
-			toast.error("Vyberte projekt!");
+			toast.error("Select a project!");
 			return;
 		}
 		setIsSaving(true);
@@ -360,15 +363,15 @@ function DesignPageContent() {
 				name: `Design - ${new Date().toLocaleDateString()}`,
 				elements: JSON.stringify(elementsRef.current),
 				projectId: selectedProjectId as Id<"projects">,
-				canvasSize: canvasSize || { width: 1920, height: 1080 },
+				canvasSize: canvasSize,
 				artboardColor: artboardColor || undefined,
 			});
 			setIsProjectPickerOpen(false);
 			setSharedDesignId(id);
 			setIsShareOpen(true);
-			toast.success("Design uložený do projektu!");
+			toast.success("Design saved to project!");
 		} catch {
-			toast.error("Nepodarilo sa uložiť design.");
+			toast.error("Failed to save design.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -409,18 +412,23 @@ function DesignPageContent() {
 				return;
 			}
 			if (toolId === "download") {
-				const stage = document.querySelector("canvas");
-				if (stage) {
+				const canvas = document.querySelector(
+					'[data-slot="konva-canvas"] canvas',
+				) as HTMLCanvasElement | null;
+				if (canvas) {
 					const link = document.createElement("a");
 					link.download = "boom-scope-design.png";
-					link.href = stage.toDataURL();
+					link.href = canvas.toDataURL("image/png");
 					link.click();
+					toast.success("PNG exported!");
+				} else {
+					toast.error("Canvas is not ready for export.");
 				}
 				return;
 			}
 			if (toolId === "share") {
 				if (!projects || projects.length === 0) {
-					toast.error("Najprv si vytvorte projekt v dashboarde!");
+					toast.error("Create a project in the dashboard first!");
 					return;
 				}
 				// Open project picker dialog
@@ -435,12 +443,12 @@ function DesignPageContent() {
 						await updateDesign({
 							id: sharedDesignId as Id<"designs">,
 							elements: JSON.stringify(elementsRef.current),
-							canvasSize: canvasSize || { width: 1920, height: 1080 },
+							canvasSize: canvasSize,
 							artboardColor: artboardColor || undefined,
 						});
-						toast.success("Design aktualizovaný!");
+						toast.success("Design updated!");
 					} catch {
-						toast.error("Nepodarilo sa aktualizovať design.");
+						toast.error("Failed to update design.");
 					} finally {
 						setIsSaving(false);
 					}
@@ -508,7 +516,7 @@ function DesignPageContent() {
 					clipboardRef.current = picked.map(
 						(p) => JSON.parse(JSON.stringify(p)) as CanvasElement,
 					);
-					toast.success("Skopírované!");
+					toast.success("Copied!");
 				}
 			}
 			if (mod && e.key.toLowerCase() === "v") {
@@ -620,7 +628,7 @@ function DesignPageContent() {
 			commitElements(next);
 			const g = next[next.length - 1];
 			setSelectedIds([g.id]);
-			toast.success("Skupina vytvorená");
+			toast.success("Group created");
 		}
 	}, [commitElements]);
 
@@ -631,7 +639,7 @@ function DesignPageContent() {
 		if (next) {
 			commitElements(next);
 			setSelectedIds([]);
-			toast.success("Skupina rozdelená");
+			toast.success("Group ungrouped");
 		}
 	}, [commitElements]);
 
@@ -648,13 +656,15 @@ function DesignPageContent() {
 				};
 				if (!data.elements || !Array.isArray(data.elements)) throw new Error();
 				commitElements(data.elements);
-				if (data.canvasSize) setCanvasSize(data.canvasSize);
+				if (data.canvasSize) {
+					setCanvasSize(normalizeCanvasSize(data.canvasSize));
+				}
 				if (data.artboardColor !== undefined)
 					setArtboardColor(data.artboardColor);
 				setSelectedIds([]);
-				toast.success("JSON importovaný!");
+				toast.success("JSON imported!");
 			} catch {
-				toast.error("Neplatný JSON súbor.");
+				toast.error("Invalid JSON file.");
 			}
 		};
 		reader.readAsText(file);
@@ -686,7 +696,7 @@ function DesignPageContent() {
 	};
 
 	return (
-		<div className="relative h-[calc(100vh-3.5rem)] min-h-0 w-full overflow-hidden bg-background text-foreground">
+		<div className="flex h-[calc(100vh-3.5rem)] min-h-0 flex-col bg-background text-foreground">
 			<input
 				type="file"
 				ref={fileInputRef}
@@ -702,201 +712,76 @@ function DesignPageContent() {
 				accept="application/json,.json"
 			/>
 
-			{/* Canvas Area */}
-			<div className="absolute inset-0 h-full w-full">
-				<KonvaCanvas
-					activeTool={activeTool}
-					elements={elements}
-					commitElements={commitElements}
-					selectedIds={selectedIds}
-					onSelectionChange={setSelectedIds}
-					onElementPointer={onElementPointer}
-					strokeColor={strokeColor}
-					fillColor={fillColor}
-					strokeWidth={strokeWidth}
-					canvasSize={canvasSize}
-					zoom={zoom}
-					setZoom={setZoom}
-					snapToGrid={snapToGrid}
-					artboardColor={artboardColor}
-				/>
+			<CanvasTopBar
+				activeTool={activeTool}
+				layerCount={elements.length}
+				canvasLabel={`${canvasSize.width} × ${canvasSize.height}`}
+				isSaving={isSaving}
+				hasSavedDesign={Boolean(sharedDesignId)}
+				leftPanelOpen={leftPanelOpen}
+				rightPanelOpen={rightPanelOpen}
+				onToggleLeftPanel={() => setLeftPanelOpen((open) => !open)}
+				onToggleRightPanel={() => setRightPanelOpen((open) => !open)}
+				onSave={() => handleAction("save")}
+				onOpenNote={() => setIsNoteOpen(true)}
+			/>
 
-				{/* Zoom Controls */}
-				<div className="absolute bottom-10 right-10 z-50 flex items-center gap-2 bg-background/80 backdrop-blur-xl border border-border p-1.5 rounded-2xl shadow-2xl">
-					<Button
-						variant="ghost"
-						size="icon-xs"
-						onClick={() => setZoom((prev) => Math.max(0.1, prev - 0.1))}
-						className="rounded-xl hover:bg-accent"
-					>
-						<ZoomOut className="size-3.5" />
-					</Button>
-					<div className="px-3 text-[10px] font-black uppercase tracking-widest min-w-15 text-center">
-						{Math.round(zoom * 100)}%
-					</div>
-					<Button
-						variant="ghost"
-						size="icon-xs"
-						onClick={() => setZoom((prev) => Math.min(5, prev + 0.1))}
-						className="rounded-xl hover:bg-accent"
-					>
-						<ZoomIn className="size-3.5" />
-					</Button>
-					<div className="w-px h-6 bg-border mx-1" />
-					<Button
-						variant={snapToGrid ? "default" : "ghost"}
-						size="icon-xs"
-						onClick={() => setSnapToGrid(!snapToGrid)}
-						className={cn(
-							"rounded-xl",
-							snapToGrid ? "bg-primary text-white" : "hover:bg-accent",
-						)}
-					>
-						<Grid className="size-3.5" />
-					</Button>
-				</div>
-			</div>
-
-			{/* Top Bar Info */}
-			<div className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none z-50">
-				<div
-					className={cn(
-						"flex items-center gap-6 px-8 py-3 rounded-2xl border shadow-2xl pointer-events-auto",
-						"bg-background/60 dark:bg-background/40 backdrop-blur-3xl border-border",
-						"shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]",
-					)}
-				>
-					<div className="flex items-center gap-3">
-						<div
-							className={cn(
-								"size-2 rounded-full",
-								activeTool === "select"
-									? "bg-primary shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-									: "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]",
-							)}
-						/>
-						<span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">
-							{activeTool === "select"
-								? "Navigácia"
-								: `Editácia: ${activeTool}`}
-						</span>
-					</div>
-					<div className="h-4 w-px bg-border/50" />
-					<div className="flex items-center gap-6 text-[10px] font-bold tracking-widest opacity-40">
-						<span className="flex items-center gap-2 uppercase">
-							<Layers className="size-3" /> {elements.length}
-						</span>
-						<span className="flex items-center gap-2 uppercase">
-							<RefreshCw className="size-3" /> Auto-Save
-						</span>
-						<button
-							onClick={() => handleAction("save")}
-							className="flex items-center gap-2 uppercase opacity-100 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors pointer-events-auto"
-						>
-							{isSaving ? (
-								<RefreshCw className="size-3 animate-spin" />
-							) : (
-								<FolderKanban className="size-3" />
-							)}
-							{sharedDesignId ? "Aktualizovať" : "Uložiť do projektu"}
-						</button>
-						<button
-							onClick={() => setIsNoteOpen(true)}
-							className="flex items-center gap-2 uppercase opacity-100 px-3 py-1.5 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors pointer-events-auto"
-						>
-							<NotebookPen className="size-3" /> Poznámka
-						</button>
-					</div>
-				</div>
-			</div>
-
-			{/* Panel Toggle Buttons */}
-			<div className="absolute top-8 left-8 z-50 flex gap-2">
-				{!leftPanelOpen && (
-					<Button
-						variant="outline"
-						size="icon-sm"
-						onClick={() => setLeftPanelOpen(true)}
-						className="bg-background/60 backdrop-blur-md border-border hover:bg-accent rounded-2xl size-11 shadow-2xl"
-					>
-						<PanelLeft className="size-5" />
-					</Button>
-				)}
-			</div>
-			<div className="absolute top-8 right-8 z-50 flex gap-2">
-				{!rightPanelOpen && (
-					<Button
-						variant="outline"
-						size="icon-sm"
-						onClick={() => setRightPanelOpen(true)}
-						className="bg-background/60 backdrop-blur-md border-border hover:bg-accent rounded-2xl size-11 shadow-2xl"
-					>
-						<PanelRight className="size-5" />
-					</Button>
-				)}
-			</div>
-
-			{/* Left Sidebar (Layers) */}
-			<AnimatePresence>
-				{leftPanelOpen && (
-					<motion.div
-						initial={{ x: -300, opacity: 0 }}
-						animate={{ x: 0, opacity: 1 }}
-						exit={{ x: -300, opacity: 0 }}
-						transition={{ type: "spring", damping: 25, stiffness: 120 }}
-						className={cn(
-							"absolute left-8 top-8 bottom-36 w-72 rounded-[32px] border border-border",
-							"bg-background/95 dark:bg-background/90 backdrop-blur-3xl p-8 hidden lg:flex flex-col z-40",
-							"shadow-[0_30px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
-						)}
-					>
-						<div className="flex items-center justify-between mb-8">
-							<div className="flex p-1 rounded-2xl bg-accent/50 border border-border w-full">
+			<div className="flex min-h-0 flex-1">
+				{leftPanelOpen ? (
+					<aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-background lg:flex">
+						<div className="flex items-center gap-2 border-b border-border p-3">
+							<div className="flex flex-1 rounded-lg border border-border bg-muted/40 p-0.5">
 								<button
+									type="button"
 									onClick={() => setActiveTab("layers")}
 									className={cn(
-										"flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+										"flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
 										activeTab === "layers"
-											? "bg-background text-primary shadow-sm"
-											: "text-foreground/40 hover:text-foreground",
+											? "bg-background text-foreground shadow-sm"
+											: "text-muted-foreground hover:text-foreground",
 									)}
 								>
 									<Layers className="size-3.5" />
 									Vrstvy
 								</button>
 								<button
+									type="button"
 									onClick={() => setActiveTab("templates")}
 									className={cn(
-										"flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+										"flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
 										activeTab === "templates"
-											? "bg-background text-primary shadow-sm"
-											: "text-foreground/40 hover:text-foreground",
+											? "bg-background text-foreground shadow-sm"
+											: "text-muted-foreground hover:text-foreground",
 									)}
 								>
 									<Sparkles className="size-3.5" />
-									Šablóny
+									Templates
 								</button>
 							</div>
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								onClick={() => setLeftPanelOpen(false)}
-								className="hover:bg-accent rounded-lg ml-2"
-							>
-								<PanelLeft className="size-4 opacity-40" />
-							</Button>
 						</div>
 
-						<div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+						<div className="min-h-0 flex-1 overflow-y-auto p-3">
 							{activeTab === "layers" ? (
 								elements.length === 0 ? (
-									<div className="h-full flex flex-col items-center justify-center opacity-30 dark:opacity-10 text-center px-4">
-										<div className="size-16 rounded-[24px] border-2 border-dashed border-foreground/20 mb-6 flex items-center justify-center">
-											<Pencil className="size-6" />
+									<div className="flex h-full flex-col items-center justify-center gap-4 px-2 text-center">
+										<div className="flex size-12 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40">
+											<Pencil className="size-5 text-muted-foreground" />
 										</div>
-										<p className="text-[10px] font-black uppercase tracking-[0.2em]">
-											Pripravené
-										</p>
+										<div className="space-y-1">
+											<p className="text-sm font-medium">Canvas is ready</p>
+											<p className="text-xs text-muted-foreground leading-relaxed">
+												Choose a tool below or an artboard template.
+											</p>
+										</div>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => setActiveTab("templates")}
+										>
+											<Sparkles className="size-3.5" />
+											Choose template
+										</Button>
 									</div>
 								) : (
 									elements
@@ -1029,7 +914,7 @@ function DesignPageContent() {
 									<div className="space-y-3">
 										<h4 className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-primary/60 flex items-center gap-2">
 											<div className="size-1 bg-primary rounded-full" />
-											Sociálne siete
+											Social media
 										</h4>
 										<div className="grid grid-cols-1 gap-2">
 											{CANVAS_PRESETS.filter(
@@ -1141,39 +1026,47 @@ function DesignPageContent() {
 
 									<div className="pt-6 border-t border-border space-y-4">
 										<h4 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-											Vlastný rozmer
+											Custom size
 										</h4>
 										<div className="grid grid-cols-2 gap-3">
 											<div className="space-y-2">
 												<Label className="text-[8px] font-black uppercase tracking-widest opacity-30">
-													Šírka
+													Width
 												</Label>
 												<Input
 													type="number"
 													placeholder="1920"
-													value={canvasSize?.width || ""}
+													value={canvasSize.width}
 													onChange={(e) =>
-														setCanvasSize((prev) => ({
-															width: parseInt(e.target.value) || 0,
-															height: prev?.height || 0,
-														}))
+														setCanvasSize((prev) =>
+															normalizeCanvasSize({
+																...prev,
+																width:
+																	parseInt(e.target.value, 10) ||
+																	DEFAULT_CANVAS_SIZE.width,
+															}),
+														)
 													}
 													className="bg-accent/30 border-border rounded-xl h-10 text-xs"
 												/>
 											</div>
 											<div className="space-y-2">
 												<Label className="text-[8px] font-black uppercase tracking-widest opacity-30">
-													Výška
+													Height
 												</Label>
 												<Input
 													type="number"
 													placeholder="1080"
-													value={canvasSize?.height || ""}
+													value={canvasSize.height}
 													onChange={(e) =>
-														setCanvasSize((prev) => ({
-															width: prev?.width || 0,
-															height: parseInt(e.target.value) || 0,
-														}))
+														setCanvasSize((prev) =>
+															normalizeCanvasSize({
+																...prev,
+																height:
+																	parseInt(e.target.value, 10) ||
+																	DEFAULT_CANVAS_SIZE.height,
+															}),
+														)
 													}
 													className="bg-accent/30 border-border rounded-xl h-10 text-xs"
 												/>
@@ -1182,56 +1075,57 @@ function DesignPageContent() {
 										<Button
 											variant="outline"
 											className="w-full rounded-xl text-[10px] font-black uppercase tracking-widest"
-											onClick={() => setCanvasSize(null)}
+											onClick={() => setCanvasSize(DEFAULT_CANVAS_SIZE)}
 										>
-											Resetovať rozmer
+											Reset size
 										</Button>
 									</div>
 								</div>
 							)}
 						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+					</aside>
+				) : null}
 
-			{/* Right Sidebar (Properties) */}
-			<AnimatePresence>
-				{rightPanelOpen && (
-					<motion.div
-						initial={{ x: 300, opacity: 0 }}
-						animate={{ x: 0, opacity: 1 }}
-						exit={{ x: 300, opacity: 0 }}
-						transition={{ type: "spring", damping: 25, stiffness: 120 }}
-						className={cn(
-							"absolute right-8 top-8 bottom-36 w-80 rounded-[32px] border border-border",
-							"bg-background/95 dark:bg-background/90 backdrop-blur-3xl p-8 hidden xl:flex flex-col z-40",
-							"shadow-[0_30px_60px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.5)]",
-						)}
-					>
-						<div className="flex items-center justify-between mb-10">
-							<div className="flex items-center gap-4">
-								<div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-									<Settings2 className="size-4" />
-								</div>
-								<h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">
-									Vlastnosti
-								</h3>
-							</div>
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								onClick={() => setRightPanelOpen(false)}
-								className="hover:bg-accent rounded-lg"
-							>
-								<PanelRight className="size-4 opacity-40" />
-							</Button>
+				<main className="relative min-w-0 flex-1">
+					<KonvaCanvas
+						activeTool={activeTool}
+						elements={elements}
+						commitElements={commitElements}
+						selectedIds={selectedIds}
+						onSelectionChange={setSelectedIds}
+						onElementPointer={onElementPointer}
+						strokeColor={strokeColor}
+						fillColor={fillColor}
+						strokeWidth={strokeWidth}
+						canvasSize={canvasSize}
+						zoom={zoom}
+						setZoom={setZoom}
+						snapToGrid={snapToGrid}
+						artboardColor={artboardColor}
+					/>
+					<CanvasZoomControls
+						zoom={zoom}
+						snapToGrid={snapToGrid}
+						onZoomOut={() => setZoom((prev) => Math.max(0.1, prev - 0.1))}
+						onZoomIn={() => setZoom((prev) => Math.min(5, prev + 0.1))}
+						onToggleSnap={() => setSnapToGrid((value) => !value)}
+					/>
+				</main>
+
+				{rightPanelOpen ? (
+					<aside className="hidden w-72 shrink-0 flex-col border-l border-border bg-background xl:flex">
+						<div className="border-b border-border px-4 py-3">
+							<h3 className="text-sm font-semibold">Vlastnosti</h3>
+							<p className="text-xs text-muted-foreground">
+								Canvas and selected object settings
+							</p>
 						</div>
 
-						<div className="space-y-10 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+						<div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4">
 							{selectedIds.length > 1 ? (
 								<div className="space-y-8">
 									<p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">
-										Výber: {selectedIds.length} vrstvy
+										Selection: {selectedIds.length} layers
 									</p>
 									<div className="grid grid-cols-2 gap-3">
 										<Button
@@ -1255,12 +1149,12 @@ function DesignPageContent() {
 												setSelectedIds([]);
 											}}
 										>
-											<Trash2 className="size-3" /> Vymazať
+											<Trash2 className="size-3" /> Delete
 										</Button>
 									</div>
 									<div className="space-y-3">
 										<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-											Priehľadnosť (všetky)
+											Opacity (all)
 										</p>
 										<input
 											type="range"
@@ -1303,8 +1197,8 @@ function DesignPageContent() {
 												<Eye className="size-3" />
 											)}
 											{selectedElement.isVisible === false
-												? "Skryté"
-												: "Viditeľné"}
+												? "Hidden"
+												: "Visible"}
 										</button>
 									</div>
 
@@ -1349,7 +1243,7 @@ function DesignPageContent() {
 											className="w-full rounded-2xl border-border gap-2 text-[9px] font-black uppercase"
 											onClick={handleUngroupSelection}
 										>
-											<Ungroup className="size-3.5" /> Rozdeliť skupinu
+											<Ungroup className="size-3.5" /> Ungroup
 										</Button>
 									)}
 
@@ -1398,7 +1292,7 @@ function DesignPageContent() {
 										<div className="grid grid-cols-2 gap-4">
 											<div className="space-y-3">
 												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Šírka
+													Width
 												</p>
 												<Input
 													type="number"
@@ -1413,7 +1307,7 @@ function DesignPageContent() {
 											</div>
 											<div className="space-y-3">
 												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Výška
+													Height
 												</p>
 												<Input
 													type="number"
@@ -1431,7 +1325,7 @@ function DesignPageContent() {
 										<div className="space-y-4">
 											<div className="flex justify-between items-center">
 												<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-													Rotácia
+													Rotation
 												</p>
 												<div className="flex items-center gap-2">
 													<RotateCw className="size-3 opacity-30" />
@@ -1467,14 +1361,14 @@ function DesignPageContent() {
 										<div className="flex items-center gap-3">
 											<Palette className="size-3.5 text-primary/60" />
 											<Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-												Vizuál
+												Visual
 											</Label>
 										</div>
 
 										{!hasVisualConfigured && (
 											<div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
 												<p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/80">
-													Nikde nie je vizuál nastavený
+													No visual is set anywhere
 												</p>
 												<Button
 													variant="outline"
@@ -1484,7 +1378,7 @@ function DesignPageContent() {
 														updateSelectedElement(getDefaultVisualStyle())
 													}
 												>
-													Nastaviť predvolený vizuál
+													Set default visual
 												</Button>
 											</div>
 										)}
@@ -1492,7 +1386,7 @@ function DesignPageContent() {
 										{/* Fill / Gradient Toggle */}
 										<div className="space-y-5">
 											<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-												Typ Výplne
+												Fill type
 											</p>
 											<div className="grid grid-cols-2 gap-2 p-1.5 bg-foreground/5 rounded-2xl border border-border">
 												<button
@@ -1506,7 +1400,7 @@ function DesignPageContent() {
 															: "opacity-40 hover:opacity-100",
 													)}
 												>
-													Jednofarebná
+													Solid
 												</button>
 												<button
 													onClick={() =>
@@ -1528,7 +1422,7 @@ function DesignPageContent() {
 											<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
 												{selectedElement.fillType === "gradient"
 													? "Farby Gradientu"
-													: "Farba Výplne"}
+													: "Fill color"}
 											</p>
 											<div className="grid grid-cols-6 gap-2.5">
 												{PALETTE.map((color) => (
@@ -1606,9 +1500,9 @@ function DesignPageContent() {
 												/>
 												<div className="grid grid-cols-3 gap-2">
 													{[
-														{ label: "Súvislá", value: [] },
-														{ label: "Prerušená", value: [10, 5] },
-														{ label: "Bodkovaná", value: [2, 4] },
+														{ label: "Solid line", value: [] },
+														{ label: "Dashed", value: [10, 5] },
+														{ label: "Dotted", value: [2, 4] },
 													].map((style) => (
 														<button
 															key={style.label}
@@ -1634,7 +1528,7 @@ function DesignPageContent() {
 										<div className="space-y-5">
 											<div className="flex justify-between items-center">
 												<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-													Priehľadnosť
+													Opacity
 												</p>
 												<span className="text-[10px] font-mono font-bold opacity-60">
 													{Math.round((selectedElement.opacity ?? 1) * 100)}%
@@ -1710,7 +1604,7 @@ function DesignPageContent() {
 													<div className="flex items-center gap-3">
 														<Sparkles className="size-4 text-primary" />
 														<span className="text-[10px] font-black uppercase tracking-widest opacity-80 text-primary">
-															Náhodný Štýl
+															Random style
 														</span>
 													</div>
 													<Button
@@ -1725,7 +1619,7 @@ function DesignPageContent() {
 
 												<div className="space-y-4">
 													<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-														Obsah Textu
+														Content Textu
 													</p>
 													<textarea
 														value={selectedElement.text || ""}
@@ -1799,97 +1693,97 @@ function DesignPageContent() {
 												setSelectedIds([]);
 											}}
 										>
-											<Trash2 className="size-4" /> Vymazať objekt
+											<Trash2 className="size-4" /> Delete objekt
 										</Button>
 									</div>
 								</>
 							) : (
-								<div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
-									<div className="flex items-center gap-4">
-										<div className="size-10 rounded-[18px] bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
-											<Palette className="size-5 text-primary" />
-										</div>
-										<div>
-											<h2 className="text-[10px] font-black uppercase tracking-[0.3em]">
-												Nastavenia Plátna
-											</h2>
-											<p className="text-[9px] font-bold opacity-30 uppercase tracking-widest">
-												Globálne parametre
-											</p>
-										</div>
+								<div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+									<div className="space-y-1">
+										<h2 className="text-sm font-semibold">Canvas settings</h2>
+										<p className="text-xs text-muted-foreground">
+											Global artboard parameters
+										</p>
 									</div>
 
 									{/* Artboard Size */}
-									<div className="space-y-6">
-										<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-											Rozmery Artboardu (px)
+									<div className="space-y-3">
+										<p className="text-xs font-medium text-muted-foreground">
+											Rozmery artboardu (px)
 										</p>
-										<div className="grid grid-cols-2 gap-4">
-											<div className="space-y-3">
-												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Šírka
-												</p>
+										<div className="grid grid-cols-2 gap-3">
+											<div className="space-y-1.5">
+												<p className="text-xs text-muted-foreground">Width</p>
 												<Input
 													type="number"
-													value={canvasSize?.width || 1920}
+													value={canvasSize.width}
 													onChange={(e) =>
-														setCanvasSize((prev) => ({
-															...prev!,
-															width: parseInt(e.target.value) || 1920,
-														}))
+														setCanvasSize((prev) =>
+															normalizeCanvasSize({
+																...prev,
+																width:
+																	parseInt(e.target.value, 10) ||
+																	DEFAULT_CANVAS_SIZE.width,
+															}),
+														)
 													}
-													className="bg-background border-border h-10 rounded-xl text-xs font-mono font-bold text-center"
+													className="h-9 rounded-lg text-center text-sm font-medium"
 												/>
 											</div>
-											<div className="space-y-3">
-												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Výška
-												</p>
+											<div className="space-y-1.5">
+												<p className="text-xs text-muted-foreground">Height</p>
 												<Input
 													type="number"
-													value={canvasSize?.height || 1080}
+													value={canvasSize.height}
 													onChange={(e) =>
-														setCanvasSize((prev) => ({
-															...prev!,
-															height: parseInt(e.target.value) || 1080,
-														}))
+														setCanvasSize((prev) =>
+															normalizeCanvasSize({
+																...prev,
+																height:
+																	parseInt(e.target.value, 10) ||
+																	DEFAULT_CANVAS_SIZE.height,
+															}),
+														)
 													}
-													className="bg-background border-border h-10 rounded-xl text-xs font-mono font-bold text-center"
+													className="h-9 rounded-lg text-center text-sm font-medium"
 												/>
 											</div>
 										</div>
 									</div>
 
 									{/* Artboard Background */}
-									<div className="space-y-6">
-										<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-											Pozadie Plátna
+									<div className="space-y-3">
+										<p className="text-xs font-medium text-muted-foreground">
+											Canvas background
 										</p>
-										<div className="grid grid-cols-5 gap-3">
+										<div className="grid grid-cols-5 gap-2">
 											{[null, "#ffffff", "#f8fafc", "#18181b", "#000000"].map(
 												(color) => (
 													<button
+														type="button"
 														key={color || "none"}
 														onClick={() => setArtboardColor(color)}
 														className={cn(
-															"size-9 rounded-xl border border-border shadow-sm transition-all hover:scale-110",
-															artboardColor === color
-																? "ring-2 ring-primary ring-offset-4"
-																: "",
+															"size-8 rounded-lg border border-border shadow-sm transition-all hover:scale-105",
+															artboardColor === color &&
+																"ring-2 ring-primary ring-offset-2",
 															!color &&
-																"bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] bg-repeat",
+																"bg-[linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%),linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%)] bg-size-[8px_8px] bg-position-[0_0,4px_4px]",
 														)}
-														style={{ backgroundColor: color || "transparent" }}
+														style={{ backgroundColor: color || undefined }}
+														aria-label={
+															color ? `Background ${color}` : "Transparent background"
+														}
 													/>
 												),
 											)}
 										</div>
 									</div>
 
-									<div className="p-8 rounded-[32px] bg-primary/5 border border-primary/10 space-y-4 shadow-sm">
-										<p className="text-[10px] font-bold text-primary/60 leading-relaxed uppercase tracking-widest text-center">
-											Vyberte objekt pre špecifické úpravy alebo nastavte
-											globálne parametre projektu vyššie.
+									<div className="rounded-lg border border-border bg-muted/30 p-3">
+										<p className="text-xs text-muted-foreground leading-relaxed">
+											Select an object to edit properties or set global
+											artboard parameters above.
 										</p>
 									</div>
 
@@ -1933,11 +1827,11 @@ function DesignPageContent() {
 										</div>
 										<div className="flex items-center justify-between text-[9px] font-bold opacity-30 uppercase tracking-widest pt-1">
 											<span className="flex items-center gap-1.5">
-												<Clipboard className="size-3" /> História zmien
+												<Clipboard className="size-3" /> Change history
 											</span>
 											<span>
 												krok {historyIndex + 1} / {history.length} (
-												{history.length - 1} úprav)
+												{history.length - 1} edits)
 											</span>
 										</div>
 									</div>
@@ -1945,39 +1839,40 @@ function DesignPageContent() {
 							)}
 						</div>
 
-						{/* Quick Controls Footer */}
-						<div className="mt-10 pt-8 border-t border-border grid grid-cols-3 gap-3">
+						<div className="grid shrink-0 grid-cols-3 gap-2 border-t border-border p-3">
 							<Button
 								variant="outline"
-								className="h-14 rounded-2xl bg-background border-border hover:bg-accent transition-all shadow-sm"
+								size="sm"
 								onClick={() => handleAction("undo")}
-								title="Späť"
+								title="Back"
 							>
-								<Undo2 className="size-5 opacity-40" />
+								<Undo2 className="size-4" />
 							</Button>
 							<Button
 								variant="outline"
-								className="h-14 rounded-2xl bg-background border-border hover:bg-accent transition-all shadow-sm"
+								size="sm"
 								onClick={() => handleAction("redo")}
 								title="Dopredu"
 							>
-								<Redo className="size-5 opacity-40" />
+								<Redo className="size-4" />
 							</Button>
 							<Button
 								variant="outline"
-								className="h-14 rounded-2xl bg-background border-border hover:bg-accent transition-all group shadow-sm"
+								size="sm"
 								onClick={() => handleAction("trash")}
-								title="Vymazať plátno"
+								title="Clear canvas"
+								className="text-destructive hover:text-destructive"
 							>
-								<Trash2 className="size-5 opacity-20 group-hover:opacity-60 text-red-500 transition-all" />
+								<Trash2 className="size-4" />
 							</Button>
 						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+					</aside>
+				) : null}
+			</div>
 
-			{/* The Magic Dock */}
-			<Dock activeTool={activeTool} onToolChange={handleAction} />
+			<footer className="flex shrink-0 justify-center border-t border-border bg-background px-3 py-2">
+				<Dock activeTool={activeTool} onToolChange={handleAction} embedded />
+			</footer>
 
 			{/* Project Picker Dialog */}
 			<Dialog open={isProjectPickerOpen} onOpenChange={setIsProjectPickerOpen}>
@@ -1988,11 +1883,11 @@ function DesignPageContent() {
 								<FolderKanban className="size-5" />
 							</div>
 							<DialogTitle className="text-lg font-black tracking-tight">
-								Priradiť k projektu
+								Assign to project
 							</DialogTitle>
 						</div>
 						<DialogDescription className="text-xs text-muted-foreground font-medium">
-							Vyberte projekt, do ktorého sa má tento canvas design uložiť.
+							Choose the project where this canvas design should be saved.
 						</DialogDescription>
 					</DialogHeader>
 
@@ -2005,7 +1900,7 @@ function DesignPageContent() {
 							onValueChange={setSelectedProjectId}
 						>
 							<SelectTrigger className="h-12 rounded-2xl bg-accent/30 border-border/60 font-medium">
-								<SelectValue placeholder="Vyberte projekt..." />
+								<SelectValue placeholder="Select project..." />
 							</SelectTrigger>
 							<SelectContent className="rounded-2xl border-border/50 backdrop-blur-3xl">
 								{projects?.map((project) => (
@@ -2030,7 +1925,7 @@ function DesignPageContent() {
 							className="rounded-xl h-11 font-bold"
 							onClick={() => setIsProjectPickerOpen(false)}
 						>
-							Zrušiť
+							Cancel
 						</Button>
 						<Button
 							className="rounded-xl h-11 font-black uppercase tracking-wider text-xs bg-primary hover:bg-primary/90"
@@ -2040,7 +1935,7 @@ function DesignPageContent() {
 							{isSaving ? (
 								<RefreshCw className="size-4 animate-spin" />
 							) : (
-								"Uložiť & Zdieľať"
+								"Save & Share"
 							)}
 						</Button>
 					</DialogFooter>

@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		title: system
 			? `${system.description ?? "Design System"} – Boom Scope`
 			: "Design System – Boom Scope",
-		description: "Zdieľaný design system vytvorený v Boom Scope.",
+		description: "Shared design system created in Boom Scope.",
 	};
 }
 
@@ -42,16 +42,16 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 					<Sparkles className="size-8" />
 				</div>
 				<h1 className="font-heading text-2xl font-semibold">
-					Design System nenájdený
+					Design system not found
 				</h1>
 				<p className="max-w-md text-sm text-muted-foreground">
-					Tento design system nie je verejný alebo bol vymazaný.
+					This design system is not public or has been deleted.
 				</p>
 				<Link
 					href="/"
 					className="text-sm font-medium text-primary underline-offset-4 hover:underline"
 				>
-					Späť na Boom Scope
+					Back to Boom Scope
 				</Link>
 			</div>
 		);
@@ -63,13 +63,13 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 				<header className="space-y-3">
 					<div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
 						<Sparkles className="size-3.5 text-primary" />
-						Zdieľaný Design System
+						Shared design system
 					</div>
 					<h1 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
 						{system.description ?? "Design System"}
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						Vytvorené v Boom Scope · iba na čítanie
+						Created in Boom Scope · read only
 					</p>
 				</header>
 
@@ -77,7 +77,7 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 					<div className="flex items-center gap-2">
 						<Palette className="size-4 text-muted-foreground" />
 						<h2 className="font-heading text-lg font-semibold">
-							Farebná paleta
+							Color palette
 						</h2>
 					</div>
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -111,7 +111,7 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 							<Card key={font}>
 								<CardContent className="space-y-2 p-4">
 									<p className="text-xs text-muted-foreground">
-										{idx === 0 ? "Primárne písmo" : "Sekundárne písmo"}
+										{idx === 0 ? "Primary font" : "Secondary font"}
 									</p>
 									<p
 										className="text-xl font-medium"
@@ -132,7 +132,7 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 				</section>
 
 				<footer className="border-t border-border pt-6 text-center text-xs text-muted-foreground">
-					Vytvorené pomocou{" "}
+					Created with{" "}
 					<Link href="/" className="font-medium text-primary hover:underline">
 						Boom Scope
 					</Link>

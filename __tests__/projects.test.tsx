@@ -37,13 +37,13 @@ describe("Page: Projects", () => {
 		// Our ProjectsPage doesn't have a global loading spinner in the current implementation,
 		// but it shows an empty state or handles undefined.
 		// Let's check for the header at least.
-		expect(screen.getByText(/Vaše/i)).toBeDefined();
+		expect(screen.getByText(/Your/i)).toBeDefined();
 	});
 
 	test("renders empty state when there are no projects", () => {
 		vi.mocked(useQuery).mockReturnValue([]);
 		render(<ProjectsPage />);
-		expect(screen.getByText(/Žiadne projekty/i)).toBeDefined();
+		expect(screen.getByText(/No projects/i)).toBeDefined();
 	});
 
 	test("renders a list of projects", () => {
@@ -70,10 +70,10 @@ describe("Page: Projects", () => {
 		vi.mocked(useQuery).mockReturnValue([]);
 		render(<ProjectsPage />);
 
-		const createButton = screen.getByText(/Nový Projekt/i);
+		const createButton = screen.getAllByText(/New project/i)[0];
 		fireEvent.click(createButton);
 
-		expect(screen.getByText(/Názov Projektu/i)).toBeDefined();
+		expect(screen.getByText(/Project name/i)).toBeDefined();
 	});
 
 	test("calls create mutation on form submission", async () => {
@@ -84,14 +84,14 @@ describe("Page: Projects", () => {
 		render(<ProjectsPage />);
 
 		// Open modal
-		fireEvent.click(screen.getByText(/Nový Projekt/i));
+		fireEvent.click(screen.getAllByText(/New project/i)[0]);
 
 		// Fill input
-		const input = screen.getByPlaceholderText(/Napr. Moderná Vila/i);
+		const input = screen.getByPlaceholderText(/e.g. Modern Villa/i);
 		fireEvent.change(input, { target: { value: "New Brand" } });
 
 		// Submit
-		const submitButton = screen.getByText(/Vytvoriť Projekt/i);
+		const submitButton = screen.getByText(/Create project/i);
 		fireEvent.submit(submitButton);
 
 		expect(mockCreate).toHaveBeenCalledWith({ name: "New Brand" });

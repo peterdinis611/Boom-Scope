@@ -22,15 +22,15 @@ export async function sendMailerooEmail({
 	const fromName = process.env.MAILEROO_FROM_NAME ?? "Boom Scope";
 
 	if (!apiKey) {
-		throw new Error("Chýba MAILEROO_API_KEY v Convex prostredí.");
+		throw new Error("Missing MAILEROO_API_KEY in Convex environment.");
 	}
 	if (!fromEmail) {
-		throw new Error("Chýba MAILEROO_FROM_EMAIL v Convex prostredí.");
+		throw new Error("Missing MAILEROO_FROM_EMAIL in Convex environment.");
 	}
 
 	const recipient = normalizeRecipient(to);
 	if (!recipient || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
-		throw new Error(`Neplatná emailová adresa príjemcu: "${to}"`);
+		throw new Error(`Invalid recipient email address: "${to}"`);
 	}
 
 	const response = await fetch(MAILEROO_API_URL, {
@@ -63,7 +63,7 @@ export async function sendMailerooEmail({
 
 	if (!response.ok || !result.success) {
 		throw new Error(
-			result.message ?? `Maileroo API chyba (${response.status}).`,
+			result.message ?? `Maileroo API error (${response.status}).`,
 		);
 	}
 }

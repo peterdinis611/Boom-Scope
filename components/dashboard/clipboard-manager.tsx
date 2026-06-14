@@ -61,7 +61,7 @@ export function ClipboardManager() {
 							<div className="flex items-center gap-2">
 								<Clipboard className="size-4 text-primary" />
 								<h3 className="text-sm font-semibold">
-									Schránka ({history.length}/10)
+									Clipboard ({history.length}/10)
 								</h3>
 							</div>
 							{history.length > 0 && (
@@ -70,7 +70,7 @@ export function ClipboardManager() {
 									onClick={clearHistory}
 									className="text-xs font-medium text-muted-foreground hover:text-destructive transition-colors duration-300"
 								>
-									Vyčistiť
+									Clear
 								</button>
 							)}
 						</div>
@@ -80,11 +80,11 @@ export function ClipboardManager() {
 							<div className="flex flex-col items-center justify-center py-10 opacity-30 text-center space-y-2">
 								<Clipboard className="size-8 text-muted-foreground" />
 								<p className="text-xs font-bold uppercase tracking-wider">
-									Schránka je prázdna
+									Clipboard is empty
 								</p>
 								<p className="text-[10px] text-muted-foreground max-w-50">
-									Čokoľvek skopírujete z design systému sa zobrazí tu pre rýchly
-									prístup.
+									Anything you copy from the design system will appear here for quick
+									access.
 								</p>
 							</div>
 						) : (
@@ -97,7 +97,7 @@ export function ClipboardManager() {
 											onClick={() =>
 												copy(
 													item.text,
-													"Položka skopírovaná z histórie schránky",
+													"Item copied from clipboard history",
 												)
 											}
 											className="group relative p-3 rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer flex items-center justify-between gap-3"

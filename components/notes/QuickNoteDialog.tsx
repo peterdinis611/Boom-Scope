@@ -62,11 +62,11 @@ export function QuickNoteDialog({
 
 	const handleSave = async () => {
 		if (!title.trim()) {
-			toast.error("Zadajte názov poznámky.");
+			toast.error("Enter a note title.");
 			return;
 		}
 		if (!content.trim()) {
-			toast.error("Napíšte obsah poznámky.");
+			toast.error("Write note content.");
 			return;
 		}
 
@@ -77,10 +77,10 @@ export function QuickNoteDialog({
 				content: content.trim(),
 				projectId: projectId ? (projectId as Id<"projects">) : undefined,
 			});
-			toast.success("Poznámka uložená!");
+			toast.success("Note saved!");
 			handleClose();
 		} catch {
-			toast.error("Nepodarilo sa uložiť poznámku.");
+			toast.error("Failed to save note.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -100,7 +100,7 @@ export function QuickNoteDialog({
 					className="absolute right-5 top-5 rounded-xl p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
 				>
 					<X className="size-4" />
-					<span className="sr-only">Zavrieť</span>
+					<span className="sr-only">Close</span>
 				</button>
 
 				<DialogHeader className="pb-2">
@@ -110,10 +110,10 @@ export function QuickNoteDialog({
 						</div>
 						<div>
 							<DialogTitle className="text-lg font-black tracking-tight">
-								Rýchla poznámka
+								Quick note
 							</DialogTitle>
 							<DialogDescription className="text-xs text-muted-foreground font-medium mt-0.5">
-								Zapíšte myšlienku priamo z pracovného priestoru.
+								Capture an idea directly from your workspace.
 							</DialogDescription>
 						</div>
 					</div>
@@ -124,11 +124,11 @@ export function QuickNoteDialog({
 					<div className="space-y-1.5">
 						<Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
 							<FileText className="size-3" />
-							Názov
+							Title
 						</Label>
 						<Input
 							id="quick-note-title"
-							placeholder="Napr. Farebná paleta, Nápad na layout..."
+							placeholder="e.g. Color palette, Layout idea..."
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							className="h-11 rounded-2xl bg-accent/30 border-border/60 font-medium placeholder:text-muted-foreground/40 focus-visible:ring-primary/30"
@@ -142,11 +142,11 @@ export function QuickNoteDialog({
 					<div className="space-y-1.5">
 						<Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
 							<NotebookPen className="size-3" />
-							Obsah
+							Content
 						</Label>
 						<Textarea
 							id="quick-note-content"
-							placeholder="Napíšte vaše poznámky, nápady alebo postrehy..."
+							placeholder="Write your notes, ideas, or observations..."
 							value={content}
 							onChange={(e) => setContent(e.target.value)}
 							rows={5}
@@ -158,9 +158,9 @@ export function QuickNoteDialog({
 					<div className="space-y-1.5">
 						<Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
 							<FolderKanban className="size-3" />
-							Priradiť k projektu{" "}
+							Assign to project{" "}
 							<span className="normal-case font-normal opacity-50">
-								(voliteľné)
+								(optional)
 							</span>
 						</Label>
 						<Select
@@ -168,7 +168,7 @@ export function QuickNoteDialog({
 							onValueChange={(v) => setProjectId(v === "none" ? null : v)}
 						>
 							<SelectTrigger className="h-11 rounded-2xl bg-accent/30 border-border/60 font-medium">
-								<SelectValue placeholder="Bez projektu" />
+								<SelectValue placeholder="No project" />
 							</SelectTrigger>
 							<SelectContent className="rounded-2xl border-border/50 backdrop-blur-3xl">
 								<SelectItem
@@ -176,7 +176,7 @@ export function QuickNoteDialog({
 									className="rounded-xl text-muted-foreground"
 								>
 									<span className="flex items-center gap-2 opacity-60">
-										Bez projektu
+										No project
 									</span>
 								</SelectItem>
 								{projects?.map((project) => (
@@ -203,7 +203,7 @@ export function QuickNoteDialog({
 						onClick={handleClose}
 						disabled={isSaving}
 					>
-						Zrušiť
+						Cancel
 					</Button>
 					<Button
 						className="rounded-xl h-11 font-black uppercase tracking-wider text-xs bg-primary hover:bg-primary/90 min-w-32"
@@ -215,7 +215,7 @@ export function QuickNoteDialog({
 						) : (
 							<>
 								<NotebookPen className="size-4 mr-2" />
-								Uložiť
+								Save
 							</>
 						)}
 					</Button>

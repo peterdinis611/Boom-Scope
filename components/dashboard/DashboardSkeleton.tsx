@@ -146,7 +146,7 @@ export function DashboardSkeleton() {
 	return (
 		<motion.div
 			role="status"
-			aria-label="Načítavam dashboard"
+			aria-label="Loading dashboard"
 			aria-live="polite"
 			aria-busy="true"
 			variants={page}
@@ -345,7 +345,7 @@ export function DashboardSkeleton() {
 				</motion.main>
 			</div>
 
-			<span className="sr-only">Načítavam váš dashboard…</span>
+			<span className="sr-only">Loading your dashboard…</span>
 		</motion.div>
 	);
 }

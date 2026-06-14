@@ -61,7 +61,7 @@ const aiSystemSchema = z.object({
 	colors: z.array(
 		z.object({
 			name: z.string(),
-			hex: z.string().regex(/^#/, "Farba musí byť v HEX formáte"),
+			hex: z.string().regex(/^#/, "Color must be in HEX format"),
 			rgb: z.string(),
 		}),
 	),
@@ -166,7 +166,7 @@ export default function DesignSystemV2() {
 
 	const persistSystem = async () => {
 		if (!selectedProjectId) {
-			toast.error("Najprv vyberte projekt!");
+			toast.error("Select a project first!");
 			return;
 		}
 		setIsSaving(true);
@@ -181,7 +181,7 @@ export default function DesignSystemV2() {
 					badThings: merged.badThings,
 					suggestions: merged.suggestions,
 				});
-				toast.success("Design system aktualizovaný!");
+				toast.success("Design system updated!");
 			} else {
 				const id = await saveSystem({
 					projectId: selectedProjectId as Id<"projects">,
@@ -202,7 +202,7 @@ export default function DesignSystemV2() {
 					suggestions: merged.suggestions,
 				});
 				setLastSavedId(id);
-				toast.success("Design system uložený!");
+				toast.success("Design system saved!");
 			}
 		} catch {
 			toast.error("Ukladanie zlyhalo.");
@@ -215,7 +215,7 @@ export default function DesignSystemV2() {
 		let hex = newColorHex.trim();
 		if (!hex.startsWith("#")) hex = `#${hex}`;
 		if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-			toast.error("Zadajte platný HEX.");
+			toast.error("Enter a valid HEX value.");
 			return;
 		}
 		setLocalColors((prev) => [
@@ -223,7 +223,7 @@ export default function DesignSystemV2() {
 			{ name: newColorName.trim() || hex, hex, rgb: hexToRgb(hex) },
 		]);
 		setNewColorName("");
-		toast.success("Farba pridaná");
+		toast.success("Color added");
 	};
 
 	const addManualFont = () => {
@@ -231,7 +231,7 @@ export default function DesignSystemV2() {
 		if (!f) return;
 		setLocalFonts((prev) => [...prev, f]);
 		setNewFont("");
-		toast.success("Font pridaný");
+		toast.success("Font added");
 	};
 
 	const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,7 +251,7 @@ export default function DesignSystemV2() {
 	const analyzeImages = async () => {
 		if (images.length === 0 || !selectedProjectId) {
 			toast.error(
-				images.length === 0 ? "Nahrajte obrázky!" : "Vyberte projekt!",
+				images.length === 0 ? "Upload images!" : "Select a project!",
 			);
 			return;
 		}
@@ -262,9 +262,9 @@ export default function DesignSystemV2() {
 			});
 			const parsed = aiSystemSchema.parse(result);
 			setSystem(parsed);
-			toast.success("Analýza dokončená!");
+			toast.success("Analysis complete!");
 		} catch (error) {
-			toast.error("Chyba pri analýze.");
+			toast.error("Error during analysis.");
 		} finally {
 			setIsAnalyzing(false);
 		}
@@ -283,9 +283,9 @@ export default function DesignSystemV2() {
 				projectId: selectedProjectId as Id<"projects">,
 				canvasSize: result.canvasSize || { width: 1920, height: 1080 },
 			});
-			toast.success("Dizajn vygenerovaný!");
+			toast.success("Design generated!");
 		} catch (error) {
-			toast.error("Chyba pri generovaní.");
+			toast.error("Error during generation.");
 		} finally {
 			setIsGeneratingDesign(false);
 		}
@@ -295,20 +295,20 @@ export default function DesignSystemV2() {
 		<PageContainer size="wide" className="space-y-6">
 			<PageHeader
 				title="Design System Lab"
-				description="Definujte vizuálnu DNA projektu pomocou tokenov alebo AI analýzy."
+				description="Define your project visual DNA using tokens or AI analysis."
 			/>
 
 			<main className="space-y-6">
 				{/* Project Selector Overlay */}
 				<Card className="flex flex-col items-center justify-between gap-6 p-6 md:flex-row">
 					<div className="flex flex-1 flex-col gap-2">
-						<Label htmlFor="project-select">Aktívny projekt</Label>
+						<Label htmlFor="project-select">Active project</Label>
 						<Select
 							onValueChange={setSelectedProjectId}
 							value={selectedProjectId || undefined}
 						>
 							<SelectTrigger id="project-select" className="w-full">
-								<SelectValue placeholder="Vyberte projekt pre uloženie..." />
+								<SelectValue placeholder="Select project to save to..." />
 							</SelectTrigger>
 							<SelectContent>
 								{projects?.map((p) => (
@@ -330,13 +330,13 @@ export default function DesignSystemV2() {
 							) : (
 								<Save className="size-4" />
 							)}
-							Uložiť systém
+							Save system
 						</Button>
 						<Button
 							variant="outline"
 							size="icon"
 							onClick={() => setIsNoteOpen(true)}
-							aria-label="Rýchla poznámka"
+							aria-label="Quick note"
 						>
 							<NotebookPen className="size-4" />
 						</Button>
@@ -350,7 +350,7 @@ export default function DesignSystemV2() {
 						onClick={() => setActiveTab("assets")}
 						className="gap-2"
 					>
-						<MousePointer2 className="size-4" /> Vlastné veci
+						<MousePointer2 className="size-4" /> Custom items
 					</Button>
 					<Button
 						type="button"
@@ -358,7 +358,7 @@ export default function DesignSystemV2() {
 						onClick={() => setActiveTab("visual")}
 						className="gap-2"
 					>
-						<ImageIcon className="size-4" /> Vizuálny lab (AI)
+						<ImageIcon className="size-4" /> Visualny lab (AI)
 					</Button>
 				</div>
 
@@ -384,7 +384,7 @@ export default function DesignSystemV2() {
 									<div className="space-y-6">
 										<div className="flex gap-3">
 											<Input
-												placeholder="Názov farby"
+												placeholder="Title farby"
 												value={newColorName}
 												onChange={(e) => setNewColorName(e.target.value)}
 												className="h-12 rounded-xl bg-muted/20 border-none"
@@ -399,7 +399,7 @@ export default function DesignSystemV2() {
 												onClick={addManualColor}
 												className="h-12 rounded-xl px-6"
 											>
-												Pridať
+												Add
 											</Button>
 										</div>
 										<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -457,7 +457,7 @@ export default function DesignSystemV2() {
 									<div className="space-y-6">
 										<div className="flex gap-3">
 											<Input
-												placeholder="Názov fontu (napr. Inter)"
+												placeholder="Title fontu (napr. Inter)"
 												value={newFont}
 												onChange={(e) => setNewFont(e.target.value)}
 												className="h-12 rounded-xl bg-muted/20 border-none"
@@ -467,7 +467,7 @@ export default function DesignSystemV2() {
 												variant="secondary"
 												className="h-12 rounded-xl px-6"
 											>
-												Pridať
+												Add
 											</Button>
 										</div>
 										<div className="space-y-3">
@@ -501,7 +501,7 @@ export default function DesignSystemV2() {
 																				idx !== i - (system?.fonts.length || 0),
 																		),
 																	);
-																	toast.info("Font zmazaný");
+																	toast.info("Font deleted");
 																}}
 																className="size-6 rounded-lg flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
 															>
@@ -519,7 +519,7 @@ export default function DesignSystemV2() {
 							{/* History & Export */}
 							<div className="space-y-6">
 								<h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-40 flex items-center gap-3 px-4">
-									<History className="size-4" /> História Snapshotov
+									<History className="size-4" /> Snapshot history
 								</h3>
 								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 									{historyList?.map((h) => (
@@ -532,7 +532,7 @@ export default function DesignSystemV2() {
 											</div>
 											<div className="space-y-3">
 												<p className="font-black uppercase tracking-tight text-sm">
-													{h.projectName || "Bez názvu"}
+													{h.projectName || "Untitled"}
 												</p>
 												<p className="text-[10px] text-muted-foreground opacity-60 font-medium">
 													{new Date(h._creationTime).toLocaleDateString()}
@@ -585,11 +585,11 @@ export default function DesignSystemV2() {
 											</div>
 											<div className="space-y-3">
 												<h3 className="text-2xl font-black uppercase tracking-tight">
-													Presuňte inšpiráciu sem
+													Drop inspiration here
 												</h3>
 												<p className="text-muted-foreground font-medium opacity-60">
-													Naša AI zanalyzuje štýl, farby a atmosféru z vašich
-													obrázkov.
+													Our AI analyzes style, colors, and mood from your
+													images.
 												</p>
 											</div>
 										</div>
@@ -639,7 +639,7 @@ export default function DesignSystemV2() {
 											) : (
 												<Wand2 className="size-6 group-hover:rotate-12 transition-transform" />
 											)}
-											Analyzovať Štýl
+											Analyze style
 										</Button>
 										<Button
 											size="lg"
@@ -653,7 +653,7 @@ export default function DesignSystemV2() {
 											) : (
 												<Sparkles className="size-6 group-hover:scale-110 transition-transform" />
 											)}
-											Generovať Design
+											Generate design
 										</Button>
 									</div>
 								)}
@@ -667,7 +667,7 @@ export default function DesignSystemV2() {
 									>
 										<Card className="p-8 rounded-[2.5rem] bg-primary/5 border-primary/20 space-y-4">
 											<h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-												AI Analýza
+												AI analysis
 											</h4>
 											<p className="text-lg font-bold leading-relaxed">
 												{system.description}
@@ -675,7 +675,7 @@ export default function DesignSystemV2() {
 										</Card>
 										<Card className="p-8 rounded-[2.5rem] bg-green-500/5 border-green-500/20 space-y-4">
 											<h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-green-500">
-												Silné Stránky
+												Strengths
 											</h4>
 											<ul className="space-y-2">
 												{system.goodThings?.slice(0, 3).map((t, i) => (
@@ -691,7 +691,7 @@ export default function DesignSystemV2() {
 										</Card>
 										<Card className="p-8 rounded-[2.5rem] bg-amber-500/5 border-amber-500/20 space-y-4">
 											<h4 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-amber-500">
-												Odporúčania
+												Recommendations
 											</h4>
 											<ul className="space-y-2">
 												{system.suggestions?.slice(0, 3).map((t, i) => (

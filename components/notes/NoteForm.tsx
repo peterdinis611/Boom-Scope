@@ -50,7 +50,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 		const validation = noteSchema.safeParse({ title, content, projectId });
 
 		if (!validation.success) {
-			toast.error(validation.error.issues[0]?.message ?? "Neplatný vstup.");
+			toast.error(validation.error.issues[0]?.message ?? "Invalid input.");
 			return;
 		}
 
@@ -62,10 +62,10 @@ export function NoteForm({ initialData }: NoteFormProps) {
 				content,
 				projectId,
 			});
-			toast.success("Poznámka bola uložená.");
+			toast.success("Note was saved.");
 		} catch (error) {
 			console.error(error);
-			toast.error("Nepodarilo sa uložiť poznámku.");
+			toast.error("Failed to save note.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -75,11 +75,11 @@ export function NoteForm({ initialData }: NoteFormProps) {
 		setIsDeleting(true);
 		try {
 			await removeNote({ noteId: initialData._id });
-			toast.success("Poznámka bola odstránená.");
+			toast.success("Note was removed.");
 			router.push("/dashboard/notes");
 		} catch (error) {
 			console.error(error);
-			toast.error("Nepodarilo sa odstrániť poznámku.");
+			toast.error("Failed to delete note.");
 			setIsDeleting(false);
 		}
 	};
@@ -90,7 +90,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 				<Link href="/dashboard/notes">
 					<Button variant="ghost" size="sm" className="gap-2">
 						<ChevronLeft className="size-4" />
-						Späť
+						Back
 					</Button>
 				</Link>
 				<div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 						variant="outline"
 						size="icon-sm"
 						onClick={() => downloadNoteAsTxt(title, content)}
-						title="Stiahnuť ako .txt"
+						title="Download as .txt"
 					>
 						<Download className="size-4" />
 					</Button>
@@ -106,7 +106,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 						variant="outline"
 						size="icon-sm"
 						onClick={() => downloadNoteAsPdf(title, content)}
-						title="Stiahnuť ako .pdf"
+						title="Download as .pdf"
 					>
 						<FileText className="size-4" />
 					</Button>
@@ -116,7 +116,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 						onClick={() => setDeleteOpen(true)}
 						disabled={isDeleting}
 						className="text-destructive hover:bg-destructive/10"
-						aria-label="Odstrániť poznámku"
+						aria-label="Delete note"
 					>
 						{isDeleting ? (
 							<Loader2 className="size-4 animate-spin" />
@@ -130,7 +130,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 						) : (
 							<Save className="size-4" />
 						)}
-						Uložiť zmeny
+						Save changes
 					</Button>
 				</div>
 			</div>
@@ -138,14 +138,14 @@ export function NoteForm({ initialData }: NoteFormProps) {
 			<div className="flex flex-col gap-6">
 				<div className="flex flex-col gap-4">
 					<Input
-						placeholder="Názov poznámky"
+						placeholder="Note title"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						className="border-none bg-transparent px-0 text-3xl font-bold focus-visible:ring-0 md:text-4xl"
 					/>
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 						<span className="text-sm text-muted-foreground">
-							Priradiť k projektu:
+							Assign to project:
 						</span>
 						<div className="w-full sm:w-64">
 							<ProjectSelector value={projectId} onChange={setProjectId} />
@@ -159,9 +159,9 @@ export function NoteForm({ initialData }: NoteFormProps) {
 			<ConfirmDialog
 				open={deleteOpen}
 				onOpenChange={setDeleteOpen}
-				title="Odstrániť poznámku?"
-				description="Táto akcia je nevratná. Poznámka bude natrvalo odstránená."
-				confirmLabel="Odstrániť"
+				title="Delete note?"
+				description="This action cannot be undone. The note will be permanently deleted."
+				confirmLabel="Delete"
 				variant="destructive"
 				onConfirm={handleDelete}
 				loading={isDeleting}

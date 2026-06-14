@@ -10,20 +10,20 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 			profile(params) {
 				const raw = params.email;
 				if (raw === undefined || raw === null) {
-					throw new ConvexError("Chýba email.");
+					throw new ConvexError("Email is missing.");
 				}
 				const email = typeof raw === "string" ? raw.trim() : "";
 				if (!email) {
-					throw new ConvexError("Email je povinný.");
+					throw new ConvexError("Email is required.");
 				}
 				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-					throw new ConvexError("Neplatný formát emailu.");
+					throw new ConvexError("Invalid email format.");
 				}
 				return { email };
 			},
 			validatePasswordRequirements(password: string) {
 				if (password.length < 8) {
-					throw new ConvexError("Heslo musí mať aspoň 8 znakov.");
+					throw new ConvexError("Password must be at least 8 characters.");
 				}
 			},
 		}),

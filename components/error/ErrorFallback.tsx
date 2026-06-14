@@ -43,7 +43,7 @@ function getIcon(kind: ErrorFallbackKind, title: string) {
 	if (kind === "not-found") {
 		return FileQuestion;
 	}
-	if (title.includes("pripojen")) {
+	if (title.includes("connection") || title.includes("Connection")) {
 		return WifiOff;
 	}
 	return AlertTriangle;
@@ -70,14 +70,14 @@ export function ErrorFallback({
 
 	const title =
 		titleOverride ??
-		(kind === "not-found" ? "Stránka sa nenašla" : (friendly?.title ?? "Niečo sa pokazilo"));
+		(kind === "not-found" ? "Page not found" : (friendly?.title ?? "Something went wrong"));
 
 	const description =
 		descriptionOverride ??
 		(kind === "not-found"
-			? "Odkaz môže byť neplatný, stránka bola presunutá alebo už neexistuje."
+			? "The link may be invalid, the page may have moved, or it no longer exists."
 			: (friendly?.description ??
-				"Vyskytla sa neočakávaná chyba. Skúste obnoviť stránku."));
+				"An unexpected error occurred. Try refreshing the page."));
 
 	const hint = friendly?.hint;
 	const Icon = getIcon(kind, title);
@@ -94,22 +94,22 @@ export function ErrorFallback({
 		const ok = await copyErrorReference(error);
 		setCopying(false);
 		if (ok) {
-			toast.success("Referencia skopírovaná");
+			toast.success("Reference copied");
 		} else {
-			toast.error("Kopírovanie zlyhalo");
+			toast.error("Copy failed");
 		}
 	}
 
 	const recoverySteps =
 		kind === "not-found"
 			? [
-					"Skontrolujte, či je adresa v prehliadači správna.",
-					"Vráťte sa na dashboard a pokračujte odtiaľ.",
+					"Check that the address in your browser is correct.",
+					"Return to the dashboard and continue from there.",
 				]
 			: [
-					"Skúste akciu zopakovať — väčšina chýb je dočasná.",
-					"Obnovte stránku, ak ste práve dostali novú verziu aplikácie.",
-					"Pri opakovanom výskyte skopírujte referenčné ID nižšie.",
+					"Try the action again — most errors are temporary.",
+					"Refresh the page if you just received a new version of the app.",
+					"If it keeps happening, copy the reference ID below.",
 				];
 
 	return (
@@ -159,7 +159,7 @@ export function ErrorFallback({
 					<CardContent className="space-y-5 pt-6">
 						<div className="space-y-2">
 							<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-								Čo môžete skúsiť
+								What you can try
 							</p>
 							<ul className="space-y-1.5 text-sm text-foreground">
 								{recoverySteps.map((step) => (
@@ -175,7 +175,7 @@ export function ErrorFallback({
 							{reset ? (
 								<Button onClick={() => reset()} className="gap-2 sm:flex-1">
 									<RefreshCcw className="size-4" />
-									Skúsiť znova
+									Try again
 								</Button>
 							) : null}
 							{showBack ? (
@@ -185,7 +185,7 @@ export function ErrorFallback({
 									onClick={() => window.history.back()}
 								>
 									<ArrowLeft className="size-4" />
-									Späť
+									Back
 								</Button>
 							) : null}
 							<Button
@@ -195,7 +195,7 @@ export function ErrorFallback({
 							>
 								<Link href={homeHref}>
 									<Home className="size-4" />
-									{homeHref.startsWith("/dashboard") ? "Dashboard" : "Domov"}
+									{homeHref.startsWith("/dashboard") ? "Dashboard" : "Home"}
 								</Link>
 							</Button>
 						</div>
@@ -213,7 +213,7 @@ export function ErrorFallback({
 									) : (
 										<ChevronDown className="size-4" />
 									)}
-									Technické detaily
+									Technical details
 								</Button>
 
 								{showDetails ? (
@@ -232,7 +232,7 @@ export function ErrorFallback({
 													onClick={() => void handleCopyReference()}
 												>
 													<Copy className="size-3" />
-													Kopírovať
+													Copy
 												</Button>
 											</div>
 										) : null}

@@ -38,7 +38,7 @@ describe("Component: NoteList", () => {
 		});
 
 		render(<NoteList />);
-		expect(screen.getByText("Žiadne poznámky")).toBeDefined();
+		expect(screen.getByText("No notes")).toBeDefined();
 	});
 
 	test("renders a list of notes", () => {
@@ -71,7 +71,7 @@ describe("Component: NoteList", () => {
 		});
 
 		render(<NoteList />);
-		const input = screen.getByPlaceholderText(/Hľadať v poznámkach/i);
+		const input = screen.getByPlaceholderText(/Search notes/i);
 		fireEvent.change(input, { target: { value: "test query" } });
 
 		expect((input as HTMLInputElement).value).toBe("test query");

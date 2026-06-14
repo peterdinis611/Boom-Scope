@@ -28,8 +28,7 @@ describe("Component: DashboardHeader", () => {
 			</SidebarProvider>,
 		);
 
-		expect(screen.getByText("Poznámky")).toBeDefined();
-		expect(screen.getByText(/Správa vašich poznámok/i)).toBeDefined();
+		expect(screen.getByText("Notes")).toBeDefined();
 	});
 
 	test("toggles sidebar on button click", () => {
@@ -41,9 +40,9 @@ describe("Component: DashboardHeader", () => {
 			</SidebarProvider>,
 		);
 
-		const toggleBtn = screen.getByTitle(/Zatvoriť bočný panel/i);
+		const toggleBtn = screen.getByTitle(/Close sidebar/i);
 		fireEvent.click(toggleBtn);
 
-		expect(screen.getByTitle(/Otvoriť bočný panel/i)).toBeDefined();
+		expect(screen.getByTitle(/Open sidebar/i)).toBeDefined();
 	});
 });

@@ -1,86 +1,29 @@
 "use client";
 
-import {
-	FileText,
-	FolderKanban,
-	Palette,
-	Sparkles,
-	Timer,
-	X,
-	Zap,
-} from "lucide-react";
+import { X, Zap } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import type { ElementType } from "react";
 import { useState } from "react";
+
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { cn } from "@/lib/utils";
 
-type QuickAction = {
-	id: string;
-	label: string;
-	description: string;
-	icon: ElementType;
-	color: string;
-	onClick: () => void;
-};
+import { QUICK_ACTION_ITEMS, type QuickActionItem } from "./quick-action-items";
 
 export function QuickActions() {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
 
-	const runAction = (action: () => void) => {
-		action();
+	const runAction = (item: QuickActionItem) => {
+		if (item.action === "note") {
+			setIsNoteOpen(true);
+		} else if (item.href) {
+			router.push(item.href as Route);
+		}
 		setIsOpen(false);
 	};
-
-	const actions: QuickAction[] = [
-		{
-			id: "note",
-			label: "Poznámka",
-			description: "Rýchla poznámka",
-			icon: FileText,
-			color:
-				"bg-emerald-500/15 text-emerald-500 border-emerald-500/25 hover:bg-emerald-500/25",
-			onClick: () => setIsNoteOpen(true),
-		},
-		{
-			id: "canvas",
-			label: "Canvas",
-			description: "Otvoriť editor",
-			icon: Palette,
-			color: "bg-primary/15 text-primary border-primary/25 hover:bg-primary/25",
-			onClick: () => router.push("/dashboard/canvas" as Route),
-		},
-		{
-			id: "generator",
-			label: "AI Studio",
-			description: "Generovať dizajn",
-			icon: Sparkles,
-			color:
-				"bg-violet-500/15 text-violet-500 border-violet-500/25 hover:bg-violet-500/25",
-			onClick: () => router.push("/dashboard/generator" as Route),
-		},
-		{
-			id: "pomodoro",
-			label: "Pomodoro",
-			description: "Spustiť timer",
-			icon: Timer,
-			color:
-				"bg-amber-500/15 text-amber-500 border-amber-500/25 hover:bg-amber-500/25",
-			onClick: () => router.push("/dashboard/pomodoro" as Route),
-		},
-		{
-			id: "project",
-			label: "Projekt",
-			description: "Spravovať projekty",
-			icon: FolderKanban,
-			color: "bg-sky-500/15 text-sky-500 border-sky-500/25 hover:bg-sky-500/25",
-			onClick: () => router.push("/dashboard/projects" as Route),
-		},
-	];
 
 	return (
 		<>
@@ -93,7 +36,7 @@ export function QuickActions() {
 							exit={{ opacity: 0 }}
 							className="mb-3 flex flex-col gap-2"
 						>
-							{actions.map((action, index) => {
+							{QUICK_ACTION_ITEMS.map((action, index) => {
 								const Icon = action.icon;
 								return (
 									<motion.button
@@ -106,7 +49,7 @@ export function QuickActions() {
 											x: -24,
 											scale: 0.85,
 											transition: {
-												delay: (actions.length - 1 - index) * 0.04,
+												delay: (QUICK_ACTION_ITEMS.length - 1 - index) * 0.04,
 											},
 										}}
 										transition={{
@@ -117,17 +60,16 @@ export function QuickActions() {
 										}}
 										whileHover={{ scale: 1.04, x: 4 }}
 										whileTap={{ scale: 0.96 }}
-										onClick={() => runAction(action.onClick)}
+										onClick={() => runAction(action)}
 										className={cn(
 											"group flex min-w-[11.5rem] items-center gap-3 rounded-2xl border px-3.5 py-3 shadow-lg backdrop-blur-xl transition-colors",
-											"bg-background/90 dark:bg-background/75",
-											action.color,
+											"border-border/60 bg-background/90 dark:bg-background/75",
 										)}
 									>
 										<span
 											className={cn(
 												"flex size-10 shrink-0 items-center justify-center rounded-xl border",
-												action.color,
+												action.iconClassName,
 											)}
 										>
 											<Icon className="size-5" />
@@ -159,7 +101,7 @@ export function QuickActions() {
 					whileHover={{ scale: 1.06 }}
 					whileTap={{ scale: 0.94 }}
 					aria-expanded={isOpen}
-					aria-label={isOpen ? "Zavrieť rýchle akcie" : "Otvoriť rýchle akcie"}
+					aria-label={isOpen ? "Close quick actions" : "Open quick actions"}
 				>
 					<AnimatePresence mode="wait" initial={false}>
 						{isOpen ? (

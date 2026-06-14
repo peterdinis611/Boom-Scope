@@ -6,7 +6,7 @@ function getOpenAI(): OpenAI {
 	const apiKey = process.env.OPENAI_API_KEY;
 	if (!apiKey) {
 		throw new ConvexError(
-			"Chýba OPENAI_API_KEY v Convex prostredí. Pridajte ho cez `npx convex env set OPENAI_API_KEY <key>`.",
+			"Missing OPENAI_API_KEY in Convex environment. Add it via `npx convex env set OPENAI_API_KEY <key>`.",
 		);
 	}
 	return new OpenAI({ apiKey });

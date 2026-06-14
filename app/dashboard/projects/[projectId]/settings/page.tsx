@@ -58,9 +58,9 @@ export default function ProjectSettingsPage() {
 	if (project === null) {
 		return (
 			<PageContainer>
-				<p className="text-sm text-muted-foreground">Projekt neexistuje.</p>
+				<p className="text-sm text-muted-foreground">Project does not exist.</p>
 				<Button onClick={() => router.push("/dashboard/projects")}>
-					Späť na projekty
+					Back to projects
 				</Button>
 			</PageContainer>
 		);
@@ -68,7 +68,7 @@ export default function ProjectSettingsPage() {
 
 	const handleUpdate = async () => {
 		if (!name.trim()) {
-			toast.error("Názov projektu nemôže byť prázdny");
+			toast.error("Project name cannot be empty");
 			return;
 		}
 		setIsUpdating(true);
@@ -78,9 +78,9 @@ export default function ProjectSettingsPage() {
 				name,
 				description,
 			});
-			toast.success("Projekt bol aktualizovaný");
+			toast.success("Project was updated");
 		} catch {
-			toast.error("Chyba pri aktualizácii projektu");
+			toast.error("Error updating project");
 		} finally {
 			setIsUpdating(false);
 		}
@@ -88,16 +88,16 @@ export default function ProjectSettingsPage() {
 
 	const handleDelete = async () => {
 		if (deleteConfirm !== project.name) {
-			toast.error("Pre zmazanie zadajte presný názov projektu");
+			toast.error("To delete, enter the exact project name");
 			return;
 		}
 		setIsDeleting(true);
 		try {
 			await deleteProject({ projectId: projectId as Id<"projects"> });
-			toast.success("Projekt bol vymazaný");
+			toast.success("Project was deleted");
 			router.push("/dashboard/projects");
 		} catch {
-			toast.error("Chyba pri mazaní projektu");
+			toast.error("Error deleting project");
 			setIsDeleting(false);
 		}
 	};
@@ -111,18 +111,18 @@ export default function ProjectSettingsPage() {
 				className="gap-2"
 			>
 				<ArrowLeft className="size-4" />
-				Späť na projekt
+				Back to project
 			</Button>
 
-			<PageHeader title="Nastavenia projektu" description={project.name} />
+			<PageHeader title="Project settings" description={project.name} />
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Všeobecné</CardTitle>
+					<CardTitle>General</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="project-name">Názov projektu</Label>
+						<Label htmlFor="project-name">Project name</Label>
 						<Input
 							id="project-name"
 							value={name}
@@ -135,7 +135,7 @@ export default function ProjectSettingsPage() {
 							id="project-description"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
-							placeholder="Krátky popis projektu"
+							placeholder="Short project description"
 						/>
 					</div>
 					<Button
@@ -152,7 +152,7 @@ export default function ProjectSettingsPage() {
 						) : (
 							<Check className="size-4" />
 						)}
-						Uložiť zmeny
+						Save changes
 					</Button>
 				</CardContent>
 			</Card>
@@ -161,16 +161,16 @@ export default function ProjectSettingsPage() {
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2 text-destructive">
 						<AlertTriangle className="size-4" />
-						Nebezpečná zóna
+						Danger zone
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<p className="text-sm text-muted-foreground">
-						Zmazanie projektu je nevratné. Všetky súvisiace dáta budú odstránené.
+						Deleting the project is permanent. All related data will be removed.
 					</p>
 					<div className="space-y-2">
 						<Label htmlFor="delete-confirm">
-							Pre potvrdenie napíšte: {project.name}
+							To confirm, type: {project.name}
 						</Label>
 						<Input
 							id="delete-confirm"
@@ -190,7 +190,7 @@ export default function ProjectSettingsPage() {
 						) : (
 							<Trash2 className="size-4" />
 						)}
-						Trvalo zmazať
+						Delete permanently
 					</Button>
 				</CardContent>
 			</Card>

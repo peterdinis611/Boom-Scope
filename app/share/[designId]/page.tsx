@@ -24,7 +24,7 @@ export default function SharePage() {
 			<div className="flex h-screen w-full items-center justify-center bg-background">
 				<div className="flex flex-col items-center gap-6">
 					<Loader2 className="size-12 animate-spin text-primary opacity-20" />
-					<p className="text-sm text-muted-foreground">Načítavam projekt…</p>
+					<p className="text-sm text-muted-foreground">Loading project…</p>
 				</div>
 			</div>
 		);

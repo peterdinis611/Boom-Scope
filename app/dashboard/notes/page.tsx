@@ -6,8 +6,8 @@ export default function NotesPage() {
 	return (
 		<PageContainer className="space-y-6">
 			<PageHeader
-				title="Poznámky"
-				description="Spravujte a organizujte svoje myšlienky k projektu."
+				title="Notes"
+				description="Manage and organize your project thoughts."
 			/>
 			<NoteList />
 		</PageContainer>

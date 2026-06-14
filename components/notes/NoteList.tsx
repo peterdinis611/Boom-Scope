@@ -68,7 +68,7 @@ export function NoteList() {
 						<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
 					)}
 					<Input
-						placeholder="Hľadať v poznámkach…"
+						placeholder="Search notes…"
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
 						className="pl-9"
@@ -77,7 +77,7 @@ export function NoteList() {
 				<Link href="/dashboard/notes/new">
 					<Button size="sm" className="gap-2">
 						<Plus className="size-4" />
-						Nová poznámka
+						New note
 					</Button>
 				</Link>
 			</div>
@@ -101,16 +101,16 @@ export function NoteList() {
 			) : preservedResults.length === 0 ? (
 				<EmptyState
 					icon={Search}
-					title="Žiadne poznámky"
+					title="No notes"
 					description={
 						searchTerm
-							? "Skúste zadať iný vyhľadávací výraz."
-							: "Zatiaľ ste nevytvorili žiadnu poznámku."
+							? "Try a different search term."
+							: "You have not created any notes yet."
 					}
 					action={
 						!searchTerm ? (
 							<Link href="/dashboard/notes/new">
-								<Button>Nová poznámka</Button>
+								<Button>New note</Button>
 							</Link>
 						) : undefined
 					}
@@ -141,7 +141,7 @@ export function NoteList() {
 												e.stopPropagation();
 												downloadNoteAsTxt(note.title, note.content);
 											}}
-											title="Stiahnuť ako .txt"
+											title="Download as .txt"
 										>
 											<Download className="size-3.5" />
 										</Button>
@@ -154,7 +154,7 @@ export function NoteList() {
 												e.stopPropagation();
 												downloadNoteAsPdf(note.title, note.content);
 											}}
-											title="Stiahnuť ako .pdf"
+											title="Download as .pdf"
 										>
 											<FileText className="size-3.5" />
 										</Button>
@@ -208,7 +208,7 @@ export function NoteList() {
 			{status === "CanLoadMore" && (
 				<div className="flex justify-center pt-4">
 					<Button variant="outline" onClick={() => loadMore(9)}>
-						Načítať viac
+						Load more
 					</Button>
 				</div>
 			)}

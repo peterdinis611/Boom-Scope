@@ -92,23 +92,23 @@ describe("Component: PomodoroTimer", () => {
 		test("renders the mode description", () => {
 			renderTimer();
 			expect(
-				screen.getByText(/Time to concentrate on your tasks/i),
+				screen.getByText(/Time for focused work/i),
 			).toBeDefined();
 		});
 
-		test("shows 'Pripravený' status when timer is not running", () => {
+		test("shows 'Ready' status when timer is not running", () => {
 			renderTimer();
-			expect(screen.getByText("Pripravený")).toBeDefined();
+			expect(screen.getByText("Ready")).toBeDefined();
 		});
 
 		test("renders all three mode selector buttons", () => {
 			renderTimer();
 			// Each label appears in the mode selector buttons — use getAllByText
 			expect(screen.getAllByText("Focus").length).toBeGreaterThanOrEqual(1);
-			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(
+			expect(screen.getAllByText("Short break").length).toBeGreaterThanOrEqual(
 				1,
 			);
-			expect(screen.getAllByText("Long Break").length).toBeGreaterThanOrEqual(
+			expect(screen.getAllByText("Long break").length).toBeGreaterThanOrEqual(
 				1,
 			);
 		});
@@ -116,30 +116,30 @@ describe("Component: PomodoroTimer", () => {
 		test("renders Reset and Skip control buttons", () => {
 			renderTimer();
 			expect(screen.getByTitle("Reset")).toBeDefined();
-			expect(screen.getByTitle("Preskočiť")).toBeDefined();
+			expect(screen.getByTitle("Skip")).toBeDefined();
 		});
 
 		test("renders the stats cards at the bottom", () => {
 			renderTimer();
 			expect(screen.getByText("25m")).toBeDefined();
 			expect(screen.getByText("5m")).toBeDefined();
-			expect(screen.getByText("4 cykly")).toBeDefined();
-			expect(screen.getByText("Ideálny focus")).toBeDefined();
-			expect(screen.getByText("Krátky relax")).toBeDefined();
-			expect(screen.getByText("Pred dlhou pauzou")).toBeDefined();
+			expect(screen.getByText("4 cycles")).toBeDefined();
+			expect(screen.getByText("Ideal focus session")).toBeDefined();
+			expect(screen.getByText("Short break")).toBeDefined();
+			expect(screen.getByText("Before long break")).toBeDefined();
 		});
 	});
 
 	describe("Play/Pause control", () => {
-		test("changes status text to 'Sústredenie...' when timer starts", () => {
+		test("changes status text to 'Focus...' when timer starts", () => {
 			renderTimer();
 			act(() => {
 				fireEvent.click(getPlayPauseButton());
 			});
-			expect(screen.getByText("Sústredenie...")).toBeDefined();
+			expect(screen.getByText("Focus...")).toBeDefined();
 		});
 
-		test("reverts status to 'Pripravený' after pausing", () => {
+		test("reverts status to 'Ready' after pausing", () => {
 			renderTimer();
 			act(() => {
 				fireEvent.click(getPlayPauseButton());
@@ -147,7 +147,7 @@ describe("Component: PomodoroTimer", () => {
 			act(() => {
 				fireEvent.click(getPlayPauseButton());
 			});
-			expect(screen.getByText("Pripravený")).toBeDefined();
+			expect(screen.getByText("Ready")).toBeDefined();
 		});
 
 		test("timer counts down after starting", () => {
@@ -193,30 +193,30 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(screen.getByTitle("Reset"));
 			});
 			expect(screen.getByText("25:00")).toBeDefined();
-			expect(screen.getByText("Pripravený")).toBeDefined();
+			expect(screen.getByText("Ready")).toBeDefined();
 		});
 	});
 
 	describe("Skip control", () => {
-		test("skips from Focus to Short Break, showing 05:00", () => {
+		test("skips from Focus to Short break, showing 05:00", () => {
 			renderTimer();
 			act(() => {
-				fireEvent.click(screen.getByTitle("Preskočiť"));
+				fireEvent.click(screen.getByTitle("Skip"));
 			});
-			// Both the button and the heading show "Short Break" — check heading in the card
-			expect(screen.getAllByText("Short Break").length).toBeGreaterThanOrEqual(
+			// Both the button and the heading show "Short break" — check heading in the card
+			expect(screen.getAllByText("Short break").length).toBeGreaterThanOrEqual(
 				1,
 			);
 			expect(screen.getByText("05:00")).toBeDefined();
 		});
 
-		test("skips from Short Break back to Focus, showing 25:00", () => {
+		test("skips from Short break back to Focus, showing 25:00", () => {
 			renderTimer();
 			act(() => {
-				fireEvent.click(screen.getByTitle("Preskočiť")); // → shortBreak
+				fireEvent.click(screen.getByTitle("Skip")); // → shortBreak
 			});
 			act(() => {
-				fireEvent.click(screen.getByTitle("Preskočiť")); // → focus
+				fireEvent.click(screen.getByTitle("Skip")); // → focus
 			});
 			expect(screen.getByText("25:00")).toBeDefined();
 		});
@@ -227,16 +227,16 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(getPlayPauseButton()); // start
 			});
 			act(() => {
-				fireEvent.click(screen.getByTitle("Preskočiť")); // skip
+				fireEvent.click(screen.getByTitle("Skip")); // skip
 			});
-			expect(screen.getByText("Pripravený")).toBeDefined();
+			expect(screen.getByText("Ready")).toBeDefined();
 		});
 	});
 
 	describe("Mode selector buttons", () => {
-		test("clicking Short Break updates the timer to 05:00", () => {
+		test("clicking Short break updates the timer to 05:00", () => {
 			renderTimer();
-			const shortBreakBtns = screen.getAllByText("Short Break");
+			const shortBreakBtns = screen.getAllByText("Short break");
 			// The first one is the mode-selector button
 			act(() => {
 				fireEvent.click(shortBreakBtns[0]);
@@ -245,9 +245,9 @@ describe("Component: PomodoroTimer", () => {
 			expect(screen.getByText(/Quick rest to recharge/i)).toBeDefined();
 		});
 
-		test("clicking Long Break updates the timer to 15:00", () => {
+		test("clicking Long break updates the timer to 15:00", () => {
 			renderTimer();
-			const longBreakBtns = screen.getAllByText("Long Break");
+			const longBreakBtns = screen.getAllByText("Long break");
 			act(() => {
 				fireEvent.click(longBreakBtns[0]);
 			});
@@ -271,20 +271,20 @@ describe("Component: PomodoroTimer", () => {
 	describe("Settings panel (inline via mock)", () => {
 		test("renders the settings heading", () => {
 			renderTimer();
-			expect(screen.getByText("Nastavenia časovača")).toBeDefined();
+			expect(screen.getByText("Timer settings")).toBeDefined();
 		});
 
 		test("renders labels for focus, short break, and long break durations", () => {
 			renderTimer();
-			expect(screen.getByLabelText(/Focus \(minút\)/i)).toBeDefined();
-			expect(screen.getByLabelText(/Krátka prestávka/i)).toBeDefined();
-			expect(screen.getByLabelText(/Dlhá prestávka/i)).toBeDefined();
+			expect(screen.getByLabelText(/Focus \(minutes\)/i)).toBeDefined();
+			expect(screen.getByLabelText(/Short break/i)).toBeDefined();
+			expect(screen.getByLabelText(/Long break/i)).toBeDefined();
 		});
 
 		test("focus input has default value of 25", () => {
 			renderTimer();
 			const focusInput = screen.getByLabelText(
-				/Focus \(minút\)/i,
+				/Focus \(minutes\)/i,
 			) as HTMLInputElement;
 			expect(focusInput.value).toBe("25");
 		});
@@ -292,7 +292,7 @@ describe("Component: PomodoroTimer", () => {
 		test("short break input has default value of 5", () => {
 			renderTimer();
 			const shortBreakInput = screen.getByLabelText(
-				/Krátka prestávka/i,
+				/Short break/i,
 			) as HTMLInputElement;
 			expect(shortBreakInput.value).toBe("5");
 		});
@@ -300,7 +300,7 @@ describe("Component: PomodoroTimer", () => {
 		test("long break input has default value of 15", () => {
 			renderTimer();
 			const longBreakInput = screen.getByLabelText(
-				/Dlhá prestávka/i,
+				/Long break/i,
 			) as HTMLInputElement;
 			expect(longBreakInput.value).toBe("15");
 		});
@@ -308,7 +308,7 @@ describe("Component: PomodoroTimer", () => {
 		test("changing focus duration updates the displayed timer", () => {
 			renderTimer();
 			const focusInput = screen.getByLabelText(
-				/Focus \(minút\)/i,
+				/Focus \(minutes\)/i,
 			) as HTMLInputElement;
 			act(() => {
 				fireEvent.change(focusInput, { target: { value: "30" } });
@@ -316,16 +316,16 @@ describe("Component: PomodoroTimer", () => {
 			expect(screen.getByText("30:00")).toBeDefined();
 		});
 
-		test("renders the 'Uložiť a zavrieť' close button", () => {
+		test("renders the 'Save and close' close button", () => {
 			renderTimer();
-			expect(screen.getByText(/Uložiť a zavrieť/i)).toBeDefined();
+			expect(screen.getByText(/Save and close/i)).toBeDefined();
 		});
 	});
 
 	describe("Time formatting", () => {
 		test("formats single-digit seconds with a leading zero", () => {
 			renderTimer();
-			const shortBreakBtns = screen.getAllByText("Short Break");
+			const shortBreakBtns = screen.getAllByText("Short break");
 			act(() => {
 				fireEvent.click(shortBreakBtns[0]); // 05:00
 			});
@@ -345,16 +345,16 @@ describe("Component: PomodoroTimer", () => {
 			renderTimer();
 			// Short break is only 5 min — set it to 5s via settings input
 			const focusDurationInput = screen.getByLabelText(
-				/Focus \(minút\)/i,
+				/Focus \(minutes\)/i,
 			) as HTMLInputElement;
 			// Switch to short break first
-			const shortBreakBtns = screen.getAllByText("Short Break");
+			const shortBreakBtns = screen.getAllByText("Short break");
 			act(() => {
 				fireEvent.click(shortBreakBtns[0]);
 			});
 			// Manually update the short break to 1 second via updateSettings
 			const shortBreakInput = screen.getByLabelText(
-				/Krátka prestávka/i,
+				/Short break/i,
 			) as HTMLInputElement;
 			act(() => {
 				// Set to 0 minutes (= 0 seconds, clamp to at least 1s to trigger)
@@ -367,7 +367,7 @@ describe("Component: PomodoroTimer", () => {
 				vi.advanceTimersByTime(1000); // timer hits 0
 			});
 			// Timer completes and stops
-			expect(screen.getByText("Pripravený")).toBeDefined();
+			expect(screen.getByText("Ready")).toBeDefined();
 		});
 	});
 });

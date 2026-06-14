@@ -58,22 +58,22 @@ export function PomodoroTimer() {
 		{ label: string; icon: LucideIcon; color: string; description: string }
 	> = {
 		focus: {
-			label: "Sústredenie",
+			label: "Focus",
 			icon: Brain,
 			color: "text-primary",
-			description: "Čas na sústredenú prácu",
+			description: "Time for focused work",
 		},
 		shortBreak: {
-			label: "Krátka pauza",
+			label: "Short break",
 			icon: Coffee,
 			color: "text-success",
-			description: "Rýchly oddych",
+			description: "Quick rest",
 		},
 		longBreak: {
-			label: "Dlhá pauza",
+			label: "Long break",
 			icon: Clock,
 			color: "text-primary",
-			description: "Dlhší oddych na regeneráciu",
+			description: "Longer rest to recharge",
 		},
 	};
 
@@ -158,7 +158,7 @@ export function PomodoroTimer() {
 								</motion.span>
 							</AnimatePresence>
 							<span className="text-sm font-medium text-muted-foreground mt-2 uppercase tracking-widest">
-								{isActive ? "Sústredenie..." : "Pripravený"}
+								{isActive ? "Focus..." : "Ready"}
 							</span>
 						</div>
 					</div>
@@ -197,7 +197,7 @@ export function PomodoroTimer() {
 							size="icon-lg"
 							onClick={skipMode}
 							className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
-							title="Preskočiť"
+							title="Skip"
 						>
 							<SkipForward className="size-6" />
 						</Button>
@@ -216,16 +216,16 @@ export function PomodoroTimer() {
 								<div className="space-y-2">
 									<h4 className="font-bold leading-none flex items-center gap-2">
 										<Settings2 className="size-4" />
-										Nastavenia časovača
+										Timer settings
 									</h4>
 									<p className="text-sm text-muted-foreground">
-										Prispôsobte si dĺžku jednotlivých intervalov.
+										Customize the length of each interval.
 									</p>
 								</div>
 
 								<div className="space-y-4">
 									<div className="space-y-2">
-										<Label htmlFor="focus">Sústredenie (minút)</Label>
+										<Label htmlFor="focus">Focus (minutes)</Label>
 										<Input
 											id="focus"
 											type="number"
@@ -239,7 +239,7 @@ export function PomodoroTimer() {
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="shortBreak">Krátka prestávka (minút)</Label>
+										<Label htmlFor="shortBreak">Short break (minutes)</Label>
 										<Input
 											id="shortBreak"
 											type="number"
@@ -253,7 +253,7 @@ export function PomodoroTimer() {
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="longBreak">Dlhá prestávka (minút)</Label>
+										<Label htmlFor="longBreak">Long break (minutes)</Label>
 										<Input
 											id="longBreak"
 											type="number"
@@ -274,7 +274,7 @@ export function PomodoroTimer() {
 										variant="secondary"
 										onClick={() => setIsSettingsOpen(false)}
 									>
-										Uložiť a zavrieť
+										Save and close
 									</Button>
 								</div>
 							</div>
@@ -290,7 +290,7 @@ export function PomodoroTimer() {
 						<Brain className="size-5 text-primary" />
 						<div className="text-xl font-semibold">25m</div>
 						<div className="text-xs text-muted-foreground">
-							Ideálne sústredenie
+							Ideal focus session
 						</div>
 					</CardContent>
 				</Card>
@@ -298,15 +298,15 @@ export function PomodoroTimer() {
 					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
 						<Coffee className="size-5 text-success" />
 						<div className="text-xl font-semibold">5m</div>
-						<div className="text-xs text-muted-foreground">Krátka prestávka</div>
+						<div className="text-xs text-muted-foreground">Short break</div>
 					</CardContent>
 				</Card>
 				<Card>
 					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
 						<RotateCcw className="size-5 text-muted-foreground" />
-						<div className="text-xl font-semibold">4 cykly</div>
+						<div className="text-xl font-semibold">4 cycles</div>
 						<div className="text-xs text-muted-foreground">
-							Pred dlhou pauzou
+							Before long break
 						</div>
 					</CardContent>
 				</Card>

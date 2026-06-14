@@ -57,9 +57,9 @@ export default function ProjectsPage() {
 			await createProject({ name: newProjectName });
 			setNewProjectName("");
 			setIsCreateOpen(false);
-			toast.success("Projekt vytvorený.");
+			toast.success("Project created.");
 		} catch {
-			toast.error("Nepodarilo sa vytvoriť projekt.");
+			toast.error("Failed to create project.");
 		}
 	};
 
@@ -68,10 +68,10 @@ export default function ProjectsPage() {
 		setDeleting(true);
 		try {
 			await deleteProject({ projectId: deleteTarget });
-			toast.success("Projekt vymazaný.");
+			toast.success("Project deleted.");
 			setDeleteTarget(null);
 		} catch {
-			toast.error("Chyba pri mazaní projektu.");
+			toast.error("Error deleting project.");
 		} finally {
 			setDeleting(false);
 		}
@@ -80,12 +80,12 @@ export default function ProjectsPage() {
 	return (
 		<PageContainer className="space-y-6">
 			<PageHeader
-				title="Projekty"
-				description="Spravujte všetky svoje projekty na jednom mieste."
+				title="Projects"
+				description="Manage all your projects in one place."
 				actions={
 					<Button onClick={() => setIsCreateOpen(true)} className="gap-2">
 						<Plus className="size-4" />
-						Nový projekt
+						New project
 					</Button>
 				}
 			/>
@@ -93,7 +93,7 @@ export default function ProjectsPage() {
 			<div className="relative max-w-sm">
 				<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
-					placeholder="Hľadať projekt…"
+					placeholder="Search projects…"
 					className="pl-9"
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
@@ -118,11 +118,11 @@ export default function ProjectsPage() {
 					<div className="col-span-full">
 						<EmptyState
 							icon={FolderKanban}
-							title="Žiadne projekty"
-							description="Vytvorte si prvý projekt a začnite pracovať."
+							title="No projects"
+							description="Create your first project and get started."
 							action={
 								<Button onClick={() => setIsCreateOpen(true)}>
-									Nový projekt
+									New project
 								</Button>
 							}
 						/>
@@ -148,7 +148,7 @@ export default function ProjectsPage() {
 									<Button
 										variant="ghost"
 										size="icon-sm"
-										aria-label="Možnosti projektu"
+										aria-label="Project options"
 									>
 										<MoreVertical className="size-4" />
 									</Button>
@@ -159,7 +159,7 @@ export default function ProjectsPage() {
 										onClick={() => setDeleteTarget(project._id)}
 									>
 										<Trash2 className="size-4" />
-										Vymazať
+										Delete
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
@@ -167,7 +167,7 @@ export default function ProjectsPage() {
 						<CardContent>
 							<Link href={`/dashboard/projects/${project._id}`}>
 								<p className="line-clamp-2 text-sm text-muted-foreground">
-									{project.description || "Bez popisu"}
+									{project.description || "No description"}
 								</p>
 							</Link>
 						</CardContent>
@@ -178,17 +178,17 @@ export default function ProjectsPage() {
 			<Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Nový projekt</DialogTitle>
+						<DialogTitle>New project</DialogTitle>
 					</DialogHeader>
 					<form onSubmit={handleCreate} className="space-y-4">
 						<div className="space-y-2">
-							<Label htmlFor="project-name">Názov projektu</Label>
+							<Label htmlFor="project-name">Project name</Label>
 							<Input
 								id="project-name"
 								autoFocus
 								value={newProjectName}
 								onChange={(e) => setNewProjectName(e.target.value)}
-								placeholder="Napr. Webová aplikácia"
+								placeholder="e.g. Web application"
 							/>
 						</div>
 						<DialogFooter>
@@ -197,10 +197,10 @@ export default function ProjectsPage() {
 								variant="outline"
 								onClick={() => setIsCreateOpen(false)}
 							>
-								Zrušiť
+								Cancel
 							</Button>
 							<Button type="submit" disabled={!newProjectName.trim()}>
-								Vytvoriť
+								Create
 							</Button>
 						</DialogFooter>
 					</form>
@@ -210,9 +210,9 @@ export default function ProjectsPage() {
 			<ConfirmDialog
 				open={deleteTarget !== null}
 				onOpenChange={(open) => !open && setDeleteTarget(null)}
-				title="Vymazať projekt?"
-				description="Táto akcia je nevratná."
-				confirmLabel="Vymazať"
+				title="Delete project?"
+				description="This action cannot be undone."
+				confirmLabel="Delete"
 				variant="destructive"
 				onConfirm={handleDelete}
 				loading={deleting}

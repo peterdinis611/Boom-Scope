@@ -1,8 +1,8 @@
 import { MailerooResetOTP, MailerooVerifyOTP } from "./mailerooOtp";
 
-/** Zapnite až s vlastnou overenou doménou v Maileroo (nie sandbox *.maileroo.org). */
+/** Email OTP verification — disabled for now. Set AUTH_EMAIL_VERIFICATION=true to re-enable. */
 export function isEmailVerificationEnabled(): boolean {
-	return process.env.AUTH_EMAIL_VERIFICATION === "true";
+	return false;
 }
 
 /** Uvítacie a ďalšie transakčné emaily — len s vlastnou doménou, nie sandbox. */

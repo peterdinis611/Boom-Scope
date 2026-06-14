@@ -9,100 +9,92 @@ import {
 	Title,
 	Trigger,
 } from "@radix-ui/react-dialog";
-import {
-	FileText,
-	FolderKanban,
-	Layout,
-	LayoutDashboard,
-	Menu,
-	Palette,
-	Settings as SettingsIcon,
-	Sparkles,
-	Timer,
-	X,
-} from "lucide-react";
+import { Menu, PanelLeftClose, X, Zap } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type DashboardNavId =
-	| "overview"
-	| "projects"
-	| "notes"
-	| "design"
-	| "design-system"
-	| "generate"
-	| "pomodoro"
-	| "settings";
+import {
+	DASHBOARD_NAV_GROUPS,
+	DASHBOARD_NAV_ITEMS,
+	type DashboardNavItem,
+	isDashboardNavItemActive,
+} from "./dashboard-nav-items";
+import { useSidebar } from "./sidebar-context";
 
-const navItems: {
-	id: DashboardNavId;
-	label: string;
-	description: string;
-	icon: React.ElementType;
-	href?: Route;
-	soon?: boolean;
-}[] = [
-	{
-		id: "overview",
-		label: "Prehľad",
-		description: "Domovská stránka projektu",
-		icon: LayoutDashboard,
-		href: "/dashboard",
-	},
-	{
-		id: "projects",
-		label: "Projekty",
-		description: "Spravovať vaše projekty",
-		icon: FolderKanban,
-		href: "/dashboard/projects",
-	},
-	{
-		id: "notes",
-		label: "Poznámky",
-		description: "Písať poznámky k projektu",
-		icon: FileText,
-		href: "/dashboard/notes",
-	},
-	{
-		id: "design",
-		label: "Canvas",
-		description: "Pracovný priestor pre dizajn",
-		icon: Palette,
-		href: "/dashboard/canvas",
-	},
-	{
-		id: "design-system",
-		label: "Design System",
-		description: "Vizuálna DNA projektu",
-		icon: Layout,
-		href: "/dashboard/design-system/v2",
-	},
-	{
-		id: "generate",
-		label: "AI Generátor",
-		description: "Generovať multi-viewport dizajn",
-		icon: Sparkles,
-		href: "/dashboard/generator",
-	},
-	{
-		id: "pomodoro",
-		label: "Pomodoro",
-		description: "Sústredená práca s časovačom",
-		icon: Timer,
-		href: "/dashboard/pomodoro" as Route,
-	},
-	{
-		id: "settings",
-		label: "Nastavenia",
-		description: "Správa účtu a preferencií",
-		icon: SettingsIcon,
-		href: "/dashboard/settings" as Route,
-	},
-];
+function NavItemLink({
+	item,
+	isActive,
+	onNavigate,
+}: {
+	item: DashboardNavItem;
+	isActive: boolean;
+	onNavigate?: () => void;
+}) {
+	const Icon = item.icon;
+
+	if (!item.href) {
+		return (
+			<div
+				role="link"
+				aria-disabled="true"
+				tabIndex={-1}
+				className="flex cursor-not-allowed items-center gap-3 rounded-xl px-2.5 py-2 text-sm text-muted-foreground opacity-70"
+			>
+				<span
+					className={cn(
+						"flex size-8 shrink-0 items-center justify-center rounded-lg border",
+						item.iconClassName,
+					)}
+				>
+					<Icon className="size-4" aria-hidden="true" />
+				</span>
+				<span className="font-medium leading-none">{item.label}</span>
+			</div>
+		);
+	}
+
+	return (
+		<Link
+			href={item.href}
+			onClick={onNavigate}
+			data-active={isActive}
+			aria-current={isActive ? "page" : undefined}
+			className={cn(
+				"group relative flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition-colors",
+				"hover:bg-sidebar-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+				isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+			)}
+		>
+			{isActive ? (
+				<span
+					className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary"
+					aria-hidden="true"
+				/>
+			) : null}
+			<span
+				className={cn(
+					"flex size-8 shrink-0 items-center justify-center rounded-lg border transition-colors",
+					isActive ? item.activeIconClassName : item.iconClassName,
+				)}
+			>
+				<Icon className="size-4" aria-hidden="true" />
+			</span>
+			<span className="min-w-0 flex-1">
+				<span className="block font-medium leading-tight">{item.label}</span>
+				{isActive ? (
+					<span className="mt-0.5 block truncate text-xs leading-snug text-muted-foreground">
+						{item.description}
+					</span>
+				) : null}
+			</span>
+		</Link>
+	);
+}
 
 function NavLinks({
 	onNavigate,
@@ -114,82 +106,71 @@ function NavLinks({
 	const pathname = usePathname();
 
 	return (
-		<nav
-			className={cn("flex flex-col gap-1", className)}
-			aria-label="Hlavná navigácia"
-		>
-			{navItems.map((item) => {
-				const Icon = item.icon;
-				const isActive =
-					(item.id === "overview" && pathname === "/dashboard") ||
-					(item.id !== "overview" &&
-						item.href &&
-						pathname.startsWith(item.href));
-
-				const content = (
-					<>
-						<Icon
-							className={cn(
-								"size-4 shrink-0",
-								isActive ? "text-primary" : "text-muted-foreground",
-							)}
-							aria-hidden
-						/>
-						<span className="font-medium leading-none">{item.label}</span>
-					</>
-				);
-
-				if (item.href) {
-					return (
-						<Link
-							key={item.id}
-							href={item.href}
-							onClick={onNavigate}
-							data-active={isActive}
-							className={cn(
-								"flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-								"hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-								isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
-							)}
-						>
-							{content}
-						</Link>
-					);
-				}
-
-				return (
-					<div
-						key={item.id}
-						role="link"
-						aria-disabled="true"
-						tabIndex={-1}
-						className={cn(
-							"flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground opacity-70",
-							isActive &&
-								"bg-sidebar-accent/40 text-sidebar-foreground opacity-100",
-						)}
-					>
-						{content}
+		<nav className={cn("flex flex-col gap-5", className)} aria-label="Main navigation">
+			{DASHBOARD_NAV_GROUPS.map((group) => (
+				<div key={group.id} className="flex flex-col gap-1">
+					{group.label ? (
+						<p className="px-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground/80 uppercase">
+							{group.label}
+						</p>
+					) : null}
+					<div className="flex flex-col gap-0.5">
+						{group.items.map((item) => (
+							<NavItemLink
+								key={item.id}
+								item={item}
+								isActive={isDashboardNavItemActive(pathname, item)}
+								onNavigate={onNavigate}
+							/>
+						))}
 					</div>
-				);
-			})}
+				</div>
+			))}
 		</nav>
 	);
 }
 
-export function DashboardSidebarNav() {
+function SidebarBrand({ onToggle }: { onToggle?: () => void }) {
 	return (
-		<div className="flex h-full min-h-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-			<div className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-4">
-				<Link
-					href="/dashboard"
-					className="font-heading text-lg font-semibold tracking-tight text-sidebar-foreground"
-				>
+		<div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
+			<Link
+				href="/dashboard"
+				className="flex min-w-0 items-center gap-2.5 rounded-lg px-1 py-1 transition-colors hover:bg-sidebar-accent/60"
+			>
+				<span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
+					<Zap className="size-4" aria-hidden="true" />
+				</span>
+				<span className="truncate font-heading text-base font-semibold tracking-tight text-sidebar-foreground">
 					Boom Scope
-				</Link>
-			</div>
-			<div className="min-h-0 flex-1 overflow-y-auto p-3">
+				</span>
+			</Link>
+			{onToggle ? (
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon-sm"
+					onClick={onToggle}
+					className="shrink-0 text-muted-foreground hover:text-foreground"
+					aria-label="Close sidebar"
+				>
+					<PanelLeftClose className="size-4" />
+				</Button>
+			) : null}
+		</div>
+	);
+}
+
+export function DashboardSidebarNav() {
+	const { toggleSidebar } = useSidebar();
+
+	return (
+		<div className="flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground">
+			<SidebarBrand onToggle={toggleSidebar} />
+			<div className="min-h-0 flex-1 overflow-y-auto px-2 py-4">
 				<NavLinks />
+			</div>
+			<div className="shrink-0 border-t border-sidebar-border px-4 py-3">
+				<p className="text-[11px] text-muted-foreground">Boom Scope · Workspace</p>
 			</div>
 		</div>
 	);
@@ -206,7 +187,7 @@ export function DashboardMobileNav() {
 					variant="outline"
 					size="icon-sm"
 					className="md:hidden"
-					aria-label="Otvoriť menu"
+					aria-label="Open menu"
 				>
 					<Menu className="size-4" />
 				</Button>
@@ -215,25 +196,30 @@ export function DashboardMobileNav() {
 				<Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
 				<Content
 					className={cn(
-						"fixed top-0 left-0 z-50 flex h-full w-[min(100%,18rem)] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg outline-none",
+						"fixed top-0 left-0 z-50 flex h-full w-[min(100%,19rem)] flex-col bg-sidebar text-sidebar-foreground shadow-xl outline-none",
 					)}
 					aria-describedby={undefined}
 				>
-					<div className="flex h-14 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
-						<Title className="font-heading text-lg font-semibold">Menu</Title>
+					<div className="flex h-14 shrink-0 items-center justify-between border-b border-sidebar-border px-3">
+						<Title className="flex items-center gap-2 font-heading text-base font-semibold">
+							<span className="flex size-7 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
+								<Zap className="size-3.5" aria-hidden="true" />
+							</span>
+							Boom Scope
+						</Title>
 						<Close asChild>
 							<Button
 								type="button"
 								variant="ghost"
 								size="icon-sm"
-								aria-label="Zavrieť menu"
+								aria-label="Close menu"
 							>
 								<X className="size-4" />
 							</Button>
 						</Close>
 					</div>
-					<div className="min-h-0 flex-1 overflow-y-auto p-3">
-						<NavLinks onNavigate={() => setOpen(false)} className="gap-0.5" />
+					<div className="min-h-0 flex-1 overflow-y-auto px-2 py-4">
+						<NavLinks onNavigate={() => setOpen(false)} />
 					</div>
 				</Content>
 			</Portal>
@@ -241,4 +227,4 @@ export function DashboardMobileNav() {
 	);
 }
 
-export { navItems };
+export { DASHBOARD_NAV_ITEMS as navItems };

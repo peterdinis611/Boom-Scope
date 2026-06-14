@@ -25,7 +25,7 @@ export type ErrorReport = {
 export function getErrorMessage(error: unknown): string {
 	if (error instanceof Error) return error.message;
 	if (typeof error === "string") return error;
-	return "Neočakávaná chyba";
+	return "Unexpected error";
 }
 
 export function toFriendlyError(
@@ -41,10 +41,10 @@ export function toFriendlyError(
 		msg.includes("dynamically imported module")
 	) {
 		return {
-			title: "Aplikácia bola aktualizovaná",
+			title: "App was updated",
 			description:
-				"Načítanie stránky zlyhalo kvôli novej verzii. Obnovte stránku a skúste znova.",
-			hint: "Ak problém pretrváva, vymažte cache prehliadača.",
+				"Page loading failed due to a new version. Refresh the page and try again.",
+			hint: "If the problem persists, clear your browser cache.",
 			technicalMessage,
 		};
 	}
@@ -56,10 +56,10 @@ export function toFriendlyError(
 		msg.includes("load failed")
 	) {
 		return {
-			title: "Problém s pripojením",
+			title: "Connection problem",
 			description:
-				"Nepodarilo sa spojiť so serverom. Skontrolujte internetové pripojenie.",
-			hint: "Skúste obnoviť stránku o chvíľu.",
+				"Could not connect to the server. Check your internet connection.",
+			hint: "Try refreshing the page in a moment.",
 			technicalMessage,
 		};
 	}
@@ -70,39 +70,39 @@ export function toFriendlyError(
 		msg.includes("unauthenticated")
 	) {
 		return {
-			title: "Relácia vypršala",
+			title: "Session expired",
 			description:
-				"Prihlásenie vypršalo alebo nie ste prihlásený. Prihláste sa znova.",
-			hint: "Vaše rozpracované zmeny nemusia byť uložené.",
+				"Your login expired or you are not signed in. Please sign in again.",
+			hint: "Your unsaved changes may not be saved.",
 			technicalMessage,
 		};
 	}
 
 	if (msg.includes("could not find public function")) {
 		return {
-			title: "Chyba servera",
+			title: "Server error",
 			description:
-				"Aplikácia volá nedostupnú funkciu. Backend môže byť práve nasadený.",
-			hint: "Počkajte chvíľu a obnovte stránku.",
+				"The app is calling an unavailable function. The backend may be deploying.",
+			hint: "Wait a moment and refresh the page.",
 			technicalMessage,
 		};
 	}
 
 	if (msg.includes("timeout") || msg.includes("timed out")) {
 		return {
-			title: "Požiadavka trvala príliš dlho",
-			description: "Server neodpovedal včas. Skúste akciu zopakovať.",
-			hint: "Pri slabom pripojení to môže pomôcť po chvíli.",
+			title: "Request took too long",
+			description: "The server did not respond in time. Try the action again.",
+			hint: "On a slow connection, waiting a moment may help.",
 			technicalMessage,
 		};
 	}
 
 	return {
-		title: "Niečo sa pokazilo",
+		title: "Something went wrong",
 		description:
-			"Vyskytla sa neočakávaná chyba. Skúste akciu zopakovať alebo sa vráťte na bezpečnú stránku.",
+			"An unexpected error occurred. Try the action again or return to a safe page.",
 		hint: digest
-			? `Ak kontaktujete podporu, uveďte referenčné ID: ${digest}`
+			? `If you contact support, include reference ID: ${digest}`
 			: undefined,
 		technicalMessage,
 	};

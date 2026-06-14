@@ -945,7 +945,7 @@ const FloatingLinkToolbar = ({ editor }: { editor: Editor }) => {
 export function NoteEditor({
 	content,
 	onChange,
-	placeholder = "Začnite písať…",
+	placeholder = "Start writing…",
 	characterLimit,
 	enableFocusMode = true,
 	onWordCountChange,

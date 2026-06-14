@@ -7,7 +7,7 @@ export default function PomodoroPage() {
 		<PageContainer className="space-y-8">
 			<PageHeader
 				title="Pomodoro"
-				description="Spravujte svoj čas efektívne pomocou techniky Pomodoro."
+				description="Manage your time effectively with the Pomodoro technique."
 			/>
 			<div className="flex min-h-[50vh] flex-col items-center justify-center">
 				<PomodoroTimer />

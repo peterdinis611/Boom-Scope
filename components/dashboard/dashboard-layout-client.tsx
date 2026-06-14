@@ -24,7 +24,7 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
 				<aside
 					className={cn(
 						"hidden shrink-0 transition-all duration-200 ease-in-out md:flex md:flex-col border-r border-sidebar-border",
-						isCollapsed ? "w-0 overflow-hidden border-none" : "w-60",
+						isCollapsed ? "w-0 overflow-hidden border-none" : "w-64",
 					)}
 				>
 					<DashboardSidebarNav />

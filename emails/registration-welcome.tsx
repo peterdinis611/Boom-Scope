@@ -9,13 +9,13 @@ type RegistrationWelcomeEmailProps = {
 export function RegistrationWelcomeEmail({
 	name,
 }: RegistrationWelcomeEmailProps = {}) {
-	const greeting = name?.trim() ? `Ahoj ${name.trim()},` : "Ahoj,";
+	const greeting = name?.trim() ? `Hi ${name.trim()},` : "Hi,";
 	const dashboardUrl = `${getAppUrl()}/dashboard`;
 
 	return (
 		<EmailLayout
-			preview="Vaša registrácia vo Boom Scope prebehla úspešne."
-			title="Registrácia úspešná"
+			preview="Your Boom Scope registration was successful."
+			title="Registration successful"
 		>
 			<Text
 				style={{
@@ -35,8 +35,8 @@ export function RegistrationWelcomeEmail({
 					margin: "0 0 16px",
 				}}
 			>
-				vitajte vo <strong>Boom Scope</strong>. Váš účet je pripravený a môžete
-				ihneď začať pracovať na projektoch.
+				welcome to <strong>Boom Scope</strong>. Your account is ready and you
+				can start working on projects right away.
 			</Text>
 
 			<Section
@@ -55,7 +55,7 @@ export function RegistrationWelcomeEmail({
 						margin: "0 0 8px",
 					}}
 				>
-					Čo môžete robiť:
+					What you can do:
 				</Text>
 				<Text
 					style={{
@@ -65,9 +65,9 @@ export function RegistrationWelcomeEmail({
 						margin: 0,
 					}}
 				>
-					• vytvárať projekty a poznámky
-					<br />• pracovať v canvas editore a AI generátore
-					<br />• spravovať design system projektu
+					• create projects and notes
+					<br />• work in the canvas editor and AI generator
+					<br />• manage your project design system
 				</Text>
 			</Section>
 
@@ -84,7 +84,7 @@ export function RegistrationWelcomeEmail({
 					textDecoration: "none",
 				}}
 			>
-				Prejsť do dashboardu
+				Go to dashboard
 			</Button>
 		</EmailLayout>
 	);

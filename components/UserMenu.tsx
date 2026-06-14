@@ -31,8 +31,8 @@ export function UserMenu() {
 		setSigningOut(true);
 		try {
 			await signOut();
-			toast.success("Boli ste odhlásený.", {
-				description: "Dovidenia! Vraciame vás na prihlásenie.",
+			toast.success("You have been signed out.", {
+				description: "Goodbye! Redirecting you to sign in.",
 			});
 			startTransition(() => {
 				router.replace("/login");
@@ -40,8 +40,8 @@ export function UserMenu() {
 			});
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Skúste to znova prosím.";
-			toast.error("Odhlásenie zlyhalo.", { description: message });
+				error instanceof Error ? error.message : "Please try again.";
+			toast.error("Sign out failed.", { description: message });
 			setSigningOut(false);
 		}
 	}
@@ -50,7 +50,7 @@ export function UserMenu() {
 	const email = viewer?.email ?? null;
 	const name = viewer?.name ?? null;
 	const image = viewer?.image ?? undefined;
-	const display = name ?? email ?? "Neznámy používateľ";
+	const display = name ?? email ?? "Unknown user";
 	const busy = signingOut || navPending;
 
 	return (
@@ -107,8 +107,8 @@ export function UserMenu() {
 							size="icon-sm"
 							onClick={handleSignOut}
 							disabled={busy}
-							aria-label="Odhlásiť sa"
-							title="Odhlásiť sa"
+							aria-label="Sign out"
+							title="Sign out"
 						>
 							<LogOut />
 						</Button>

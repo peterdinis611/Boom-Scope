@@ -21,8 +21,8 @@ async function renderEmailTemplate(component: ReactElement) {
 }
 
 const otpSubjects: Record<VerificationCodeKind, string> = {
-	verify: "Overte svoj email – Boom Scope",
-	reset: "Obnovenie hesla – Boom Scope",
+	verify: "Verify your email – Boom Scope",
+	reset: "Reset password – Boom Scope",
 };
 
 export const deliverOtpEmail = internalAction({
@@ -34,7 +34,7 @@ export const deliverOtpEmail = internalAction({
 	handler: async (_ctx, args) => {
 		const email = args.to.trim();
 		if (!email) {
-			throw new Error("Chýba emailová adresa príjemcu.");
+			throw new Error("Recipient email address is missing.");
 		}
 
 		const { html, plain } = await renderEmailTemplate(
@@ -77,14 +77,14 @@ export const sendRegistrationWelcome = action({
 		try {
 			await sendMailerooEmail({
 				to: email,
-				subject: "Registrácia úspešná – Boom Scope",
+				subject: "Registration successful – Boom Scope",
 				plain,
 				html,
 			});
 			return { sent: true as const };
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Nepodarilo sa odoslať email.";
+				error instanceof Error ? error.message : "Failed to send email.";
 			return { sent: false as const, reason: message };
 		}
 	},

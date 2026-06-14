@@ -72,9 +72,9 @@ describe("Page: Project Detail", () => {
 
 		render(<ProjectDetailPage />);
 
-		expect(await screen.findByText("Poznámky")).toBeDefined();
+		expect(await screen.findByText("Notes")).toBeDefined();
 		expect(screen.getByText("Canvas")).toBeDefined();
-		expect(screen.getByText("Design Systems")).toBeDefined();
+		expect(screen.getByText("Design systems")).toBeDefined();
 	});
 
 	test("handles non-existent project", async () => {
@@ -85,6 +85,6 @@ describe("Page: Project Detail", () => {
 
 		render(<ProjectDetailPage />);
 
-		expect(await screen.findByText(/Projekt neexistuje/i)).toBeDefined();
+		expect(await screen.findByText(/Project does not exist/i)).toBeDefined();
 	});
 });

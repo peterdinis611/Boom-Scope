@@ -36,7 +36,7 @@ export async function downloadNoteAsPdf(title: string, content: string) {
 
 	// Add Title
 	const titleEl = document.createElement("h1");
-	titleEl.innerText = title || "Poznámka";
+	titleEl.innerText = title || "Note";
 	titleEl.style.fontSize = "24px";
 	titleEl.style.fontWeight = "bold";
 	titleEl.style.marginBottom = "20px";

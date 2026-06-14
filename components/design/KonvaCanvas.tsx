@@ -26,7 +26,8 @@ import {
 	Text,
 	Transformer,
 } from "react-konva";
-import { getCSSVariable } from "@/lib/utils";
+import { normalizeCanvasSize } from "@/lib/canvas-defaults";
+import { resolveCanvasColor } from "@/lib/utils";
 
 export interface CanvasElement {
 	id: string;
@@ -154,10 +155,13 @@ export default function KonvaCanvas({
 	const isDark = resolvedTheme === "dark";
 
 	const elementsRef = useRef(elements);
+	const resolvedStrokeColor = resolveCanvasColor(strokeColor);
 
 	useEffect(() => {
 		elementsRef.current = elements;
 	}, [elements]);
+
+	const effectiveCanvasSize = normalizeCanvasSize(canvasSize ?? undefined);
 
 	// Handle stage resizing
 	useEffect(() => {
@@ -177,24 +181,31 @@ export default function KonvaCanvas({
 		return () => resizeObserver.unobserve(observeTarget);
 	}, []);
 
-	// Center stage when canvasSize changes
+	// Center and fit artboard when dimensions or viewport change
 	useEffect(() => {
-		if (canvasSize && stageRef.current) {
-			const stage = stageRef.current;
-			const scale = Math.min(
-				(size.width * 0.8) / canvasSize.width,
-				(size.height * 0.8) / canvasSize.height,
-				1,
-			);
+		if (!stageRef.current || size.width <= 0 || size.height <= 0) return;
 
-			stage.scale({ x: scale, y: scale });
-			setZoom(scale);
-			stage.position({
-				x: (size.width - canvasSize.width * scale) / 2,
-				y: (size.height - canvasSize.height * scale) / 2,
-			});
-		}
-	}, [canvasSize, size.width, size.height, setZoom]);
+		const stage = stageRef.current;
+		const scale = Math.min(
+			(size.width * 0.88) / effectiveCanvasSize.width,
+			(size.height * 0.88) / effectiveCanvasSize.height,
+			1,
+		);
+
+		stage.scale({ x: scale, y: scale });
+		setZoom(scale);
+		stage.position({
+			x: (size.width - effectiveCanvasSize.width * scale) / 2,
+			y: (size.height - effectiveCanvasSize.height * scale) / 2,
+		});
+		stage.batchDraw();
+	}, [
+		effectiveCanvasSize.width,
+		effectiveCanvasSize.height,
+		size.width,
+		size.height,
+		setZoom,
+	]);
 
 	// Update stage scale when zoom prop changes
 	useEffect(() => {
@@ -295,7 +306,7 @@ export default function KonvaCanvas({
 					? isDark
 						? "#000000"
 						: "#ffffff"
-					: strokeColor,
+					: resolvedStrokeColor,
 			fill: activeTool === "eraser" ? "none" : fillColor,
 			strokeWidth: activeTool === "eraser" ? strokeWidth * 2 : strokeWidth,
 			rotation: 0,
@@ -309,7 +320,7 @@ export default function KonvaCanvas({
 		if (isFreeHand) {
 			element.points = [pos.x, pos.y];
 		} else if (activeTool === "text") {
-			element.text = "Napíšte text...";
+			element.text = "Type text...";
 			element.fontSize = 24;
 			element.fontFamily = "Inter, sans-serif";
 			setIsDrawing(false);
@@ -622,7 +633,14 @@ export default function KonvaCanvas({
 	return (
 		<div
 			ref={containerRef}
-			className="h-full w-full bg-background relative overflow-hidden"
+			data-slot="konva-canvas"
+			className="relative h-full w-full overflow-hidden bg-[#eceef2] dark:bg-[#141414]"
+			style={{
+				backgroundImage: isDark
+					? "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)"
+					: "radial-gradient(circle, rgba(0,0,0,0.09) 1px, transparent 1px)",
+				backgroundSize: "18px 18px",
+			}}
 		>
 			<Stage
 				ref={stageRef}
@@ -650,21 +668,21 @@ export default function KonvaCanvas({
 				<Layer listening={false}>{renderGrid()}</Layer>
 
 				{/* Artboard Background */}
-				{canvasSize && (
-					<Layer listening={false}>
-						<Rect
-							x={0}
-							y={0}
-							width={canvasSize.width}
-							height={canvasSize.height}
-							fill={artboardColor || (isDark ? "#18181b" : "#ffffff")}
-							shadowColor="black"
-							shadowBlur={20}
-							shadowOpacity={0.1}
-							shadowOffset={{ x: 0, y: 10 }}
-						/>
-					</Layer>
-				)}
+				<Layer listening={false}>
+					<Rect
+						x={0}
+						y={0}
+						width={effectiveCanvasSize.width}
+						height={effectiveCanvasSize.height}
+						fill={artboardColor ?? "#ffffff"}
+						stroke="rgba(0,0,0,0.12)"
+						strokeWidth={1}
+						shadowColor="#000000"
+						shadowBlur={24}
+						shadowOpacity={0.18}
+						shadowOffset={{ x: 0, y: 8 }}
+					/>
+				</Layer>
 
 				{/* Main Drawing Layer */}
 				<Layer>
@@ -705,9 +723,9 @@ export default function KonvaCanvas({
 							y={selectionBox.y}
 							width={selectionBox.width}
 							height={selectionBox.height}
-							fill={getCSSVariable("--primary")}
+							fill={resolveCanvasColor("var(--primary)")}
 							opacity={0.1}
-							stroke={getCSSVariable("--primary")}
+							stroke={resolveCanvasColor("var(--primary)")}
 							strokeWidth={1}
 						/>
 					)}
@@ -724,9 +742,9 @@ export default function KonvaCanvas({
 							}}
 							anchorSize={10}
 							anchorCornerRadius={3}
-							anchorStroke={getCSSVariable("--primary")}
+							anchorStroke={resolveCanvasColor("var(--primary)")}
 							anchorFill="#ffffff"
-							borderStroke={getCSSVariable("--primary")}
+							borderStroke={resolveCanvasColor("var(--primary)")}
 							borderStrokeWidth={1}
 							rotateAnchorOffset={20}
 						/>
@@ -755,7 +773,7 @@ export default function KonvaCanvas({
 						}}
 					>
 						<span className="text-[10px] font-black uppercase tracking-widest">
-							Vymazať objekt
+							Delete objekt
 						</span>
 						<Trash2 className="size-3.5 opacity-50 group-hover:opacity-100" />
 					</button>
@@ -798,7 +816,7 @@ function RenderElement({
 		x: el.x,
 		y: el.y,
 		stroke: el.stroke?.startsWith("var")
-			? getCSSVariable(el.stroke.slice(4, -1))
+			? resolveCanvasColor(el.stroke)
 			: el.stroke,
 		fill:
 			el.fillType === "gradient"
@@ -806,7 +824,7 @@ function RenderElement({
 				: el.fill === "none"
 					? undefined
 					: el.fill?.startsWith("var")
-						? getCSSVariable(el.fill.slice(4, -1))
+						? resolveCanvasColor(el.fill)
 						: el.fill,
 		fillLinearGradientStartPoint:
 			el.fillType === "gradient"
@@ -821,12 +839,12 @@ function RenderElement({
 				? [
 						0,
 						el.gradientColors?.[0]?.startsWith("var")
-							? getCSSVariable(el.gradientColors[0].slice(4, -1))
-							: el.gradientColors?.[0] || getCSSVariable("--primary"),
+							? resolveCanvasColor(el.gradientColors[0])
+							: el.gradientColors?.[0] || resolveCanvasColor("var(--primary)"),
 						1,
 						el.gradientColors?.[1]?.startsWith("var")
-							? getCSSVariable(el.gradientColors[1].slice(4, -1))
-							: el.gradientColors?.[1] || getCSSVariable("--success"),
+							? resolveCanvasColor(el.gradientColors[1])
+							: el.gradientColors?.[1] || resolveCanvasColor("var(--success)"),
 					]
 				: undefined,
 		strokeWidth: el.strokeWidth,
@@ -837,7 +855,7 @@ function RenderElement({
 		onTap: clickSelect,
 		draggable: draggable,
 		onDragEnd: onDragEnd,
-		shadowColor: isSelected ? getCSSVariable("--primary") : "#000000",
+		shadowColor: isSelected ? resolveCanvasColor("var(--primary)") : "#000000",
 		shadowBlur: isSelected ? 15 : el.shadowBlur || 0,
 		shadowOpacity: isSelected ? 0.5 : el.shadowBlur ? 0.3 : 0,
 		globalCompositeOperation:

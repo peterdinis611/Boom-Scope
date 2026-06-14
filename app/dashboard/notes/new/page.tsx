@@ -40,11 +40,11 @@ export default function NewNotePage() {
 				content,
 				projectId,
 			});
-			toast.success("Poznámka bola vytvorená.");
+			toast.success("Note was created.");
 			router.push(`/dashboard/notes/${id}`);
 		} catch (error) {
 			console.error(error);
-			toast.error("Nepodarilo sa vytvoriť poznámku.");
+			toast.error("Failed to create note.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -57,7 +57,7 @@ export default function NewNotePage() {
 					<Link href="/dashboard/notes">
 						<Button variant="ghost" size="sm" className="gap-2">
 							<ChevronLeft className="size-4" />
-							Späť na zoznam
+							Back to list
 						</Button>
 					</Link>
 					<Button onClick={handleSave} disabled={isSaving} className="gap-2">
@@ -66,21 +66,21 @@ export default function NewNotePage() {
 						) : (
 							<Save className="size-4" />
 						)}
-						Uložiť poznámku
+						Save note
 					</Button>
 				</div>
 
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col gap-4">
 						<Input
-							placeholder="Názov poznámky"
+							placeholder="Note title"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							className="border-none bg-transparent px-0 text-3xl font-bold focus-visible:ring-0 md:text-4xl"
 						/>
 						<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
 							<span className="text-sm text-muted-foreground">
-								Priradiť k projektu:
+								Assign to project:
 							</span>
 							<div className="w-full sm:w-64">
 								<ProjectSelector value={projectId} onChange={setProjectId} />
@@ -91,7 +91,7 @@ export default function NewNotePage() {
 					<NoteEditor
 						content={content}
 						onChange={setContent}
-						placeholder="Začnite písať svoju poznámku..."
+						placeholder="Start writing your note..."
 					/>
 				</div>
 			</div>

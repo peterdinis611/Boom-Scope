@@ -40,21 +40,21 @@ export default function SettingsPage() {
 		}
 	}, [user, name]);
 
-	const handleUpdateProfile = async () => {
+	const handleUpdateProfilee = async () => {
 		setIsUpdating(true);
 		try {
 			await updateUser({ name });
-			toast.success("Profil bol úspešne aktualizovaný");
+			toast.success("Profilee updated successfully");
 		} catch {
-			toast.error("Chyba pri aktualizácii profilu");
+			toast.error("Error updating profile");
 		} finally {
 			setIsUpdating(false);
 		}
 	};
 
 	const tabs = [
-		{ id: "profile", label: "Profil", icon: User },
-		{ id: "appearance", label: "Vzhľad", icon: Palette },
+		{ id: "profile", label: "Profile", icon: User },
+		{ id: "appearance", label: "Appearance", icon: Palette },
 	];
 
 	if (!user) {
@@ -68,8 +68,8 @@ export default function SettingsPage() {
 	return (
 		<PageContainer className="space-y-8">
 			<PageHeader
-				title="Nastavenia"
-				description="Správa vášho účtu a preferencií."
+				title="Settings"
+				description="Manage your account and preferences."
 			/>
 
 			<div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[220px_1fr]">
@@ -96,7 +96,7 @@ export default function SettingsPage() {
 					{activeTab === "profile" && (
 					<Card>
 						<CardHeader>
-							<CardTitle className="font-heading text-lg">Profil</CardTitle>
+							<CardTitle className="font-heading text-lg">Profile</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-8">
 							<div className="flex items-center gap-6">
@@ -114,26 +114,26 @@ export default function SettingsPage() {
 									</div>
 								</div>
 								<div className="space-y-1">
-									<p className="font-medium">{user.name || "Bez mena"}</p>
+									<p className="font-medium">{user.name || "No name"}</p>
 									<p className="text-sm text-muted-foreground">{user.email}</p>
 									<Button size="sm" variant="outline" className="mt-2 gap-2">
-										<Upload className="size-3.5" /> Nahrať fotku
+										<Upload className="size-3.5" /> Upload photo
 									</Button>
 								</div>
 							</div>
 
 							<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 								<div className="space-y-2">
-									<Label htmlFor="name">Meno a priezvisko</Label>
+									<Label htmlFor="name">Full name</Label>
 									<Input
 										id="name"
 										value={name}
 										onChange={(e) => setName(e.target.value)}
-										placeholder="Zadajte vaše meno"
+										placeholder="Enter your name"
 									/>
 								</div>
 								<div className="space-y-2">
-									<Label htmlFor="email">E-mailová adresa</Label>
+									<Label htmlFor="email">Email address</Label>
 									<Input
 										id="email"
 										value={user.email || ""}
@@ -145,7 +145,7 @@ export default function SettingsPage() {
 
 							<div className="flex justify-end">
 								<Button
-									onClick={handleUpdateProfile}
+									onClick={handleUpdateProfilee}
 									disabled={isUpdating || name === user.name}
 									className="gap-2"
 								>
@@ -154,19 +154,19 @@ export default function SettingsPage() {
 									) : (
 										<Check className="size-4" />
 									)}
-									Uložiť zmeny
+									Save changes
 								</Button>
 							</div>
 
 							<div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
 								<div className="flex items-center gap-2 text-sm font-medium text-primary">
 									<Shield className="size-4" />
-									Vaše súkromie
+									Your privacy
 								</div>
 								<p className="text-sm text-muted-foreground leading-relaxed">
-									Vaše údaje sú v bezpečí a nikdy ich nezdieľame s tretími
-									stranami. Svoje dáta si môžete kedykoľvek stiahnuť alebo
-									zmazať svoj účet.
+									Your data is secure and we never share it with third
+									parties. You can download your data or
+									delete your account at any time.
 								</p>
 							</div>
 						</CardContent>
@@ -176,22 +176,22 @@ export default function SettingsPage() {
 					{activeTab === "appearance" && (
 						<Card>
 							<CardHeader>
-								<CardTitle className="font-heading text-lg">Vzhľad</CardTitle>
+								<CardTitle className="font-heading text-lg">Appearance</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-10">
 							<section className="space-y-4">
 								<div className="space-y-1">
-									<h3 className="text-sm font-medium">Režim zobrazenia</h3>
+									<h3 className="text-sm font-medium">Display mode</h3>
 									<p className="text-sm text-muted-foreground">
-										Prispôsobte si prostredie aplikácie
+										Customize the app environment
 									</p>
 								</div>
 
 								<div className="flex flex-wrap gap-2">
 									{[
-										{ id: "light", icon: Sun, label: "Svetlý" },
-										{ id: "dark", icon: Moon, label: "Tmavý" },
-										{ id: "system", icon: Monitor, label: "Systémový" },
+										{ id: "light", icon: Sun, label: "Light" },
+										{ id: "dark", icon: Moon, label: "Dark" },
+										{ id: "system", icon: Monitor, label: "System" },
 									].map((mode) => (
 										<Button
 											key={mode.id}
@@ -209,9 +209,9 @@ export default function SettingsPage() {
 
 							<section className="space-y-4">
 								<div className="space-y-1">
-									<h3 className="text-sm font-medium">Akcentová farba</h3>
+									<h3 className="text-sm font-medium">Accent color</h3>
 									<p className="text-sm text-muted-foreground">
-										Vyberte si hlavnú farbu rozhrania
+										Choose the main interface color
 									</p>
 								</div>
 								<div className="flex gap-4">
@@ -233,9 +233,9 @@ export default function SettingsPage() {
 											onClick={async () => {
 												try {
 													await updateUser({ accentColor: color });
-													toast.success("Akcentová farba bola zmenená");
+													toast.success("Accent color changed");
 												} catch {
-													toast.error("Chyba pri zmene farby");
+													toast.error("Error changing color");
 												}
 											}}
 											className={cn(

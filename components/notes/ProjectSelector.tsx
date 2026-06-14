@@ -20,7 +20,7 @@ interface ProjectSelectorProps {
 export function ProjectSelector({
 	value,
 	onChange,
-	placeholder = "Vybrať projekt",
+	placeholder = "Select project",
 }: ProjectSelectorProps) {
 	const projects = useQuery(api.projects.list);
 
@@ -35,7 +35,7 @@ export function ProjectSelector({
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="none">Žiadny projekt</SelectItem>
+				<SelectItem value="none">No project</SelectItem>
 				{projects?.map((project) => (
 					<SelectItem key={project._id} value={project._id}>
 						{project.name}

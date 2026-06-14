@@ -73,7 +73,7 @@ export const listByUser = query({
 		return Promise.all(
 			systems.map(async (s) => {
 				const project = await ctx.db.get(s.projectId);
-				return { ...s, projectName: project?.name ?? "Neznámy projekt" };
+				return { ...s, projectName: project?.name ?? "Unknown project" };
 			}),
 		);
 	},

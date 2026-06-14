@@ -37,44 +37,53 @@ function isSeparator(tool: ToolItem): tool is ToolSeparator {
 }
 
 const tools: ToolItem[] = [
-	{ id: "select", icon: MousePointer2, label: "Výber" },
+	{ id: "select", icon: MousePointer2, label: "Select" },
 	{ id: "hand", icon: Hand, label: "Posun" },
 	{ id: "pencil", icon: Pencil, label: "Pero" },
 	{ id: "eraser", icon: Eraser, label: "Guma" },
 	{ id: "sep-1", type: "separator" },
-	{ id: "rect", icon: Square, label: "Obdĺžnik" },
+	{ id: "rect", icon: Square, label: "Rectangle" },
 	{ id: "circle", icon: Circle, label: "Kruh" },
-	{ id: "triangle", icon: Triangle, label: "Trojuholník" },
-	{ id: "polygon", icon: Hexagon, label: "Mnohouholník" },
+	{ id: "triangle", icon: Triangle, label: "Triangle" },
+	{ id: "polygon", icon: Hexagon, label: "Polygon" },
 	{ id: "star", icon: Star, label: "Hviezda" },
-	{ id: "arrow", icon: MoveUp, label: "Šípka" },
+	{ id: "arrow", icon: MoveUp, label: "Arrow" },
 	{ id: "text", icon: Type, label: "Text" },
-	{ id: "image", icon: ImageIcon, label: "Obrázok" },
+	{ id: "image", icon: ImageIcon, label: "Image" },
 	{ id: "sep-2", type: "separator" },
-	{ id: "undo", icon: Undo, label: "Späť" },
+	{ id: "undo", icon: Undo, label: "Back" },
 	{ id: "redo", icon: Redo, label: "Dopredu" },
 	{ id: "sep-3", type: "separator" },
-	{ id: "trash", icon: Trash2, label: "Vymazať", variant: "destructive" },
+	{ id: "trash", icon: Trash2, label: "Delete", variant: "destructive" },
 	{ id: "download", icon: Download, label: "Export" },
-	{ id: "save", icon: Save, label: "Uložiť" },
-	{ id: "share", icon: Share2, label: "Zdieľať" },
+	{ id: "save", icon: Save, label: "Save" },
+	{ id: "share", icon: Share2, label: "Share" },
 ];
 
 export function Dock({
 	activeTool,
 	onToolChange,
+	embedded = false,
 }: {
 	activeTool: string;
 	onToolChange: (tool: string) => void;
+	embedded?: boolean;
 }) {
 	return (
-		<div className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-border bg-background p-1 shadow-sm">
+		<div
+			className={cn(
+				"flex max-w-full items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-background p-1 shadow-sm",
+				embedded
+					? "scrollbar-none"
+					: "fixed bottom-4 left-1/2 z-50 -translate-x-1/2",
+			)}
+		>
 			{tools.map((tool) => {
 				if (isSeparator(tool)) {
 					return (
 						<div
 							key={tool.id}
-							className="mx-1 h-6 w-px bg-border"
+							className="mx-0.5 h-6 w-px shrink-0 bg-border"
 							aria-hidden
 						/>
 					);
@@ -93,6 +102,7 @@ export function Dock({
 						title={tool.label}
 						aria-label={tool.label}
 						className={cn(
+							"shrink-0",
 							tool.variant === "destructive" &&
 								!isActive &&
 								"text-destructive hover:text-destructive",

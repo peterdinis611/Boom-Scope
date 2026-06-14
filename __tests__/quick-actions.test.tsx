@@ -18,12 +18,12 @@ describe("Component: QuickActions", () => {
 		render(<QuickActions />);
 
 		const toggle = screen.getByRole("button", {
-			name: /Otvoriť rýchle akcie/i,
+			name: /Open quick actions/i,
 		});
 		fireEvent.click(toggle);
 
-		expect(screen.getByText(/^Poznámka$/i)).toBeInTheDocument();
-		expect(screen.getByText(/^AI Studio$/i)).toBeInTheDocument();
+		expect(screen.getByText(/^New note$/i)).toBeInTheDocument();
+		expect(screen.getByText(/^AI Generator$/i)).toBeInTheDocument();
 		expect(screen.getByText(/^Canvas$/i)).toBeInTheDocument();
 	});
 
@@ -31,7 +31,7 @@ describe("Component: QuickActions", () => {
 		render(<QuickActions />);
 
 		fireEvent.click(
-			screen.getByRole("button", { name: /Otvoriť rýchle akcie/i }),
+			screen.getByRole("button", { name: /Open quick actions/i }),
 		);
 		fireEvent.click(screen.getByText(/^Canvas$/i).closest("button")!);
 
@@ -42,12 +42,12 @@ describe("Component: QuickActions", () => {
 		render(<QuickActions />);
 
 		fireEvent.click(
-			screen.getByRole("button", { name: /Otvoriť rýchle akcie/i }),
+			screen.getByRole("button", { name: /Open quick actions/i }),
 		);
-		fireEvent.click(screen.getByText(/^Poznámka$/i).closest("button")!);
+		fireEvent.click(screen.getByText(/^New note$/i).closest("button")!);
 
 		expect(
-			screen.getByRole("heading", { name: /Rýchla poznámka/i }),
+			screen.getByRole("heading", { name: /Quick note/i }),
 		).toBeInTheDocument();
 	});
 });

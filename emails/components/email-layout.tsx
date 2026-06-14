@@ -23,7 +23,7 @@ export function EmailLayout({ preview, title, children }: EmailLayoutProps) {
 	const appUrl = getAppUrl();
 
 	return (
-		<Html lang="sk">
+		<Html lang="en">
 			<Head />
 			<Preview>{preview}</Preview>
 			<Body
@@ -86,14 +86,14 @@ export function EmailLayout({ preview, title, children }: EmailLayoutProps) {
 							margin: 0,
 						}}
 					>
-						Tento email bol odoslaný z{" "}
+						This email was sent from{" "}
 						<Link
 							href={appUrl}
 							style={{ color: emailBrand.primary, textDecoration: "none" }}
 						>
 							{emailBrand.appName}
 						</Link>
-						. Ak ste oň nežiadali, môžete ho ignorovať.
+						. If you did not request it, you can ignore it.
 					</Text>
 				</Container>
 			</Body>

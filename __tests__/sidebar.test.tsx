@@ -20,11 +20,13 @@ describe("Component: DashboardSidebarNav", () => {
 			</SidebarProvider>,
 		);
 
-		expect(screen.getByText("Prehľad")).toBeDefined();
-		expect(screen.getByText("Projekty")).toBeDefined();
-		expect(screen.getByText("Poznámky")).toBeDefined();
+		expect(screen.getByText("Overview")).toBeDefined();
+		expect(screen.getByText("Projects")).toBeDefined();
+		expect(screen.getByText("Notes")).toBeDefined();
 		expect(screen.getByText("Canvas")).toBeDefined();
 		expect(screen.getByText("Design System")).toBeDefined();
+		expect(screen.getByText("Work")).toBeDefined();
+		expect(screen.getByText("Tools")).toBeDefined();
 	});
 
 	test("highlights the active link", () => {
@@ -36,7 +38,8 @@ describe("Component: DashboardSidebarNav", () => {
 			</SidebarProvider>,
 		);
 
-		const projectsLink = screen.getByRole("link", { name: /Projekty/i });
+		const projectsLink = screen.getByRole("link", { name: /Projects/i });
+		expect(projectsLink.getAttribute("data-active")).toBe("true");
 		expect(projectsLink.className).toContain("bg-sidebar-accent");
 	});
 });

@@ -49,11 +49,11 @@ interface HistoryItem {
 }
 
 const SUGGESTIONS = [
-	{ text: "Moderná SaaS landing page", icon: "🚀" },
-	{ text: "Prepínač pre tmavý režim", icon: "🌙" },
-	{ text: "Čistý layout kariet s tieňmi", icon: "✨" },
-	{ text: "Neon fialová a modrá téma", icon: "💜" },
-	{ text: "Sekcia s cenníkom a benefitmi", icon: "💸" },
+	{ text: "Modern SaaS landing page", icon: "🚀" },
+	{ text: "Dark mode toggle", icon: "🌙" },
+	{ text: "Clean card layout with shadows", icon: "✨" },
+	{ text: "Neon purple and blue theme", icon: "💜" },
+	{ text: "Pricing and benefits section", icon: "💸" },
 ];
 
 export default function GeneratorPage() {
@@ -106,7 +106,7 @@ export default function GeneratorPage() {
 	const restoreHistoryItem = (item: HistoryItem) => {
 		setMessages(item.messages);
 		setPrompt("");
-		toast.success("Dizajn a kontext z histórie obnovený!");
+		toast.success("Design and context restored from history!");
 	};
 
 	const deleteHistoryItem = (id: string, e: React.MouseEvent) => {
@@ -116,7 +116,7 @@ export default function GeneratorPage() {
 			void idbSet(IDB_KEYS.generationHistory, updated);
 			return updated;
 		});
-		toast.info("Generácia vymazaná.");
+		toast.info("Generation cleared.");
 	};
 
 	const handleSuggestionClick = (text: string) => {
@@ -129,7 +129,7 @@ export default function GeneratorPage() {
 
 	const handleGenerate = async () => {
 		if (!prompt.trim()) {
-			toast.error("Zadajte prompt!");
+			toast.error("Enter a prompt!");
 			return;
 		}
 
@@ -154,17 +154,17 @@ export default function GeneratorPage() {
 
 			const assistantMessage: Message = {
 				role: "assistant",
-				content: "Tu je váš aktualizovaný dizajn.",
+				content: "Here is your updated design.",
 				design: result as GeneratedDesign,
 			};
 
 			const updated = [...newMessages, assistantMessage];
 			setMessages(updated);
 			saveToHistory(promptText, result as GeneratedDesign, updated);
-			toast.success("Dizajn aktualizovaný!");
+			toast.success("Design updated!");
 		} catch (error) {
 			console.error(error);
-			toast.error("Nepodarilo sa vygenerovať dizajn.");
+			toast.error("Failed to generate design.");
 		} finally {
 			setIsGenerating(false);
 		}
@@ -183,8 +183,8 @@ export default function GeneratorPage() {
 	return (
 		<PageContainer size="wide" className="space-y-6">
 			<PageHeader
-				title="AI Generátor"
-				description="Diskutujte s AI o dizajne a generujte multi-viewport návrhy."
+				title="AI Generator"
+				description="Discuss design with AI and generate multi-viewport layouts."
 				actions={
 					messages.length > 0 ? (
 						<Button
@@ -193,7 +193,7 @@ export default function GeneratorPage() {
 							onClick={() => {
 								setMessages([]);
 								setPrompt("");
-								toast.info("Generátor bol resetovaný.");
+								toast.info("Generator was reset.");
 							}}
 						>
 							Reset
@@ -233,7 +233,7 @@ export default function GeneratorPage() {
 											>
 												{m.role === "user"
 													? m.content
-													: "Aktualizoval som dizajn podľa vašich požiadaviek."}
+													: "I updated the design based on your requirements."}
 											</div>
 										</div>
 									))}
@@ -244,8 +244,8 @@ export default function GeneratorPage() {
 								<Textarea
 									placeholder={
 										messages.length === 0
-											? "Napr.: Moderná landing page pre SaaS platformu..."
-											: "Napr.: Zmeň hlavnú farbu na fialovú a pridaj viac miesta medzi kartami..."
+											? "e.g. Modern landing page for a SaaS platform..."
+											: "e.g. Change the main color to purple and add more space between cards..."
 									}
 									className="min-h-25 text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-muted-foreground/30 resize-none px-0 focus-visible:border-none focus-visible:ring-offset-0"
 									value={prompt}
@@ -260,7 +260,7 @@ export default function GeneratorPage() {
 								/>
 								{prompt.length > 0 && (
 									<div className="absolute right-0 bottom-0 text-xs text-muted-foreground">
-										{prompt.length} znakov
+										{prompt.length} characters
 									</div>
 								)}
 							</div>
@@ -295,7 +295,7 @@ export default function GeneratorPage() {
 										Mobil
 									</span>
 									<span className="text-muted-foreground/70">
-										Enter = odoslať, Shift+Enter = nový riadok
+										Enter = send, Shift+Enter = new line
 									</span>
 								</div>
 								<Button
@@ -311,7 +311,7 @@ export default function GeneratorPage() {
 									) : (
 										<>
 											<Sparkles className="mr-2 h-4 w-4" />
-											{messages.length === 0 ? "Generovať" : "Aktualizovať"}
+											{messages.length === 0 ? "Generate" : "Update"}
 										</>
 									)}
 								</Button>
@@ -342,7 +342,7 @@ export default function GeneratorPage() {
 											}
 											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="size-3" />
+											Edit in Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
 									<div className="overflow-x-auto rounded-xl border border-border bg-muted/30 p-6">
@@ -370,7 +370,7 @@ export default function GeneratorPage() {
 											}
 											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="size-3" />
+											Edit in Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
 									<div className="flex justify-center rounded-xl border border-border bg-muted/30 p-6">
@@ -398,7 +398,7 @@ export default function GeneratorPage() {
 											}
 											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="size-3" />
+											Edit in Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
 									<div className="flex justify-center rounded-xl border border-border bg-muted/30 p-6">
@@ -423,7 +423,7 @@ export default function GeneratorPage() {
 										<Layers className="size-20" />
 									</div>
 									<p className="text-center text-sm text-muted-foreground">
-										Zadajte prompt pre začiatok generovania
+										Enter a prompt to start generating
 									</p>
 								</motion.div>
 							)
@@ -436,7 +436,7 @@ export default function GeneratorPage() {
 					<Card className="flex flex-col p-6">
 						<div className="mb-4 flex items-center justify-between border-b border-border pb-4">
 							<h2 className="flex items-center gap-2 text-sm font-medium">
-								<History className="size-4 text-primary" /> História generovaní
+								<History className="size-4 text-primary" /> Generation history
 							</h2>
 							{historyItems.length > 0 && (
 								<Button
@@ -445,7 +445,7 @@ export default function GeneratorPage() {
 									onClick={() => setClearHistoryOpen(true)}
 									className="text-muted-foreground hover:text-destructive"
 								>
-									Vyčistiť
+									Clear
 								</Button>
 							)}
 						</div>
@@ -453,9 +453,9 @@ export default function GeneratorPage() {
 						{historyItems.length === 0 ? (
 							<div className="flex flex-col items-center justify-center space-y-3 py-12 text-center text-muted-foreground">
 								<Clock className="size-8 opacity-50" />
-								<p className="text-sm font-medium">Žiadna história</p>
+								<p className="text-sm font-medium">No history</p>
 								<p className="max-w-40 text-xs leading-normal">
-									Vaše úspešne vygenerované dizajny sa uložia sem.
+									Your successfully generated designs will be saved here.
 								</p>
 							</div>
 						) : (
@@ -481,7 +481,7 @@ export default function GeneratorPage() {
 											<button
 												onClick={(e) => deleteHistoryItem(item.id, e)}
 												className="flex size-5 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-												aria-label="Odstrániť z histórie"
+												aria-label="Remove from history"
 											>
 												<Trash2 className="size-3.5" />
 											</button>
@@ -491,7 +491,7 @@ export default function GeneratorPage() {
 										</p>
 										<div className="mt-0.5 flex items-center gap-1.5 text-xs text-primary">
 											<Sparkles className="size-3" />
-											<span>{item.messages.length} správ</span>
+											<span>{item.messages.length} messages</span>
 										</div>
 									</div>
 								))}
@@ -513,10 +513,10 @@ export default function GeneratorPage() {
 						</div>
 						<div className="flex flex-col items-center space-y-1 text-center">
 							<h2 className="font-heading text-lg font-semibold">
-								Navrhujem vizuál…
+								Designing visual…
 							</h2>
 							<p className="text-sm text-muted-foreground">
-								Pripravujem web, tablet a mobilnú verziu
+								Preparing web, tablet, and mobile versions
 							</p>
 						</div>
 					</div>
@@ -526,14 +526,14 @@ export default function GeneratorPage() {
 			<ConfirmDialog
 				open={clearHistoryOpen}
 				onOpenChange={setClearHistoryOpen}
-				title="Vymazať históriu?"
-				description="Celá história generovaní bude natrvalo odstránená z tohto zariadenia."
-				confirmLabel="Vymazať"
+				title="Delete history?"
+				description="All generation history will be permanently removed from this device."
+				confirmLabel="Delete"
 				variant="destructive"
 				onConfirm={async () => {
 					setHistoryItems([]);
 					await idbRemove(IDB_KEYS.generationHistory);
-					toast.success("História vymazaná.");
+					toast.success("History cleared.");
 				}}
 			/>
 		</PageContainer>

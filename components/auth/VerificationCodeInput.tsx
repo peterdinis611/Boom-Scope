@@ -21,7 +21,7 @@ type VerificationCodeInputProps = {
 
 export function VerificationCodeInput({
 	id = "verification-code",
-	label = "Overovací kód",
+	label = "Verification code",
 	value,
 	onChange,
 	disabled = false,
@@ -51,8 +51,8 @@ export function VerificationCodeInput({
 				</InputOTPGroup>
 			</InputOTP>
 			<p className="text-xs text-muted-foreground">
-				Zadajte {VERIFICATION_CODE_LENGTH}-miestny kód z emailu. Funguje aj vloženie
-				celej číslice naraz.
+				Enter the {VERIFICATION_CODE_LENGTH}-digit code from your email. You can
+				also paste the full code at once.
 			</p>
 		</div>
 	);

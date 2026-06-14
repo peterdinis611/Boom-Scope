@@ -19,48 +19,48 @@ type ViewerSummary = {
 } | null;
 
 export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
-	const greeting = viewer?.name ?? viewer?.email?.split("@")[0] ?? "Užívateľ";
+	const greeting = viewer?.name ?? viewer?.email?.split("@")[0] ?? "User";
 	const stats = useQuery(api.dashboard.dashboardStats);
 
 	return (
 		<PageContainer className="space-y-8">
 			<PageHeader
-				title={`Vitajte späť, ${greeting}`}
-				description="Prehľad vašej práce v Boom Scope."
+				title={`Welcome back, ${greeting}`}
+				description="Overview of your work in Boom Scope."
 			/>
 
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				<StatCard
-					title="Projekty"
+					title="Projects"
 					value={stats?.projects ?? "—"}
-					description="Spravujte projekty na jednom mieste"
+					description="Manage projects in one place"
 					icon={FolderKanban}
 					href="/dashboard/projects"
 				/>
 				<StatCard
-					title="Poznámky"
+					title="Notes"
 					value={stats?.notes ?? "—"}
-					description="Vaše poznámky a dokumenty"
+					description="Your notes and documents"
 					icon={FileText}
 					href="/dashboard/notes"
 				/>
 				<StatCard
 					title="Canvas"
-					value="Otvoriť"
-					description="Pracovný priestor pre dizajn"
+					value="Open"
+					description="Design workspace"
 					icon={Palette}
 					href="/dashboard/canvas"
 				/>
 				<StatCard
 					title="Design System"
 					value={stats?.designSystems ?? "—"}
-					description="Vizuálna DNA projektov"
+					description="Visualna DNA projektov"
 					icon={Layout}
 					href="/dashboard/design-system/v2"
 				/>
 				<StatCard
-					title="AI Generátor"
-					value="Spustiť"
+					title="AI Generator"
+					value="Launch"
 					description="Generovanie multi-viewport dizajnu"
 					icon={Sparkles}
 					href="/dashboard/generator"

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { toast } from "sonner";
 import { describe, expect, test, vi } from "vitest";
-import DesignSystemPage from "../app/dashboard/design-system/page";
+import DesignSystemPage from "../app/dashboard/design-system/v2/page";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -45,7 +45,7 @@ vi.stubGlobal("FileReader", MockFileReader);
 describe("Page: Design System Generator", () => {
 	test("renders initial upload state", () => {
 		render(<DesignSystemPage />);
-		expect(screen.getByText(/Presuňte inšpiráciu sem/i)).toBeDefined();
+		expect(screen.getByText(/Drop inspiration here/i)).toBeDefined();
 	});
 
 	test("shows generation button after image upload", async () => {
@@ -58,7 +58,7 @@ describe("Page: Design System Generator", () => {
 		fireEvent.change(input, { target: { files: [file] } });
 
 		await waitFor(() => {
-			expect(screen.getByText(/Generovať Identitu/i)).toBeDefined();
+			expect(screen.getByText(/Analyze style/i)).toBeDefined();
 		});
 	});
 
@@ -71,13 +71,13 @@ describe("Page: Design System Generator", () => {
 		const file = new File(["dummy content"], "test.png", { type: "image/png" });
 		fireEvent.change(input, { target: { files: [file] } });
 
-		const generateBtn = await screen.findByText(/Generovať Identitu/i);
+		const generateBtn = await screen.findByText(/Analyze style/i);
 		fireEvent.click(generateBtn);
 
-		expect(toast.error).toHaveBeenCalledWith("Najprv vyberte projekt!");
+		expect(toast.error).toHaveBeenCalledWith("Select a project first!");
 	});
 
-	test("shows Generovať Design button after image upload", async () => {
+	test("shows Generate design button after image upload", async () => {
 		const { container } = render(<DesignSystemPage />);
 		const input = container.querySelector(
 			"input[type='file']",
@@ -87,11 +87,11 @@ describe("Page: Design System Generator", () => {
 		fireEvent.change(input, { target: { files: [file] } });
 
 		await waitFor(() => {
-			expect(screen.getByText(/Generovať Design/i)).toBeDefined();
+			expect(screen.getByText(/Generate design/i)).toBeDefined();
 		});
 	});
 
-	test("Generovať Design requires a project", async () => {
+	test("Generate design requires a project", async () => {
 		const { container } = render(<DesignSystemPage />);
 		const input = container.querySelector(
 			"input[type='file']",
@@ -100,14 +100,14 @@ describe("Page: Design System Generator", () => {
 		const file = new File(["dummy content"], "test.png", { type: "image/png" });
 		fireEvent.change(input, { target: { files: [file] } });
 
-		const generateBtn = await screen.findByText(/Generovať Design/i);
+		const generateBtn = await screen.findByText(/Generate design/i);
 		fireEvent.click(generateBtn);
 
-		expect(toast.error).toHaveBeenCalledWith("Najprv vyberte projekt!");
+		expect(toast.error).toHaveBeenCalledWith("Select a project first!");
 	});
 
-	test("header Uložiť button is rendered", () => {
+	test("header Save button is rendered", () => {
 		render(<DesignSystemPage />);
-		expect(screen.getByText(/^Uložiť$/i)).toBeDefined();
+		expect(screen.getByText(/^Save system$/i)).toBeDefined();
 	});
 });

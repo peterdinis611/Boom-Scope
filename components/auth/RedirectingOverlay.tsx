@@ -9,7 +9,7 @@ interface RedirectingOverlayProps {
 
 export function RedirectingOverlay({
 	show,
-	label = "Presmerúvam…",
+	label = "Redirecting…",
 }: RedirectingOverlayProps) {
 	return (
 		<AnimatePresence>

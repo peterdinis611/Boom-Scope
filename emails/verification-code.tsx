@@ -14,15 +14,15 @@ const copy: Record<
 	{ preview: string; title: string; description: string }
 > = {
 	verify: {
-		preview: "Váš overovací kód pre Boom Scope",
-		title: "Overte svoj email",
+		preview: "Your verification code for Boom Scope",
+		title: "Verify your email",
 		description:
-			"Zadajte tento kód v aplikácii pre dokončenie registrácie alebo prihlásenia.",
+			"Enter this code in the app to complete registration or sign in.",
 	},
 	reset: {
-		preview: "Kód na obnovenie hesla v Boom Scope",
-		title: "Obnovenie hesla",
-		description: "Zadajte tento kód spolu s novým heslom na stránke obnovenia.",
+		preview: "Your password reset code for Boom Scope",
+		title: "Reset password",
+		description: "Enter this code along with your new password on the reset page.",
 	},
 };
 
@@ -88,7 +88,7 @@ export function VerificationCodeEmail({
 					textAlign: "center" as const,
 				}}
 			>
-				Kód platí <strong>15 minút</strong>.
+				Code valid for <strong>15 minutes</strong>.
 			</Text>
 		</EmailLayout>
 	);

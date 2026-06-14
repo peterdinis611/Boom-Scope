@@ -23,15 +23,15 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 
 	const segments = pathname.replace("/dashboard/", "").split("/");
 	const labels: Record<string, string> = {
-		projects: "Projekty",
-		notes: "Poznámky",
+		projects: "Projects",
+		notes: "Notes",
 		canvas: "Canvas",
 		"design-system": "Design System",
 		v2: "Lab",
-		generator: "AI Generátor",
+		generator: "AI Generator",
 		pomodoro: "Pomodoro",
-		settings: "Nastavenia",
-		new: "Nová",
+		settings: "Settings",
+		new: "New",
 	};
 
 	let path = "/dashboard";
@@ -68,7 +68,7 @@ export function DashboardHeader() {
 					onClick={toggleSidebar}
 					className="hidden md:flex"
 					aria-label={
-						isCollapsed ? "Otvoriť bočný panel" : "Zatvoriť bočný panel"
+						isCollapsed ? "Open sidebar" : "Close sidebar"
 					}
 				>
 					{isCollapsed ? (

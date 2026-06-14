@@ -4,17 +4,17 @@ export const credentialsSchema = z.object({
 	email: z
 		.string()
 		.trim()
-		.min(1, "Zadajte email.")
-		.max(320, "Email je príliš dlhý.")
+		.min(1, "Enter your email.")
+		.max(320, "Email is too long.")
 		.refine(
 			(s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s),
-			"Neplatný formát emailu.",
+			"Invalid email format.",
 		),
-	password: z.string().min(8, "Heslo musí mať aspoň 8 znakov."),
+	password: z.string().min(8, "Password must be at least 8 characters."),
 });
 
 export function firstZodIssueMessage(error: z.ZodError): string {
-	return error.issues[0]?.message ?? "Neplatné údaje.";
+	return error.issues[0]?.message ?? "Invalid input.";
 }
 
 /** Výsledok `signIn` z Convex Auth (password / OAuth). */

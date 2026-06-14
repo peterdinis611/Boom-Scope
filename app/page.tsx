@@ -14,11 +14,11 @@ export default async function Home() {
 						Boom Scope
 					</span>
 					<h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-						Vitajte v Boom Scope
+						Welcome to Boom Scope
 					</h1>
 					<p className="max-w-md text-sm text-muted-foreground">
-						Prihláste sa pre prístup k dashboardu, alebo si vytvorte nový účet
-						pomocou emailu a hesla.
+						Sign in to access the dashboard, or create a new account
+						with your email and password.
 					</p>
 				</div>
 
@@ -28,7 +28,7 @@ export default async function Home() {
 							href="/dashboard"
 							className={cn(buttonVariants({ size: "lg" }), "sm:min-w-40")}
 						>
-							Prejsť na dashboard
+							Go to dashboard
 						</Link>
 					) : (
 						<>
@@ -36,7 +36,7 @@ export default async function Home() {
 								href="/login"
 								className={cn(buttonVariants({ size: "lg" }), "sm:min-w-36")}
 							>
-								Prihlásiť sa
+								Sign in
 							</Link>
 							<Link
 								href="/register"
@@ -45,7 +45,7 @@ export default async function Home() {
 									"sm:min-w-36",
 								)}
 							>
-								Registrovať sa
+								Sign up
 							</Link>
 						</>
 					)}

@@ -40,8 +40,8 @@ export function ModeToggle() {
 			size="icon-sm"
 			className="relative shrink-0 overflow-hidden"
 			onClick={() => setTheme(isDark ? "light" : "dark")}
-			aria-label={isDark ? "Prepnúť na svetlý režim" : "Prepnúť na tmavý režim"}
-			title={isDark ? "Svetlý režim" : "Tmavý režim"}
+			aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+			title={isDark ? "Light mode" : "Dark mode"}
 		>
 			<span className="relative grid size-4 place-items-center">
 				<AnimatePresence mode="wait" initial={false}>

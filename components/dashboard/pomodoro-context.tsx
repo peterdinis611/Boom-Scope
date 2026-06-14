@@ -71,11 +71,11 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 	const handleTimerComplete = () => {
 		const nextMode = mode === "focus" ? "shortBreak" : "focus";
 
-		toast.success(mode === "focus" ? "Čas na prestávku!" : "Späť do práce!", {
+		toast.success(mode === "focus" ? "Time for a break!" : "Back to work!", {
 			description:
 				mode === "focus"
-					? "Skvelá práca! Doprajte si oddych."
-					: "Prestávka skončila, ideme na to!",
+					? "Great work! Take a break."
+					: "Break is over, let's go!",
 			duration: 5000,
 		});
 

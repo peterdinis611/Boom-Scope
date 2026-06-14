@@ -48,7 +48,7 @@ export function useCopyToClipboard(resetInterval = 2000) {
 	const copy = useCallback(
 		async (value: string, successMessage?: string) => {
 			if (!navigator?.clipboard) {
-				toast.error("Schránka nie je podporovaná.");
+				toast.error("Clipboard is not supported.");
 				return false;
 			}
 			try {
@@ -56,7 +56,7 @@ export function useCopyToClipboard(resetInterval = 2000) {
 				setCopiedValue(value);
 				toast.success(
 					successMessage ||
-						`Skopírované: ${
+						`Copied: ${
 							value.length > 25 ? `${value.substring(0, 25)}...` : value
 						}`,
 				);
@@ -84,8 +84,8 @@ export function useCopyToClipboard(resetInterval = 2000) {
 				}, resetInterval);
 				return true;
 			} catch (error) {
-				console.error("Chyba pri kopírovaní do schránky:", error);
-				toast.error("Nepodarilo sa skopírovať.");
+				console.error("Error copying to clipboard:", error);
+				toast.error("Failed to copy.");
 				return false;
 			}
 		},
@@ -95,7 +95,7 @@ export function useCopyToClipboard(resetInterval = 2000) {
 	const clearHistory = useCallback(async () => {
 		await idbRemove(IDB_KEYS.clipboardHistory);
 		window.dispatchEvent(new Event("boom-scope-clipboard-update"));
-		toast.success("História schránky vymazaná.");
+		toast.success("Clipboard history cleared.");
 	}, []);
 
 	const deleteHistoryItem = useCallback(async (id: string) => {
@@ -105,7 +105,7 @@ export function useCopyToClipboard(resetInterval = 2000) {
 			const updated = currentHistory.filter((item) => item.id !== id);
 			await idbSet(IDB_KEYS.clipboardHistory, updated);
 			window.dispatchEvent(new Event("boom-scope-clipboard-update"));
-			toast.info("Položka zmazaná zo schránky.");
+			toast.info("Item removed from clipboard.");
 		} catch (e) {
 			console.error(e);
 		}

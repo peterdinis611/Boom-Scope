@@ -71,11 +71,11 @@ export default function ProjectDetailPage() {
 			<PageContainer>
 				<EmptyState
 					icon={Trash2}
-					title="Projekt neexistuje"
-					description="Projekt nebol nájdený alebo k nemu nemáte prístup."
+					title="Project does not exist"
+					description="Project not found or you do not have access."
 					action={
 						<Button onClick={() => router.push("/dashboard/projects")}>
-							Späť na projekty
+							Back to projects
 						</Button>
 					}
 				/>
@@ -92,14 +92,14 @@ export default function ProjectDetailPage() {
 				className="gap-2"
 			>
 				<ArrowLeft className="size-4" />
-				Späť
+				Back
 			</Button>
 
 			<PageHeader
 				title={project.name}
 				description={
 					project.description ||
-					"Tento projekt zatiaľ nemá popis. Môžete ho pridať v nastaveniach."
+					"This project has no description yet. You can add one in settings."
 				}
 				actions={
 					<Button
@@ -110,14 +110,14 @@ export default function ProjectDetailPage() {
 						className="gap-2"
 					>
 						<Settings2 className="size-4" />
-						Nastavenia
+						Settings
 					</Button>
 				}
 			/>
 
 			<div className="grid gap-4 sm:grid-cols-3">
 				<StatCard
-					title="Poznámky"
+					title="Notes"
 					value={notes?.page?.length ?? 0}
 					icon={FileText}
 					href={`/dashboard/notes?projectId=${projectId}`}
@@ -147,7 +147,7 @@ export default function ProjectDetailPage() {
 						className="gap-2"
 					>
 						<Plus className="size-4" />
-						Nový canvas
+						New canvas
 					</Button>
 				</div>
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -171,8 +171,8 @@ export default function ProjectDetailPage() {
 						<div className="col-span-full">
 							<EmptyState
 								icon={Palette}
-								title="Žiadne canvasi"
-								description="Vytvorte prvý canvas pre tento projekt."
+								title="No canvases"
+								description="Create the first canvas for this project."
 							/>
 						</div>
 					) : null}
@@ -181,7 +181,7 @@ export default function ProjectDetailPage() {
 
 			<section className="space-y-4">
 				<div className="flex items-center justify-between">
-					<h2 className="section-title">Design systémy</h2>
+					<h2 className="section-title">Design systems</h2>
 					<Button
 						size="sm"
 						variant="outline"
@@ -191,7 +191,7 @@ export default function ProjectDetailPage() {
 						className="gap-2"
 					>
 						<Sparkles className="size-4" />
-						Otvoriť lab
+						Open lab
 					</Button>
 				</div>
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -222,8 +222,8 @@ export default function ProjectDetailPage() {
 						<div className="col-span-full">
 							<EmptyState
 								icon={Sparkles}
-								title="Žiadne design systémy"
-								description="Vytvorte vizuálnu identitu v Design System Lab."
+								title="No design systems"
+								description="Create a visual identity in Design System Lab."
 							/>
 						</div>
 					) : null}

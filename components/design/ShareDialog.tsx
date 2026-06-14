@@ -59,17 +59,17 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 								</div>
 								<div>
 									<h2 className="text-2xl font-black tracking-tight">
-										Zdieľať Design
+										Share Design
 									</h2>
 									<p className="text-sm font-bold opacity-40 uppercase tracking-widest mt-1">
-										Vytvorte verejný odkaz pre váš projekt
+										Create a public link for your project
 									</p>
 								</div>
 							</div>
 
 							<div className="space-y-4">
 								<p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 px-2">
-									Verejný Odkaz
+									Public link
 								</p>
 								<div className="group relative flex items-center gap-4 p-5 rounded-[28px] bg-accent border border-border hover:border-primary/30 transition-all shadow-inner">
 									<Globe className="size-5 text-primary/60" />
@@ -92,7 +92,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 											<Check className="size-4" />
 										) : (
 											<div className="flex items-center gap-2">
-												<Copy className="size-3.5" /> Kopírovať
+												<Copy className="size-3.5" /> Copy
 											</div>
 										)}
 									</Button>
@@ -108,8 +108,8 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 										Read-Only
 									</h3>
 									<p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-widest">
-										Osoba s odkazom si môže design prezerať, ale nemôže ho
-										upravovať.
+										Anyone with the link can view the design, but cannot
+										edit it.
 									</p>
 								</div>
 								<div className="p-6 rounded-[32px] bg-foreground/5 border border-border space-y-3">
@@ -117,11 +117,11 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 										<Globe className="size-4 text-emerald-500" />
 									</div>
 									<h3 className="text-xs font-black uppercase tracking-widest">
-										Prístup
+										Access
 									</h3>
 									<p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-widest">
-										Váš design je teraz prístupný pre kohokoľvek s týmto
-										unikátnym URL.
+										Your design is now accessible to anyone with this
+										unique URL.
 									</p>
 								</div>
 							</div>
@@ -131,7 +131,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 								onClick={onClose}
 								className="w-full h-16 rounded-[28px] border-border hover:bg-accent text-xs font-black uppercase tracking-[0.4em] transition-all"
 							>
-								Zavrieť Dialóg
+								Close dialog
 							</Button>
 						</div>
 					</motion.div>

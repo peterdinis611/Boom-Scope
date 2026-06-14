@@ -60,7 +60,7 @@ describe("Component: UserMenu", () => {
 		} as unknown as Doc<"users">);
 
 		render(<UserMenu />);
-		const logoutBtn = screen.getByTitle("Odhlásiť sa");
+		const logoutBtn = screen.getByTitle("Sign out");
 		fireEvent.click(logoutBtn);
 
 		await waitFor(() => {

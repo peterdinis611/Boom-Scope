@@ -20,7 +20,7 @@ function PasswordInput({ className, ...props }: PasswordInputProps) {
 			<button
 				type="button"
 				onClick={() => setVisible((v) => !v)}
-				aria-label={visible ? "Skryť heslo" : "Zobraziť heslo"}
+				aria-label={visible ? "Hide password" : "Show password"}
 				aria-pressed={visible}
 				className={cn(
 					"absolute inset-y-0 right-0 flex items-center px-3",

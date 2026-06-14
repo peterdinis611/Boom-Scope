@@ -68,19 +68,19 @@ describe("Page: Design Canvas", () => {
 
 	test("renders toolbar and sidebar by default", () => {
 		render(<DesignPage />);
-		expect(screen.getByText(/Nastavenia Plátna/i)).toBeInTheDocument();
+		expect(screen.getByRole("heading", { name: /Canvas settings/i })).toBeInTheDocument();
 	});
 
 	test("shows artboard settings when no element is selected", () => {
 		render(<DesignPage />);
 		expect(screen.getByText(/Rozmery Artboardu/i)).toBeInTheDocument();
-		expect(screen.getByText(/Pozadie Plátna/i)).toBeInTheDocument();
+		expect(screen.getByText(/Canvas background/i)).toBeInTheDocument();
 	});
 
 	test("switches left panel to templates tab", () => {
 		render(<DesignPage />);
-		fireEvent.click(screen.getByRole("button", { name: /Šablóny/i }));
-		expect(screen.getByText(/Sociálne siete/i)).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: /Templates/i }));
+		expect(screen.getByText(/Social media/i)).toBeInTheDocument();
 		expect(screen.getByText(/Zariadenia/i)).toBeInTheDocument();
 	});
 
@@ -117,7 +117,7 @@ describe("Page: Design Canvas", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.getByText(/Nikde nie je vizuál nastavený/i),
+				screen.getByText(/No visual is set anywhere/i),
 			).toBeInTheDocument();
 		});
 	});
@@ -152,21 +152,21 @@ describe("Page: Design Canvas", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.getByRole("button", { name: /Nastaviť predvolený vizuál/i }),
+				screen.getByRole("button", { name: /Set default visual/i }),
 			).toBeInTheDocument();
 		});
 
 		fireEvent.click(
-			screen.getByRole("button", { name: /Nastaviť predvolený vizuál/i }),
+			screen.getByRole("button", { name: /Set default visual/i }),
 		);
 
 		await waitFor(() => {
 			expect(
-				screen.queryByText(/Nikde nie je vizuál nastavený/i),
+				screen.queryByText(/No visual is set anywhere/i),
 			).not.toBeInTheDocument();
 		});
 
-		expect(screen.getByText(/Typ Výplne/i)).toBeInTheDocument();
+		expect(screen.getByText(/Fill type/i)).toBeInTheDocument();
 	});
 
 	test("shows multi-selection controls when two layers are selected", async () => {
@@ -214,7 +214,7 @@ describe("Page: Design Canvas", () => {
 		fireEvent.click(circleBtn, { shiftKey: true });
 
 		await waitFor(() => {
-			expect(screen.getByText(/Výber: 2 vrstvy/i)).toBeInTheDocument();
+			expect(screen.getByText(/Selection: 2 layers/i)).toBeInTheDocument();
 		});
 
 		const propertiesPanel = screen.getByText(/Vlastnosti/i).closest("div")

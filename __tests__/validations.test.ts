@@ -4,8 +4,8 @@ import { noteSchema, projectSchema } from "@/lib/validations";
 describe("projectSchema", () => {
 	it("should validate a correct project", () => {
 		const validProject = {
-			name: "Môj Skvelý Projekt",
-			description: "Toto je popis projektu",
+			name: "My Great Project",
+			description: "This is a project description",
 		};
 		expect(projectSchema.safeParse(validProject).success).toBe(true);
 	});
@@ -16,7 +16,7 @@ describe("projectSchema", () => {
 		expect(result.success).toBe(false);
 		if (!result.success) {
 			expect(result.error.issues[0].message).toBe(
-				"Názov projektu musí mať aspoň 3 znaky",
+				"Project name must be at least 3 characters",
 			);
 		}
 	});
@@ -27,13 +27,13 @@ describe("projectSchema", () => {
 		expect(result.success).toBe(false);
 		if (!result.success) {
 			expect(result.error.issues[0].message).toBe(
-				"Názov projektu je príliš dlhý (max 50 znakov)",
+				"Project name is too long (max 50 characters)",
 			);
 		}
 	});
 
 	it("should allow optional description", () => {
-		const validProject = { name: "Projekt bez popisu" };
+		const validProject = { name: "Project without description" };
 		expect(projectSchema.safeParse(validProject).success).toBe(true);
 	});
 });
@@ -41,35 +41,35 @@ describe("projectSchema", () => {
 describe("noteSchema", () => {
 	it("should validate a correct note", () => {
 		const validNote = {
-			title: "Dôležitá poznámka",
-			content: "Obsah mojej poznámky...",
+			title: "Important note",
+			content: "Content of my note...",
 			projectId: "proj_123",
 		};
 		expect(noteSchema.safeParse(validNote).success).toBe(true);
 	});
 
 	it("should fail if title is empty", () => {
-		const invalidNote = { title: "", content: "Obsah" };
+		const invalidNote = { title: "", content: "Content" };
 		const result = noteSchema.safeParse(invalidNote);
 		expect(result.success).toBe(false);
 		if (!result.success) {
-			expect(result.error.issues[0].message).toBe("Názov poznámky je povinný");
+			expect(result.error.issues[0].message).toBe("Note title is required");
 		}
 	});
 
 	it("should fail if content is empty", () => {
-		const invalidNote = { title: "Názov", content: "" };
+		const invalidNote = { title: "Title", content: "" };
 		const result = noteSchema.safeParse(invalidNote);
 		expect(result.success).toBe(false);
 		if (!result.success) {
 			expect(result.error.issues[0].message).toBe(
-				"Obsah poznámky nemôže byť prázdny",
+				"Note content cannot be empty",
 			);
 		}
 	});
 
 	it("should allow optional projectId", () => {
-		const validNote = { title: "Názov", content: "Obsah" };
+		const validNote = { title: "Title", content: "Content" };
 		expect(noteSchema.safeParse(validNote).success).toBe(true);
 	});
 });

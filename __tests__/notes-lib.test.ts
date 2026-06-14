@@ -27,12 +27,12 @@ describe("Lib: Notes", () => {
 			});
 
 		downloadNoteAsTxt(
-			"Moja poznámka",
-			"<p>Obsah <strong>poznámky</strong></p>",
+			"My note",
+			"<p>Content <strong>note</strong></p>",
 		);
 
 		expect(createElementSpy).toHaveBeenCalledWith("a");
-		expect(anchor.download).toBe("Moja poznámka.txt");
+		expect(anchor.download).toBe("My note.txt");
 		expect(clickMock).toHaveBeenCalled();
 		expect(revokeMock).toHaveBeenCalledWith("blob:mock-note");
 

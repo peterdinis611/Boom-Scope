@@ -21,7 +21,7 @@ function createOtpProvider(config: OtpProviderConfig): EmailConfig {
 	) => {
 		const email = params.identifier.trim();
 		if (!email) {
-			throw new Error("Chýba emailová adresa príjemcu pri odosielaní OTP.");
+			throw new Error("Recipient email address is missing when sending OTP.");
 		}
 
 		await ctx.runAction(internal.emailsNode.deliverOtpEmail, {

@@ -27,7 +27,7 @@ export function ClipboardPanel() {
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<Clipboard className="size-4" />
-						Schránka ({history.length}/10)
+						Clipboard ({history.length}/10)
 					</DialogTitle>
 				</DialogHeader>
 				{history.length > 0 ? (
@@ -39,16 +39,16 @@ export function ClipboardPanel() {
 							onClick={clearHistory}
 							className="text-destructive hover:text-destructive"
 						>
-							Vyčistiť
+							Clear
 						</Button>
 					</div>
 				) : null}
 				{history.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-8 text-center">
 						<Clipboard className="mb-3 size-8 text-muted-foreground" />
-						<p className="text-sm font-medium">Schránka je prázdna</p>
+						<p className="text-sm font-medium">Clipboard is empty</p>
 						<p className="mt-1 text-xs text-muted-foreground">
-							Skopírované hodnoty z design systému sa zobrazia tu.
+							Values copied from the design system will appear here.
 						</p>
 					</div>
 				) : (
@@ -59,7 +59,7 @@ export function ClipboardPanel() {
 								<div
 									key={item.id}
 									onClick={() =>
-										copy(item.text, "Položka skopírovaná z histórie schránky")
+										copy(item.text, "Item copied from clipboard history")
 									}
 									className={cn(
 										"group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50",
@@ -102,7 +102,7 @@ export function ClipboardPanel() {
 												e.stopPropagation();
 												deleteHistoryItem(item.id);
 											}}
-											aria-label="Odstrániť položku"
+											aria-label="Remove item"
 										>
 											<Trash2 className="size-3.5" />
 										</Button>
