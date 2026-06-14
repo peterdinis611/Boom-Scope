@@ -75,7 +75,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 									<Globe className="size-5 text-primary/60" />
 									<div className="flex-1 min-w-0">
 										<p className="text-xs font-mono font-bold truncate opacity-60">
-											{shareUrl || "Generujem odkaz..."}
+											{shareUrl || "Generating link..."}
 										</p>
 									</div>
 									<Button

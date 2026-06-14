@@ -54,14 +54,14 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 				<StatCard
 					title="Design System"
 					value={stats?.designSystems ?? "—"}
-					description="Visualna DNA projektov"
+					description="Project visual DNA"
 					icon={Layout}
 					href="/dashboard/design-system/v2"
 				/>
 				<StatCard
 					title="AI Generator"
 					value="Launch"
-					description="Generovanie multi-viewport dizajnu"
+					description="Generate multi-viewport designs"
 					icon={Sparkles}
 					href="/dashboard/generator"
 				/>

@@ -1,14 +1,21 @@
-/** Pastel palette for sticky note backgrounds (white text from the library). */
+/** Pastel sticky note backgrounds with dark text. */
 export const STICKY_NOTE_COLORS = [
-	"#ef4444",
-	"#f97316",
-	"#eab308",
-	"#22c55e",
-	"#06b6d4",
-	"#3b82f6",
-	"#8b5cf6",
-	"#ec4899",
+	"#fef08a",
+	"#fbcfe8",
+	"#bbf7d0",
+	"#bfdbfe",
+	"#fed7aa",
+	"#ddd6fe",
+	"#fecaca",
+	"#ccfbf1",
 ] as const;
+
+export const DEFAULT_STICKY_NOTE_SIZE = {
+	width: 240,
+	height: 240,
+} as const;
+
+export const STICKY_NOTES_CACHE_KEY = "boom-scope-sticky-notes";
 
 export type StickyNotePosition = {
 	x: number;
@@ -21,15 +28,9 @@ export type StickyNoteItem = {
 	text: string;
 	selected?: boolean;
 	position: StickyNotePosition;
+	width?: number;
+	height?: number;
 };
-
-export type StickyNoteChangeType =
-	| "add"
-	| "update"
-	| "delete"
-	| "changeview"
-	| "changemodal"
-	| "import";
 
 export function parseStickyNoteItems(raw: string | undefined): StickyNoteItem[] {
 	if (!raw?.trim()) return [];
@@ -46,6 +47,53 @@ export function serializeStickyNoteItems(items: StickyNoteItem[]): string {
 	return JSON.stringify(items);
 }
 
+export function readStickyNotesCache(): StickyNoteItem[] {
+	if (typeof window === "undefined") return [];
+	try {
+		return parseStickyNoteItems(
+			localStorage.getItem(STICKY_NOTES_CACHE_KEY) ?? "",
+		);
+	} catch {
+		return [];
+	}
+}
+
+export function writeStickyNotesCache(items: StickyNoteItem[]): void {
+	if (typeof window === "undefined") return;
+	try {
+		localStorage.setItem(
+			STICKY_NOTES_CACHE_KEY,
+			serializeStickyNoteItems(items),
+		);
+	} catch {
+		// Ignore quota / private mode errors.
+	}
+}
+
+export function pickStickyNoteColor(): string {
+	const index = Math.floor(Math.random() * STICKY_NOTE_COLORS.length);
+	return STICKY_NOTE_COLORS[index] ?? STICKY_NOTE_COLORS[0];
+}
+
+export function createStickyNote(
+	existing: StickyNoteItem[],
+	color = pickStickyNoteColor(),
+): StickyNoteItem {
+	const offset = existing.length * 28;
+	return {
+		id: crypto.randomUUID(),
+		color,
+		text: "",
+		selected: true,
+		position: {
+			x: 32 + offset,
+			y: 32 + offset,
+		},
+		width: DEFAULT_STICKY_NOTE_SIZE.width,
+		height: DEFAULT_STICKY_NOTE_SIZE.height,
+	};
+}
+
 function isStickyNoteItem(value: unknown): value is StickyNoteItem {
 	if (!value || typeof value !== "object") return false;
 	const item = value as Partial<StickyNoteItem>;
@@ -56,16 +104,8 @@ function isStickyNoteItem(value: unknown): value is StickyNoteItem {
 		item.position !== null &&
 		typeof item.position === "object" &&
 		typeof item.position?.x === "number" &&
-		typeof item.position?.y === "number"
+		typeof item.position?.y === "number" &&
+		(item.width === undefined || typeof item.width === "number") &&
+		(item.height === undefined || typeof item.height === "number")
 	);
-}
-
-export function toLibraryNotes(items: StickyNoteItem[]) {
-	return items.map(({ id, color, text, position, selected }) => ({
-		id,
-		color,
-		text,
-		position,
-		...(selected !== undefined ? { selected } : {}),
-	}));
 }

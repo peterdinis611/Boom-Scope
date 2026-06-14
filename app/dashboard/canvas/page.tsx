@@ -1981,7 +1981,7 @@ function DesignPageContent() {
 
 					<div className="py-4 space-y-3">
 						<Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-							Projekt
+							Project
 						</Label>
 						<Select
 							value={selectedProjectId || undefined}

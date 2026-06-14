@@ -6,7 +6,9 @@ export const get = query({
 	args: {},
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
-		if (!userId) return null;
+		if (!userId) {
+			return { boardId: null, items: "[]" };
+		}
 
 		const board = await ctx.db
 			.query("sticky_note_boards")

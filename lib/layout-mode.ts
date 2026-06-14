@@ -3,8 +3,7 @@ export type DashboardLayoutMode = "default" | "immersive" | "focused";
 export function getDashboardLayoutMode(pathname: string): DashboardLayoutMode {
 	if (
 		pathname.startsWith("/dashboard/canvas") ||
-		pathname.startsWith("/dashboard/generator") ||
-		pathname.startsWith("/dashboard/sticky-notes")
+		pathname.startsWith("/dashboard/generator")
 	) {
 		return "immersive";
 	}

@@ -130,7 +130,7 @@ export default function ProjectSettingsPage() {
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="project-description">Popis</Label>
+						<Label htmlFor="project-description">Description</Label>
 						<Textarea
 							id="project-description"
 							value={description}

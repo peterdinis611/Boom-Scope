@@ -1,4 +1,4 @@
-import { StickyNotesBoard } from "@/components/sticky-notes/sticky-notes-board";
+import { StickyNotesPageClient } from "./sticky-notes-page-client";
 
 export default function StickyNotesPage() {
 	return (
@@ -10,7 +10,7 @@ export default function StickyNotesPage() {
 				</p>
 			</div>
 			<div className="min-h-0 flex-1">
-				<StickyNotesBoard />
+				<StickyNotesPageClient />
 			</div>
 		</div>
 	);

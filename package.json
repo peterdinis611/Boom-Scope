@@ -19,7 +19,6 @@
 		"@oslojs/crypto": "^1.0.1",
 		"@react-email/components": "^1.0.12",
 		"@react-email/render": "^2.0.8",
-		"@react-latest-ui/react-sticky-notes": "^0.2.6",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tiptap/core": "3.23.4",
 		"@tiptap/extension-character-count": "3.23.4",

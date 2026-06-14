@@ -1,46 +1,51 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import dynamic from "next/dynamic";
+import { Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import {
+	createStickyNote,
 	parseStickyNoteItems,
+	readStickyNotesCache,
 	serializeStickyNoteItems,
 	STICKY_NOTE_COLORS,
 	type StickyNoteItem,
-	toLibraryNotes,
+	writeStickyNotesCache,
 } from "@/lib/sticky-notes";
+import { cn } from "@/lib/utils";
+import { StickyNoteCard } from "./sticky-note-card";
 
-const ReactStickyNotes = dynamic(
-	() => import("@react-latest-ui/react-sticky-notes"),
-	{
-		ssr: false,
-		loading: () => (
-			<div className="flex h-full items-center justify-center text-muted-foreground">
-				<Loader2 className="size-6 animate-spin" />
-			</div>
-		),
-	},
-);
-
-const SAVE_DEBOUNCE_MS = 600;
+const SAVE_DEBOUNCE_MS = 500;
 
 export function StickyNotesBoard() {
 	const board = useQuery(api.sticky_notes.get);
 	const saveBoard = useMutation(api.sticky_notes.save);
-	const [initialNotes, setInitialNotes] = useState<StickyNoteItem[] | null>(
-		null,
+	const [notes, setNotes] = useState<StickyNoteItem[]>(readStickyNotesCache);
+	const [activeId, setActiveId] = useState<string | null>(null);
+	const [selectedColor, setSelectedColor] = useState<string>(
+		STICKY_NOTE_COLORS[0],
 	);
+	const hasHydratedFromServer = useRef(false);
+	const hasLocalEdits = useRef(false);
 	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const latestItemsRef = useRef<StickyNoteItem[]>([]);
+	const latestNotesRef = useRef<StickyNoteItem[]>([]);
 
 	useEffect(() => {
-		if (board !== undefined && initialNotes === null) {
-			setInitialNotes(parseStickyNoteItems(board?.items));
-		}
-	}, [board, initialNotes]);
+		if (board === undefined || hasHydratedFromServer.current) return;
+
+		hasHydratedFromServer.current = true;
+		const serverNotes = parseStickyNoteItems(board.items);
+
+		setNotes((current) => {
+			if (hasLocalEdits.current) return current;
+			if (current.length === 0) return serverNotes;
+			return serverNotes.length > current.length ? serverNotes : current;
+		});
+
+		setActiveId((current) => current ?? serverNotes[0]?.id ?? null);
+	}, [board]);
 
 	useEffect(() => {
 		return () => {
@@ -51,79 +56,106 @@ export function StickyNotesBoard() {
 	}, []);
 
 	const persistNotes = useCallback(
-		(items: StickyNoteItem[]) => {
-			latestItemsRef.current = items;
+		(nextNotes: StickyNoteItem[]) => {
+			latestNotesRef.current = nextNotes;
+			writeStickyNotesCache(nextNotes);
 
 			if (saveTimeoutRef.current) {
 				clearTimeout(saveTimeoutRef.current);
 			}
 
 			saveTimeoutRef.current = setTimeout(() => {
-				void saveBoard({ items: serializeStickyNoteItems(latestItemsRef.current) });
+				void saveBoard({
+					items: serializeStickyNoteItems(latestNotesRef.current),
+				});
 			}, SAVE_DEBOUNCE_MS);
 		},
 		[saveBoard],
 	);
 
-	const handleChange = useCallback(
-		(
-			_type: string,
-			_payload: Record<string, unknown>,
-			notes: Array<{
-				id?: string;
-				color?: string;
-				text?: string;
-				selected?: boolean;
-				position?: { x: number; y: number };
-			}>,
-		) => {
-			const normalized = notes.flatMap((note) => {
-				if (
-					!note.id ||
-					!note.color ||
-					typeof note.text !== "string" ||
-					!note.position
-				) {
-					return [];
-				}
-				return [
-					{
-						id: note.id,
-						color: note.color,
-						text: note.text,
-						selected: note.selected,
-						position: note.position,
-					} satisfies StickyNoteItem,
-				];
+	const commitNotes = useCallback(
+		(updater: (current: StickyNoteItem[]) => StickyNoteItem[]) => {
+			hasLocalEdits.current = true;
+			setNotes((current) => {
+				const nextNotes = updater(current);
+				persistNotes(nextNotes);
+				return nextNotes;
 			});
-			persistNotes(normalized);
 		},
 		[persistNotes],
 	);
 
-	if (board === undefined || initialNotes === null) {
-		return (
-			<div className="flex h-full items-center justify-center text-muted-foreground">
-				<Loader2 className="size-6 animate-spin" />
-			</div>
+	const handleAddNote = () => {
+		const note = createStickyNote(notes, selectedColor);
+		commitNotes((current) => [...current, note]);
+		setActiveId(note.id);
+	};
+
+	const handleUpdateNote = (id: string, updates: Partial<StickyNoteItem>) => {
+		commitNotes((current) =>
+			current.map((note) => (note.id === id ? { ...note, ...updates } : note)),
 		);
-	}
+	};
+
+	const handleDeleteNote = (id: string) => {
+		commitNotes((current) => current.filter((note) => note.id !== id));
+		setActiveId((current) => (current === id ? null : current));
+	};
 
 	return (
-		<div className="sticky-notes-board h-full min-h-0 overflow-hidden rounded-lg border border-border bg-muted/30">
-			<ReactStickyNotes
-				sessionKey=""
-				colorCodes={[...STICKY_NOTE_COLORS]}
-				notes={toLibraryNotes(initialNotes)}
-				containerWidth="100%"
-				containerHeight="100%"
-				noteWidth={240}
-				noteHeight={240}
-				navbar
-				useCSS
-				useMaterialIcons
-				onChange={handleChange}
-			/>
+		<div className="flex h-full min-h-[480px] flex-col overflow-hidden rounded-lg border border-border bg-muted/20">
+			<div className="flex flex-wrap items-center gap-2 border-b border-border bg-background/80 px-3 py-2 backdrop-blur">
+				<Button type="button" size="sm" onClick={handleAddNote}>
+					<Plus data-icon="inline-start" />
+					Add note
+				</Button>
+				<div className="flex flex-wrap items-center gap-1.5">
+					{STICKY_NOTE_COLORS.map((color) => (
+						<button
+							key={color}
+							type="button"
+							aria-label={`Use ${color} for new notes`}
+							className={cn(
+								"size-7 rounded-full border border-black/10 shadow-sm transition-transform hover:scale-105",
+								selectedColor === color &&
+									"ring-2 ring-primary ring-offset-2 ring-offset-background",
+							)}
+							style={{ backgroundColor: color }}
+							onClick={() => setSelectedColor(color)}
+						/>
+					))}
+				</div>
+			</div>
+
+			<div
+				className="relative min-h-0 flex-1 overflow-auto bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.08)_1px,transparent_0)] [background-size:24px_24px] dark:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)]"
+				onPointerDown={() => setActiveId(null)}
+			>
+				{notes.length === 0 ? (
+					<div className="flex h-full min-h-[360px] items-center justify-center px-6 text-center">
+						<div className="space-y-2">
+							<p className="text-sm font-medium text-foreground">
+								Your board is empty
+							</p>
+							<p className="text-sm text-muted-foreground">
+								Click <span className="font-medium">Add note</span> to start
+								capturing ideas.
+							</p>
+						</div>
+					</div>
+				) : (
+					notes.map((note) => (
+						<StickyNoteCard
+							key={note.id}
+							note={note}
+							isActive={activeId === note.id}
+							onSelect={setActiveId}
+							onUpdate={handleUpdateNote}
+							onDelete={handleDeleteNote}
+						/>
+					))
+				)}
+			</div>
 		</div>
 	);
 }
