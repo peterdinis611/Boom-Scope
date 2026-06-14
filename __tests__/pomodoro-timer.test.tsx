@@ -91,9 +91,7 @@ describe("Component: PomodoroTimer", () => {
 
 		test("renders the mode description", () => {
 			renderTimer();
-			expect(
-				screen.getByText(/Time for focused work/i),
-			).toBeDefined();
+			expect(screen.getByText(/Time for focused work/i)).toBeDefined();
 		});
 
 		test("shows 'Ready' status when timer is not running", () => {

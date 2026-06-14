@@ -1,9 +1,12 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
-import type { ReactNode } from "react";
-import { getDashboardLayoutMode, type DashboardLayoutMode } from "@/lib/layout-mode";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
+import {
+	type DashboardLayoutMode,
+	getDashboardLayoutMode,
+} from "@/lib/layout-mode";
 
 type LayoutChromeContextValue = {
 	mode: DashboardLayoutMode;
@@ -11,7 +14,9 @@ type LayoutChromeContextValue = {
 	setClipboardOpen: (open: boolean) => void;
 };
 
-const LayoutChromeContext = createContext<LayoutChromeContextValue | null>(null);
+const LayoutChromeContext = createContext<LayoutChromeContextValue | null>(
+	null,
+);
 
 export function LayoutChromeProvider({ children }: { children: ReactNode }) {
 	const pathname = usePathname();

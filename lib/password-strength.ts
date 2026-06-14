@@ -34,7 +34,9 @@ export function getPasswordCriteria(password: string): PasswordCriteria {
 	};
 }
 
-export function evaluatePasswordStrength(password: string): PasswordStrengthResult {
+export function evaluatePasswordStrength(
+	password: string,
+): PasswordStrengthResult {
 	if (!password) {
 		return {
 			score: 0,

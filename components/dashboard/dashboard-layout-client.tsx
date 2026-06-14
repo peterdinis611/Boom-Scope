@@ -1,9 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
-import { getDashboardLayoutMode } from "@/lib/layout-mode";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { getDashboardLayoutMode } from "@/lib/layout-mode";
+import { cn } from "@/lib/utils";
 import { ClipboardPanel } from "./clipboard-panel";
 import { DashboardHeader } from "./dashboard-header";
 import { DashboardSidebarNav } from "./dashboard-nav";

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { EmptyState } from "@/components/layout/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -22,7 +23,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/layout/EmptyState";
 import { api } from "@/convex/_generated/api";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
 import { cn } from "@/lib/utils";

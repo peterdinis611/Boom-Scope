@@ -60,7 +60,8 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "Projects",
 		description: "Manage projects",
 		icon: FolderKanban,
-		iconClassName: "bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/20",
+		iconClassName:
+			"bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/20",
 		href: "/dashboard/projects",
 	},
 ];

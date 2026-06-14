@@ -1,6 +1,6 @@
 import { Button, Section, Text } from "@react-email/components";
-import { EmailLayout } from "./components/email-layout";
 import { emailBrand, getAppUrl } from "../lib/email-brand";
+import { EmailLayout } from "./components/email-layout";
 
 type RegistrationWelcomeEmailProps = {
 	name?: string | null;

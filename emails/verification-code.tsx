@@ -1,6 +1,6 @@
 import { Section, Text } from "@react-email/components";
-import { EmailLayout } from "./components/email-layout";
 import { emailBrand } from "../lib/email-brand";
+import { EmailLayout } from "./components/email-layout";
 
 export type VerificationCodeKind = "verify" | "reset";
 
@@ -22,7 +22,8 @@ const copy: Record<
 	reset: {
 		preview: "Your password reset code for Boom Scope",
 		title: "Reset password",
-		description: "Enter this code along with your new password on the reset page.",
+		description:
+			"Enter this code along with your new password on the reset page.",
 	},
 };
 

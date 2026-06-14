@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
 import type { Route } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 

@@ -64,13 +64,13 @@ export function ErrorFallback({
 	const [copying, setCopying] = useState(false);
 
 	const friendly =
-		kind === "error" && error
-			? toFriendlyError(error, error.digest)
-			: null;
+		kind === "error" && error ? toFriendlyError(error, error.digest) : null;
 
 	const title =
 		titleOverride ??
-		(kind === "not-found" ? "Page not found" : (friendly?.title ?? "Something went wrong"));
+		(kind === "not-found"
+			? "Page not found"
+			: (friendly?.title ?? "Something went wrong"));
 
 	const description =
 		descriptionOverride ??

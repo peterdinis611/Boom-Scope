@@ -1,18 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import type { Route } from "next";
-import { usePathname } from "next/navigation";
 import { ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { DashboardMobileNav } from "./dashboard-nav";
 import { HeaderQuickActions } from "./header-quick-actions";
 import { useLayoutChrome } from "./layout-chrome-context";
 import { useSidebar } from "./sidebar-context";
-import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
 type Crumb = { label: string; href?: Route };
 
@@ -67,9 +67,7 @@ export function DashboardHeader() {
 					size="icon-sm"
 					onClick={toggleSidebar}
 					className="hidden md:flex"
-					aria-label={
-						isCollapsed ? "Open sidebar" : "Close sidebar"
-					}
+					aria-label={isCollapsed ? "Open sidebar" : "Close sidebar"}
 				>
 					{isCollapsed ? (
 						<PanelLeftOpen className="size-4" />
@@ -84,7 +82,10 @@ export function DashboardHeader() {
 				aria-label="Breadcrumb"
 			>
 				{crumbs.map((crumb, index) => (
-					<span key={`${crumb.label}-${index}`} className="flex items-center gap-1">
+					<span
+						key={`${crumb.label}-${index}`}
+						className="flex items-center gap-1"
+					>
 						{index > 0 ? (
 							<ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
 						) : null}

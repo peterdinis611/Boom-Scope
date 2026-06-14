@@ -26,10 +26,7 @@ describe("Lib: Notes", () => {
 				return createElementOriginal(tag);
 			});
 
-		downloadNoteAsTxt(
-			"My note",
-			"<p>Content <strong>note</strong></p>",
-		);
+		downloadNoteAsTxt("My note", "<p>Content <strong>note</strong></p>");
 
 		expect(createElementSpy).toHaveBeenCalledWith("a");
 		expect(anchor.download).toBe("My note.txt");

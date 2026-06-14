@@ -68,7 +68,9 @@ describe("Page: Design Canvas", () => {
 
 	test("renders toolbar and sidebar by default", () => {
 		render(<DesignPage />);
-		expect(screen.getByRole("heading", { name: /Canvas settings/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("heading", { name: /Canvas settings/i }),
+		).toBeInTheDocument();
 	});
 
 	test("shows artboard settings when no element is selected", () => {

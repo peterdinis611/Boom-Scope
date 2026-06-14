@@ -1,12 +1,11 @@
 "use client";
 
 import { Check } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import {
 	evaluatePasswordStrength,
 	type PasswordCriteria,
 } from "@/lib/password-strength";
+import { cn } from "@/lib/utils";
 
 type PasswordStrengthMeterProps = {
 	password: string;
@@ -72,18 +71,13 @@ export function PasswordStrengthMeter({
 							key={segment}
 							className={cn(
 								"h-1 flex-1 rounded-full transition-all duration-300",
-								score >= segment
-									? SEGMENT_COLORS[score]
-									: "bg-muted",
+								score >= segment ? SEGMENT_COLORS[score] : "bg-muted",
 							)}
 						/>
 					))}
 				</div>
 				<span
-					className={cn(
-						"shrink-0 text-xs font-medium",
-						TEXT_COLORS[score],
-					)}
+					className={cn("shrink-0 text-xs font-medium", TEXT_COLORS[score])}
 				>
 					{label}
 				</span>

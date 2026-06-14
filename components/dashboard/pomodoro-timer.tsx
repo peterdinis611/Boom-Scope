@@ -105,7 +105,6 @@ export function PomodoroTimer() {
 			</div>
 
 			<Card className="w-full shadow-sm">
-
 				<CardHeader className="text-center">
 					<div className="flex items-center justify-center gap-2 text-primary mb-2">
 						<Icon className={cn("size-5", color)} />

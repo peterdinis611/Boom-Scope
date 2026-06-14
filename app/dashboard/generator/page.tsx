@@ -291,8 +291,7 @@ export default function GeneratorPage() {
 										Tablet
 									</span>
 									<span className="flex items-center gap-1.5">
-										<span className="size-1.5 rounded-full bg-blue-500" />{" "}
-										Mobil
+										<span className="size-1.5 rounded-full bg-blue-500" /> Mobil
 									</span>
 									<span className="text-muted-foreground/70">
 										Enter = send, Shift+Enter = new line

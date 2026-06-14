@@ -108,8 +108,8 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 										Read-Only
 									</h3>
 									<p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-widest">
-										Anyone with the link can view the design, but cannot
-										edit it.
+										Anyone with the link can view the design, but cannot edit
+										it.
 									</p>
 								</div>
 								<div className="p-6 rounded-[32px] bg-foreground/5 border border-border space-y-3">
@@ -120,8 +120,8 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 										Access
 									</h3>
 									<p className="text-[10px] font-bold opacity-40 leading-relaxed uppercase tracking-widest">
-										Your design is now accessible to anyone with this
-										unique URL.
+										Your design is now accessible to anyone with this unique
+										URL.
 									</p>
 								</div>
 							</div>

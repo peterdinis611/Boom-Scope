@@ -37,9 +37,9 @@ import dynamic from "next/dynamic";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Dock } from "@/components/design/Dock";
 import { CanvasTopBar } from "@/components/design/canvas/CanvasTopBar";
 import { CanvasZoomControls } from "@/components/design/canvas/CanvasZoomControls";
+import { Dock } from "@/components/design/Dock";
 import type { CanvasElement } from "@/components/design/KonvaCanvas";
 import { ShareDialog } from "@/components/design/ShareDialog";
 import {
@@ -70,17 +70,17 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
+	type CanvasSize,
+	DEFAULT_CANVAS_SIZE,
+	normalizeCanvasSize,
+} from "@/lib/canvas-defaults";
+import {
 	cloneElementsForPaste,
 	getDefaultVisualStyle,
 	groupElementsAtIndices,
 	isVisualConfigured,
 	ungroupElement,
 } from "@/lib/canvas-elements";
-import {
-	DEFAULT_CANVAS_SIZE,
-	normalizeCanvasSize,
-	type CanvasSize,
-} from "@/lib/canvas-defaults";
 import { CANVAS_PRESETS } from "@/lib/canvas-presets";
 import { IDB_KEYS, idbGet, idbRemove } from "@/lib/idb-storage";
 import { cn } from "@/lib/utils";
@@ -179,7 +179,10 @@ function DesignPageContent() {
 	);
 
 	useEffect(() => {
-		if (!existingDesign?.elements || typeof existingDesign.elements !== "string") {
+		if (
+			!existingDesign?.elements ||
+			typeof existingDesign.elements !== "string"
+		) {
 			return;
 		}
 
@@ -1772,7 +1775,9 @@ function DesignPageContent() {
 														)}
 														style={{ backgroundColor: color || undefined }}
 														aria-label={
-															color ? `Background ${color}` : "Transparent background"
+															color
+																? `Background ${color}`
+																: "Transparent background"
 														}
 													/>
 												),
@@ -1782,8 +1787,8 @@ function DesignPageContent() {
 
 									<div className="rounded-lg border border-border bg-muted/30 p-3">
 										<p className="text-xs text-muted-foreground leading-relaxed">
-											Select an object to edit properties or set global
-											artboard parameters above.
+											Select an object to edit properties or set global artboard
+											parameters above.
 										</p>
 									</div>
 

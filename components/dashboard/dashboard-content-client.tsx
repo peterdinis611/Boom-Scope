@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "convex/react";
 import {
 	FileText,
 	FolderKanban,
@@ -7,7 +8,6 @@ import {
 	Palette,
 	Sparkles,
 } from "lucide-react";
-import { useQuery } from "convex/react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";

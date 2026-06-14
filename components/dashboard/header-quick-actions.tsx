@@ -52,7 +52,9 @@ function QuickActionMenuItem({
 				<Icon className="size-4" aria-hidden="true" />
 			</span>
 			<span className="min-w-0 flex-1 text-left">
-				<span className="block text-sm font-medium leading-tight">{item.label}</span>
+				<span className="block text-sm font-medium leading-tight">
+					{item.label}
+				</span>
 				<span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
 					{item.description}
 				</span>
@@ -100,7 +102,9 @@ export function HeaderQuickActions({
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-72 p-2">
 					<div className="px-2 pb-1 pt-1">
-						<p className="text-sm font-semibold text-foreground">Quick actions</p>
+						<p className="text-sm font-semibold text-foreground">
+							Quick actions
+						</p>
 						<p className="text-xs text-muted-foreground">
 							Shortcuts to common tasks
 						</p>

@@ -6,9 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-
-import { RedirectingOverlay } from "@/components/auth/RedirectingOverlay";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { RedirectingOverlay } from "@/components/auth/RedirectingOverlay";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -30,7 +29,9 @@ import { toastAppError } from "@/lib/errors";
 
 export default function RegisterPage() {
 	const { signIn } = useAuthActions();
-	const sendRegistrationWelcome = useAction(api.emailsNode.sendRegistrationWelcome);
+	const sendRegistrationWelcome = useAction(
+		api.emailsNode.sendRegistrationWelcome,
+	);
 	const transactionalEmailsEnabled = useQuery(
 		api.authConfig.transactionalEmailsEnabled,
 	);
@@ -88,8 +89,7 @@ export default function RegisterPage() {
 			const outcome = classifySignInResult(result);
 			if (outcome === "fail") {
 				toast.error("Could not complete registration.", {
-					description:
-						"This email may already be registered. Try signing in.",
+					description: "This email may already be registered. Try signing in.",
 				});
 				return;
 			}

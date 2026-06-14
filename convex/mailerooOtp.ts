@@ -1,8 +1,8 @@
-import { RandomReader, generateRandomString } from "@oslojs/crypto/random";
 import type { EmailConfig } from "@convex-dev/auth/server";
+import { generateRandomString, type RandomReader } from "@oslojs/crypto/random";
+import type { VerificationCodeKind } from "../emails/verification-code";
 import { internal } from "./_generated/api";
 import type { ActionCtx } from "./_generated/server";
-import type { VerificationCodeKind } from "../emails/verification-code";
 
 type SendVerificationRequest = NonNullable<
 	EmailConfig["sendVerificationRequest"]

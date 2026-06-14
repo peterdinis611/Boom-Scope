@@ -1,13 +1,12 @@
 "use client";
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-
-import { Label } from "@/components/ui/label";
 import {
 	InputOTP,
 	InputOTPGroup,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Label } from "@/components/ui/label";
 
 export const VERIFICATION_CODE_LENGTH = 8;
 

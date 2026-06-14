@@ -17,8 +17,8 @@ export default async function Home() {
 						Welcome to Boom Scope
 					</h1>
 					<p className="max-w-md text-sm text-muted-foreground">
-						Sign in to access the dashboard, or create a new account
-						with your email and password.
+						Sign in to access the dashboard, or create a new account with your
+						email and password.
 					</p>
 				</div>
 

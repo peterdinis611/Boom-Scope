@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 
 export const typography = {
-	pageTitle: "font-heading text-2xl font-semibold tracking-tight text-foreground",
-	sectionTitle: "font-heading text-lg font-semibold tracking-tight text-foreground",
+	pageTitle:
+		"font-heading text-2xl font-semibold tracking-tight text-foreground",
+	sectionTitle:
+		"font-heading text-lg font-semibold tracking-tight text-foreground",
 	body: "text-sm text-foreground",
 	caption: "text-xs text-muted-foreground",
 } as const;

@@ -1,6 +1,13 @@
 "use client";
 
-import { FolderKanban, Layers, NotebookPen, PanelLeft, PanelRight, RefreshCw } from "lucide-react";
+import {
+	FolderKanban,
+	Layers,
+	NotebookPen,
+	PanelLeft,
+	PanelRight,
+	RefreshCw,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -60,9 +67,13 @@ export function CanvasTopBar({
 			</div>
 
 			<div className="hidden min-w-0 flex-1 items-center gap-3 sm:flex">
-				<span className="truncate text-sm font-medium">{getCanvasToolLabel(activeTool)}</span>
+				<span className="truncate text-sm font-medium">
+					{getCanvasToolLabel(activeTool)}
+				</span>
 				<span className="text-muted-foreground">·</span>
-				<span className="truncate text-xs text-muted-foreground">{canvasLabel}</span>
+				<span className="truncate text-xs text-muted-foreground">
+					{canvasLabel}
+				</span>
 			</div>
 
 			<div className="ml-auto flex items-center gap-2">

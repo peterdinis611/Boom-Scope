@@ -83,8 +83,8 @@ export function ClipboardManager() {
 									Clipboard is empty
 								</p>
 								<p className="text-[10px] text-muted-foreground max-w-50">
-									Anything you copy from the design system will appear here for quick
-									access.
+									Anything you copy from the design system will appear here for
+									quick access.
 								</p>
 							</div>
 						) : (
@@ -95,10 +95,7 @@ export function ClipboardManager() {
 										<div
 											key={item.id}
 											onClick={() =>
-												copy(
-													item.text,
-													"Item copied from clipboard history",
-												)
+												copy(item.text, "Item copied from clipboard history")
 											}
 											className="group relative p-3 rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer flex items-center justify-between gap-3"
 										>

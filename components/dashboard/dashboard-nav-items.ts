@@ -142,8 +142,7 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				icon: SettingsIcon,
 				iconClassName:
 					"bg-muted text-muted-foreground border-border/60 group-hover:bg-muted/80",
-				activeIconClassName:
-					"bg-muted text-foreground border-border",
+				activeIconClassName: "bg-muted text-foreground border-border",
 				href: "/dashboard/settings",
 			},
 		],

@@ -41,9 +41,7 @@ export function PasswordField({
 				disabled={disabled}
 				value={showStrength ? password : undefined}
 				onChange={
-					showStrength
-						? (event) => setPassword(event.target.value)
-						: undefined
+					showStrength ? (event) => setPassword(event.target.value) : undefined
 				}
 			/>
 			{showStrength ? <PasswordStrengthMeter password={password} /> : null}

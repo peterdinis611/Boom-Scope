@@ -106,7 +106,10 @@ function NavLinks({
 	const pathname = usePathname();
 
 	return (
-		<nav className={cn("flex flex-col gap-5", className)} aria-label="Main navigation">
+		<nav
+			className={cn("flex flex-col gap-5", className)}
+			aria-label="Main navigation"
+		>
 			{DASHBOARD_NAV_GROUPS.map((group) => (
 				<div key={group.id} className="flex flex-col gap-1">
 					{group.label ? (
@@ -170,7 +173,9 @@ export function DashboardSidebarNav() {
 				<NavLinks />
 			</div>
 			<div className="shrink-0 border-t border-sidebar-border px-4 py-3">
-				<p className="text-[11px] text-muted-foreground">Boom Scope · Workspace</p>
+				<p className="text-[11px] text-muted-foreground">
+					Boom Scope · Workspace
+				</p>
 			</div>
 		</div>
 	);

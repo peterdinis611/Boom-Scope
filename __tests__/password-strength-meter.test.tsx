@@ -8,7 +8,9 @@ import { PasswordStrengthMeter } from "@/components/auth/PasswordStrengthMeter";
 describe("Component: PasswordStrengthMeter", () => {
 	it("shows hint when password is empty", () => {
 		render(<PasswordStrengthMeter password="" />);
-		expect(screen.getByText("Password must be at least 8 characters.")).toBeDefined();
+		expect(
+			screen.getByText("Password must be at least 8 characters."),
+		).toBeDefined();
 	});
 
 	it("shows strength label when password is entered", () => {

@@ -37,9 +37,9 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -250,9 +250,7 @@ export default function DesignSystemV2() {
 
 	const analyzeImages = async () => {
 		if (images.length === 0 || !selectedProjectId) {
-			toast.error(
-				images.length === 0 ? "Upload images!" : "Select a project!",
-			);
+			toast.error(images.length === 0 ? "Upload images!" : "Select a project!");
 			return;
 		}
 		setIsAnalyzing(true);

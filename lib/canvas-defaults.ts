@@ -13,9 +13,7 @@ export function normalizeCanvasSize(
 ): CanvasSize {
 	return {
 		width:
-			size?.width && size.width > 0
-				? size.width
-				: DEFAULT_CANVAS_SIZE.width,
+			size?.width && size.width > 0 ? size.width : DEFAULT_CANVAS_SIZE.width,
 		height:
 			size?.height && size.height > 0
 				? size.height
