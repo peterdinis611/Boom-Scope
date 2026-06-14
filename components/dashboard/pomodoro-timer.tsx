@@ -58,22 +58,22 @@ export function PomodoroTimer() {
 		{ label: string; icon: LucideIcon; color: string; description: string }
 	> = {
 		focus: {
-			label: "Focus",
+			label: "Sústredenie",
 			icon: Brain,
 			color: "text-primary",
-			description: "Time to concentrate on your tasks",
+			description: "Čas na sústredenú prácu",
 		},
 		shortBreak: {
-			label: "Short Break",
+			label: "Krátka pauza",
 			icon: Coffee,
 			color: "text-success",
-			description: "Quick rest to recharge",
+			description: "Rýchly oddych",
 		},
 		longBreak: {
-			label: "Long Break",
+			label: "Dlhá pauza",
 			icon: Clock,
 			color: "text-primary",
-			description: "Extended rest for deeper recovery",
+			description: "Dlhší oddych na regeneráciu",
 		},
 	};
 
@@ -104,10 +104,9 @@ export function PomodoroTimer() {
 				))}
 			</div>
 
-			<Card className="w-full relative overflow-hidden border-none bg-card/50 backdrop-blur-xl shadow-2xl">
-				<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+			<Card className="w-full shadow-sm">
 
-				<CardHeader className="text-center relative z-10">
+				<CardHeader className="text-center">
 					<div className="flex items-center justify-center gap-2 text-primary mb-2">
 						<Icon className={cn("size-5", color)} />
 						<CardTitle className="text-2xl font-bold tracking-tight">
@@ -117,7 +116,7 @@ export function PomodoroTimer() {
 					<CardDescription>{description}</CardDescription>
 				</CardHeader>
 
-				<CardContent className="flex flex-col items-center gap-8 relative z-10 py-8">
+				<CardContent className="flex flex-col items-center gap-8 py-8">
 					{/* Circular Progress Indicator */}
 					<div className="relative size-64 md:size-80 flex items-center justify-center">
 						<svg className="size-full -rotate-90 transform">
@@ -212,10 +211,7 @@ export function PomodoroTimer() {
 								<Settings2 className="size-5 text-muted-foreground hover:text-foreground transition-colors" />
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent
-							className="w-80 p-6 bg-card/95 backdrop-blur-lg border-primary/10 shadow-2xl"
-							align="end"
-						>
+						<PopoverContent className="w-80 p-6" align="end">
 							<div className="space-y-6">
 								<div className="space-y-2">
 									<h4 className="font-bold leading-none flex items-center gap-2">
@@ -229,7 +225,7 @@ export function PomodoroTimer() {
 
 								<div className="space-y-4">
 									<div className="space-y-2">
-										<Label htmlFor="focus">Focus (minút)</Label>
+										<Label htmlFor="focus">Sústredenie (minút)</Label>
 										<Input
 											id="focus"
 											type="number"
@@ -288,30 +284,28 @@ export function PomodoroTimer() {
 			</Card>
 
 			{/* Stats or Tips (Optional) */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-				<Card className="bg-card/30 border-none backdrop-blur-sm">
-					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
+			<div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+				<Card>
+					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
 						<Brain className="size-5 text-primary" />
-						<div className="text-xl font-bold">25m</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">
-							Ideálny focus
+						<div className="text-xl font-semibold">25m</div>
+						<div className="text-xs text-muted-foreground">
+							Ideálne sústredenie
 						</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-card/30 border-none backdrop-blur-sm">
-					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
+				<Card>
+					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
 						<Coffee className="size-5 text-success" />
-						<div className="text-xl font-bold">5m</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">
-							Krátky relax
-						</div>
+						<div className="text-xl font-semibold">5m</div>
+						<div className="text-xs text-muted-foreground">Krátka prestávka</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-card/30 border-none backdrop-blur-sm">
-					<CardContent className="pt-6 flex flex-col items-center text-center gap-2">
+				<Card>
+					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
 						<RotateCcw className="size-5 text-muted-foreground" />
-						<div className="text-xl font-bold">4 cykly</div>
-						<div className="text-xs text-muted-foreground uppercase tracking-wider">
+						<div className="text-xl font-semibold">4 cykly</div>
+						<div className="text-xs text-muted-foreground">
 							Pred dlhou pauzou
 						</div>
 					</CardContent>

@@ -193,6 +193,46 @@ bun run lint
 
 Authentication is handled by [Convex Auth](https://labs.convex.dev/auth). Users register and log in via the `/login` and `/register` routes. Sessions are managed server-side through Convex.
 
+Transactional emails (email verification and password reset) are sent via [Maileroo](https://maileroo.com). Configure these **Convex environment variables** (not `.env.local`):
+
+```bash
+npx convex env set MAILEROO_API_KEY "your-sending-key"
+npx convex env set MAILEROO_FROM_EMAIL "noreply@your-domain.com"
+npx convex env set MAILEROO_FROM_NAME "Boom Scope"
+```
+
+### Overovanie emailu a reset hesla
+
+| Režim | `AUTH_EMAIL_VERIFICATION` | Správanie |
+|-------|---------------------------|-----------|
+| Vývoj (sandbox) | `false` alebo nezadané | Registrácia bez OTP; po úspechu sa pošle uvítací email |
+| Produkcia | `true` | OTP overenie pri registrácii + reset hesla cez Maileroo |
+
+```bash
+# Zapnite až keď máte vlastnú overenú doménu (nie *.maileroo.org)
+npx convex env set AUTH_EMAIL_VERIFICATION "true"
+npx convex env set MAILEROO_EMAILS_ENABLED "true"
+npx convex env set MAILEROO_FROM_EMAIL "noreply@vasadomena.sk"
+```
+
+**Dôležité:** Sandbox doména `*.maileroo.org` je len na testovanie API. Maileroo **zamietne** emaily mimo **Authorized Recipients** (`suppression: User is not allowed to send outside of the authorized email list`). Pre viac používateľov pridajte vlastnú doménu, overte DNS (SPF, DKIM) a až potom zapnite `MAILEROO_EMAILS_ENABLED=true`.
+
+| Premenná | Účel |
+|----------|------|
+| `MAILEROO_EMAILS_ENABLED` | Uvítací email po registrácii (`false` = nevolať Maileroo vôbec) |
+| `AUTH_EMAIL_VERIFICATION` | OTP overenie + reset hesla |
+
+### Email šablóny (React Email)
+
+Transakčné emaily používajú [React Email](https://react.email/) v `emails/`:
+
+- `registration-welcome.tsx` — uvítací email po registrácii
+- `verification-code.tsx` — OTP kód (overenie / reset hesla)
+
+Náhľad šablón lokálne: `bun run email:dev`
+
+Render prebieha v Convex Node action (`convex/emailsNode.tsx`).
+
 ---
 
 ## ⏱️ Pomodoro Timer

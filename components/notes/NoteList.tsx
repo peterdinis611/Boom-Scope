@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/layout/EmptyState";
 import { api } from "@/convex/_generated/api";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
 import { cn } from "@/lib/utils";
@@ -67,14 +68,14 @@ export function NoteList() {
 						<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
 					)}
 					<Input
-						placeholder="Hľadať v poznámkach..."
+						placeholder="Hľadať v poznámkach…"
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						className="pl-9 h-11 rounded-2xl bg-background/40 backdrop-blur-3xl border-border"
+						className="pl-9"
 					/>
 				</div>
 				<Link href="/dashboard/notes/new">
-					<Button size="sm" className="gap-2 rounded-xl h-11 px-5">
+					<Button size="sm" className="gap-2">
 						<Plus className="size-4" />
 						Nová poznámka
 					</Button>
@@ -85,10 +86,7 @@ export function NoteList() {
 			(isFirstLoad || status === "LoadingFirstPage") ? (
 				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{[1, 2, 3, 4, 5, 6].map((i) => (
-						<Card
-							key={i}
-							className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm"
-						>
+						<Card key={i}>
 							<CardHeader>
 								<Skeleton className="h-5 w-2/3 rounded-lg" />
 							</CardHeader>
@@ -101,21 +99,22 @@ export function NoteList() {
 					))}
 				</div>
 			) : preservedResults.length === 0 ? (
-				<div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border/60 py-16 text-center bg-background/20">
-					<div className="rounded-full bg-muted p-4 border border-border/40">
-						<Search className="size-6 text-muted-foreground" />
-					</div>
-					<div className="space-y-1">
-						<h3 className="font-heading text-lg font-black tracking-tight">
-							Žiadne poznámky
-						</h3>
-						<p className="text-sm text-muted-foreground max-w-xs px-4">
-							{searchTerm
-								? "Skúste zadať iný vyhľadávací výraz."
-								: "Zatiaľ ste nevytvorili žiadnu poznámku."}
-						</p>
-					</div>
-				</div>
+				<EmptyState
+					icon={Search}
+					title="Žiadne poznámky"
+					description={
+						searchTerm
+							? "Skúste zadať iný vyhľadávací výraz."
+							: "Zatiaľ ste nevytvorili žiadnu poznámku."
+					}
+					action={
+						!searchTerm ? (
+							<Link href="/dashboard/notes/new">
+								<Button>Nová poznámka</Button>
+							</Link>
+						) : undefined
+					}
+				/>
 			) : (
 				<div
 					className={cn(
@@ -127,9 +126,9 @@ export function NoteList() {
 				>
 					{preservedResults.map((note) => (
 						<Link key={note._id} href={`/dashboard/notes/${note._id}`}>
-							<Card className="group h-full transition-all duration-300 hover:border-primary/40 hover:shadow-md rounded-3xl bg-background/30 backdrop-blur-sm border-border/50">
-								<CardHeader className="pb-3 flex flex-row items-center justify-between gap-2 space-y-0">
-									<CardTitle className="line-clamp-1 text-base font-black tracking-tight">
+							<Card className="group h-full transition-colors hover:border-primary/40">
+								<CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3">
+									<CardTitle className="line-clamp-1 text-base font-medium">
 										{note.title}
 									</CardTitle>
 									<div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -167,21 +166,21 @@ export function NoteList() {
 										dangerouslySetInnerHTML={{ __html: note.content }}
 									/>
 								</CardContent>
-								<CardFooter className="flex items-center justify-between gap-2 pt-0 text-[11px] font-semibold text-muted-foreground/60">
+								<CardFooter className="flex items-center justify-between gap-2 pt-0 text-xs text-muted-foreground">
 									<div className="flex items-center gap-1">
 										<Calendar className="size-3 opacity-60" />
 										<span>
 											{new Date(note._creationTime).toLocaleDateString("sk-SK")}
 										</span>
 									</div>
-									{note.projectName && (
-										<div className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-primary border border-primary/10 text-[10px] font-black uppercase tracking-wider">
+									{note.projectName ? (
+										<div className="flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs">
 											<Folder className="size-3 opacity-80" />
 											<span className="truncate max-w-20">
 												{note.projectName}
 											</span>
 										</div>
-									)}
+									) : null}
 								</CardFooter>
 							</Card>
 						</Link>
@@ -190,10 +189,7 @@ export function NoteList() {
 					{status === "LoadingMore" && (
 						<>
 							{[1, 2, 3].map((i) => (
-								<Card
-									key={`more-${i}`}
-									className="h-50 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm"
-								>
+								<Card key={`more-${i}`}>
 									<CardHeader>
 										<Skeleton className="h-5 w-2/3 rounded-lg" />
 									</CardHeader>
@@ -211,11 +207,7 @@ export function NoteList() {
 
 			{status === "CanLoadMore" && (
 				<div className="flex justify-center pt-4">
-					<Button
-						variant="outline"
-						onClick={() => loadMore(9)}
-						className="min-w-30 rounded-2xl h-11 font-bold uppercase tracking-wider text-[10px] border-border/60 hover:bg-muted"
-					>
+					<Button variant="outline" onClick={() => loadMore(9)}>
 						Načítať viac
 					</Button>
 				</div>

@@ -1,81 +1,116 @@
 "use client";
 
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import Link from "next/link";
+import type { Route } from "next";
 import { usePathname } from "next/navigation";
+import { ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
-import { DashboardMobileNav, type DashboardNavId } from "./dashboard-nav";
+import { DashboardMobileNav } from "./dashboard-nav";
+import { HeaderQuickActions } from "./header-quick-actions";
+import { useLayoutChrome } from "./layout-chrome-context";
 import { useSidebar } from "./sidebar-context";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+
+type Crumb = { label: string; href?: Route };
+
+function buildBreadcrumbs(pathname: string): Crumb[] {
+	const crumbs: Crumb[] = [{ label: "Dashboard", href: "/dashboard" }];
+
+	if (pathname === "/dashboard") return crumbs;
+
+	const segments = pathname.replace("/dashboard/", "").split("/");
+	const labels: Record<string, string> = {
+		projects: "Projekty",
+		notes: "Poznámky",
+		canvas: "Canvas",
+		"design-system": "Design System",
+		v2: "Lab",
+		generator: "AI Generátor",
+		pomodoro: "Pomodoro",
+		settings: "Nastavenia",
+		new: "Nová",
+	};
+
+	let path = "/dashboard";
+	for (let i = 0; i < segments.length; i++) {
+		const segment = segments[i];
+		if (!segment) continue;
+		path += `/${segment}`;
+		const label = labels[segment] ?? segment;
+		const isLast = i === segments.length - 1;
+		crumbs.push({
+			label,
+			href: isLast ? undefined : (path as Route),
+		});
+	}
+
+	return crumbs;
+}
 
 export function DashboardHeader() {
 	const pathname = usePathname();
+	const { mode, setClipboardOpen } = useLayoutChrome();
 	const { isCollapsed, toggleSidebar } = useSidebar();
-
-	let activeId: DashboardNavId = "overview";
-	if (pathname.startsWith("/dashboard/projects")) activeId = "projects";
-	if (pathname.startsWith("/dashboard/notes")) activeId = "notes";
-	if (pathname.startsWith("/dashboard/canvas")) activeId = "design";
-	if (pathname.startsWith("/dashboard/design-system"))
-		activeId = "design-system";
-	if (pathname.startsWith("/dashboard/generator")) activeId = "generate";
-	if (pathname.startsWith("/dashboard/pomodoro")) activeId = "pomodoro";
-	if (pathname.startsWith("/dashboard/settings")) activeId = "settings";
-
-	const titles: Record<DashboardNavId, { title: string; subtitle: string }> = {
-		overview: {
-			title: "Prehľad",
-			subtitle: "Rýchle odkazy na prácu s projektom",
-		},
-		projects: {
-			title: "Projekty",
-			subtitle: "Spravujte všetky svoje projekty",
-		},
-		notes: { title: "Poznámky", subtitle: "Správa vašich poznámok k projektu" },
-		design: { title: "Canvas", subtitle: "Pracovný priestor pre dizajn" },
-		"design-system": {
-			title: "Design System",
-			subtitle: "Vizuálna DNA projektu",
-		},
-		generate: {
-			title: "AI Generator",
-			subtitle: "AI generátor vizuálnej identity",
-		},
-		pomodoro: {
-			title: "Pomodoro",
-			subtitle: "Zvýšte svoju produktivitu so sústredenou prácou",
-		},
-		settings: {
-			title: "Nastavenia",
-			subtitle: "Správa účtu a preferencií",
-		},
-	};
-
-	const { title, subtitle } = titles[activeId];
+	const { history } = useCopyToClipboard();
+	const crumbs = buildBreadcrumbs(pathname);
+	const isImmersive = mode === "immersive";
 
 	return (
-		<header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur supports-backdrop-filter:bg-background/70 md:px-6">
-			<DashboardMobileNav />
-			<Button
-				variant="ghost"
-				size="icon-sm"
-				onClick={toggleSidebar}
-				className="hidden md:flex"
-				title={isCollapsed ? "Otvoriť bočný panel" : "Zatvoriť bočný panel"}
+		<header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-6">
+			{!isImmersive ? <DashboardMobileNav /> : null}
+			{!isImmersive ? (
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={toggleSidebar}
+					className="hidden md:flex"
+					aria-label={
+						isCollapsed ? "Otvoriť bočný panel" : "Zatvoriť bočný panel"
+					}
+				>
+					{isCollapsed ? (
+						<PanelLeftOpen className="size-4" />
+					) : (
+						<PanelLeftClose className="size-4" />
+					)}
+				</Button>
+			) : null}
+
+			<nav
+				className="flex min-w-0 flex-1 items-center gap-1 text-sm"
+				aria-label="Breadcrumb"
 			>
-				{isCollapsed ? (
-					<PanelLeftOpen className="size-4" />
-				) : (
-					<PanelLeftClose className="size-4" />
-				)}
-			</Button>
-			<div className="hidden min-w-0 flex-1 md:block">
-				<p className="font-heading text-sm font-semibold text-foreground">
-					{title}
-				</p>
-				<p className="truncate text-xs text-muted-foreground">{subtitle}</p>
-			</div>
+				{crumbs.map((crumb, index) => (
+					<span key={`${crumb.label}-${index}`} className="flex items-center gap-1">
+						{index > 0 ? (
+							<ChevronRight className="size-3.5 shrink-0 text-muted-foreground" />
+						) : null}
+						{crumb.href ? (
+							<Link
+								href={crumb.href}
+								className="truncate text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{crumb.label}
+							</Link>
+						) : (
+							<span className="truncate font-medium text-foreground">
+								{crumb.label}
+							</span>
+						)}
+					</span>
+				))}
+			</nav>
+
 			<div className="ml-auto flex shrink-0 items-center gap-2">
+				{mode === "default" ? (
+					<HeaderQuickActions
+						onOpenClipboard={() => setClipboardOpen(true)}
+						clipboardCount={history.length}
+					/>
+				) : null}
 				<ModeToggle />
 				<UserMenu />
 			</div>

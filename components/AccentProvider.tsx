@@ -9,21 +9,23 @@ export function AccentProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		if (user?.accentColor) {
-			// Set the CSS variable for the accent color
 			document.documentElement.style.setProperty("--primary", user.accentColor);
-			// We can also set a custom one if needed, e.g. --user-accent
+			document.documentElement.style.setProperty(
+				"--sidebar-primary",
+				user.accentColor,
+			);
 			document.documentElement.style.setProperty(
 				"--user-accent",
 				user.accentColor,
 			);
-		} else {
-			// Default primary from tailwind
-			document.documentElement.style.setProperty("--primary", "var(--primary)");
-			document.documentElement.style.setProperty(
-				"--user-accent",
-				"var(--primary)",
-			);
+			return;
 		}
+
+		// Let :root / .dark tokens from globals.css apply — never set
+		// `--primary: var(--primary)` (circular reference breaks backgrounds).
+		document.documentElement.style.removeProperty("--primary");
+		document.documentElement.style.removeProperty("--sidebar-primary");
+		document.documentElement.style.removeProperty("--user-accent");
 	}, [user?.accentColor]);
 
 	return <>{children}</>;

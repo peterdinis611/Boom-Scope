@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { NoteEditor } from "@/components/notes/NoteEditor";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 	);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const handleSave = async () => {
 		const validation = noteSchema.safeParse({ title, content, projectId });
@@ -70,8 +72,6 @@ export function NoteForm({ initialData }: NoteFormProps) {
 	};
 
 	const handleDelete = async () => {
-		if (!confirm("Naozaj chcete túto poznámku odstrániť?")) return;
-
 		setIsDeleting(true);
 		try {
 			await removeNote({ noteId: initialData._id });
@@ -113,9 +113,10 @@ export function NoteForm({ initialData }: NoteFormProps) {
 					<Button
 						variant="outline"
 						size="icon-sm"
-						onClick={handleDelete}
+						onClick={() => setDeleteOpen(true)}
 						disabled={isDeleting}
 						className="text-destructive hover:bg-destructive/10"
+						aria-label="Odstrániť poznámku"
 					>
 						{isDeleting ? (
 							<Loader2 className="size-4 animate-spin" />
@@ -154,6 +155,17 @@ export function NoteForm({ initialData }: NoteFormProps) {
 
 				<NoteEditor content={content} onChange={setContent} />
 			</div>
+
+			<ConfirmDialog
+				open={deleteOpen}
+				onOpenChange={setDeleteOpen}
+				title="Odstrániť poznámku?"
+				description="Táto akcia je nevratná. Poznámka bude natrvalo odstránená."
+				confirmLabel="Odstrániť"
+				variant="destructive"
+				onConfirm={handleDelete}
+				loading={isDeleting}
+			/>
 		</div>
 	);
 }

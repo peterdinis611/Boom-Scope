@@ -1,8 +1,17 @@
 "use client";
 
-import { FileText, FolderKanban, Palette, Sparkles } from "lucide-react";
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	FileText,
+	FolderKanban,
+	Layout,
+	Palette,
+	Sparkles,
+} from "lucide-react";
+import { useQuery } from "convex/react";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatCard } from "@/components/layout/StatCard";
+import { api } from "@/convex/_generated/api";
 
 type ViewerSummary = {
 	name?: string | null;
@@ -11,82 +20,52 @@ type ViewerSummary = {
 
 export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 	const greeting = viewer?.name ?? viewer?.email?.split("@")[0] ?? "Užívateľ";
+	const stats = useQuery(api.dashboard.dashboardStats);
 
 	return (
-		<div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-8">
-			<div className="flex flex-col gap-3">
-				<h1 className="font-heading text-3xl font-bold tracking-tight">
-					Vitajte späť, {greeting}
-				</h1>
-				<p className="text-muted-foreground">
-					Tu je prehľad toho, čo sa deje vo vašom projekte Boom Scope.
-				</p>
-			</div>
+		<PageContainer className="space-y-8">
+			<PageHeader
+				title={`Vitajte späť, ${greeting}`}
+				description="Prehľad vašej práce v Boom Scope."
+			/>
 
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				<Link href="/dashboard/projects">
-					<Card className="hover:border-primary/50 transition-colors bg-primary/5 border-primary/20">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Moje projekty
-							</CardTitle>
-							<FolderKanban className="size-4 text-primary" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold text-primary">Prehľad</div>
-							<p className="text-xs text-muted-foreground">
-								Spravujte všetky svoje projekty na jednom mieste
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
-				<Link href="/dashboard/notes">
-					<Card className="hover:border-primary/50 transition-colors">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Moje poznámky
-							</CardTitle>
-							<FileText className="size-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">Spravovať</div>
-							<p className="text-xs text-muted-foreground">
-								Zobrazte si všetky svoje poznámky
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
-				<Link href="/dashboard/canvas">
-					<Card className="hover:border-primary/50 transition-colors">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Canvas</CardTitle>
-							<Palette className="size-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">Pracovný priestor</div>
-							<p className="text-xs text-muted-foreground">
-								Vytvárajte nové dizajny na nekonečnej ploche
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
-				<Link href="/dashboard/design-system">
-					<Card className="hover:border-primary/50 transition-colors cursor-pointer group">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
-								Design System
-							</CardTitle>
-							<Sparkles className="size-4 text-primary animate-pulse" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">AI Generátor</div>
-							<p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
-								Vytvorte si vizuálnu identitu z inšpirácie
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
+				<StatCard
+					title="Projekty"
+					value={stats?.projects ?? "—"}
+					description="Spravujte projekty na jednom mieste"
+					icon={FolderKanban}
+					href="/dashboard/projects"
+				/>
+				<StatCard
+					title="Poznámky"
+					value={stats?.notes ?? "—"}
+					description="Vaše poznámky a dokumenty"
+					icon={FileText}
+					href="/dashboard/notes"
+				/>
+				<StatCard
+					title="Canvas"
+					value="Otvoriť"
+					description="Pracovný priestor pre dizajn"
+					icon={Palette}
+					href="/dashboard/canvas"
+				/>
+				<StatCard
+					title="Design System"
+					value={stats?.designSystems ?? "—"}
+					description="Vizuálna DNA projektov"
+					icon={Layout}
+					href="/dashboard/design-system/v2"
+				/>
+				<StatCard
+					title="AI Generátor"
+					value="Spustiť"
+					description="Generovanie multi-viewport dizajnu"
+					icon={Sparkles}
+					href="/dashboard/generator"
+				/>
 			</div>
-		</div>
+		</PageContainer>
 	);
 }

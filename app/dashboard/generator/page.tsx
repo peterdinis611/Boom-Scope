@@ -18,6 +18,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DesignPreview } from "@/components/design/DesignPreview";
+import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +61,7 @@ export default function GeneratorPage() {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+	const [clearHistoryOpen, setClearHistoryOpen] = useState(false);
 	const generateAction = useAction(api.openai.generateResponsiveDesign);
 	const router = useRouter();
 
@@ -177,38 +181,26 @@ export default function GeneratorPage() {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen bg-background text-foreground p-6 lg:p-10 space-y-10">
-			{/* Header */}
-			<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-				<div className="flex flex-col space-y-2">
-					<div className="flex items-center gap-3 text-primary">
-						<div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-							<Sparkles className="size-5" />
-						</div>
-						<h1 className="text-3xl font-black uppercase tracking-tight italic">
-							AI Design Studio
-						</h1>
-					</div>
-					<p className="text-muted-foreground max-w-2xl text-lg font-medium leading-relaxed">
-						Diskutujte s AI o vašom dizajne. Napíšte zmeny a sledujte ako sa
-						vizuál vyvíja v reálnom čase.
-					</p>
-				</div>
-				{messages.length > 0 && (
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => {
-							setMessages([]);
-							setPrompt("");
-							toast.info("Studio bolo resetované.");
-						}}
-						className="rounded-xl border-border/50 hover:bg-destructive/10 hover:text-destructive font-black uppercase text-[10px] tracking-widest h-10 px-6"
-					>
-						Reset Studio
-					</Button>
-				)}
-			</div>
+		<PageContainer size="wide" className="space-y-6">
+			<PageHeader
+				title="AI Generátor"
+				description="Diskutujte s AI o dizajne a generujte multi-viewport návrhy."
+				actions={
+					messages.length > 0 ? (
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setMessages([]);
+								setPrompt("");
+								toast.info("Generátor bol resetovaný.");
+							}}
+						>
+							Reset
+						</Button>
+					) : undefined
+				}
+			/>
 
 			{/* Responsive Workspace Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -216,15 +208,7 @@ export default function GeneratorPage() {
 				<div className="lg:col-span-9 space-y-8">
 					{/* Chat / Prompt Input Section */}
 					<div className="relative group">
-						<div
-							className={cn(
-								"absolute -inset-1 rounded-3xl blur-xl opacity-50 transition duration-1000",
-								isGenerating
-									? "bg-linear-to-r from-primary via-purple-600 to-blue-600 opacity-90 animate-pulse scale-[1.01]"
-									: "bg-linear-to-r from-primary/20 via-purple-500/10 to-blue-500/20 group-focus-within:opacity-100",
-							)}
-						/>
-						<Card className="relative bg-background/50 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl space-y-6">
+						<Card className="space-y-6 p-6">
 							{/* Message History (Simplified) */}
 							{messages.length > 0 && (
 								<div className="max-h-50 overflow-y-auto space-y-4 pb-4 border-b border-border/50 scrollbar-hide">
@@ -236,15 +220,15 @@ export default function GeneratorPage() {
 												m.role === "user" ? "items-end" : "items-start",
 											)}
 										>
-											<span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+											<span className="text-xs font-medium text-muted-foreground">
 												{m.role === "user" ? "Vy" : "AI"}
 											</span>
 											<div
 												className={cn(
-													"px-4 py-2 rounded-2xl text-sm font-medium max-w-[80%]",
+													"max-w-[80%] rounded-lg px-4 py-2 text-sm",
 													m.role === "user"
-														? "bg-primary text-white rounded-tr-none"
-														: "bg-muted text-foreground rounded-tl-none",
+														? "rounded-tr-none bg-primary text-primary-foreground"
+														: "rounded-tl-none bg-muted text-foreground",
 												)}
 											>
 												{m.role === "user"
@@ -275,7 +259,7 @@ export default function GeneratorPage() {
 									}}
 								/>
 								{prompt.length > 0 && (
-									<div className="absolute right-0 bottom-0 text-[10px] font-bold text-muted-foreground/40 tracking-wider">
+									<div className="absolute right-0 bottom-0 text-xs text-muted-foreground">
 										{prompt.length} znakov
 									</div>
 								)}
@@ -289,7 +273,7 @@ export default function GeneratorPage() {
 										type="button"
 										onClick={() => handleSuggestionClick(s.text)}
 										disabled={isGenerating}
-										className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 hover:bg-primary/10 hover:text-primary border border-border/40 hover:border-primary/20 text-xs font-semibold transition-all duration-300 active:scale-95 text-muted-foreground disabled:opacity-50 disabled:pointer-events-none"
+										className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
 									>
 										<span>{s.icon}</span>
 										<span>{s.text}</span>
@@ -297,27 +281,27 @@ export default function GeneratorPage() {
 								))}
 							</div>
 
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-								<div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40">
-									<span className="flex items-center gap-1">
+							<div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
+								<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+									<span className="flex items-center gap-1.5">
 										<span className="size-1.5 rounded-full bg-green-500" /> Web
 									</span>
-									<span className="flex items-center gap-1">
+									<span className="flex items-center gap-1.5">
 										<span className="size-1.5 rounded-full bg-purple-500" />{" "}
 										Tablet
 									</span>
-									<span className="flex items-center gap-1">
+									<span className="flex items-center gap-1.5">
 										<span className="size-1.5 rounded-full bg-blue-500" />{" "}
-										Mobile
+										Mobil
 									</span>
-									<span className="ml-auto sm:ml-0 text-[9px] lowercase opacity-60">
-										(Enter pre odoslanie, Shift+Enter pre nový riadok)
+									<span className="text-muted-foreground/70">
+										Enter = odoslať, Shift+Enter = nový riadok
 									</span>
 								</div>
 								<Button
 									onClick={handleGenerate}
 									disabled={isGenerating || !prompt.trim()}
-									className="px-8 rounded-2xl h-12 bg-primary hover:bg-primary/90 text-white font-bold uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 w-full sm:w-auto"
+									className="w-full gap-2 sm:w-auto"
 								>
 									{isGenerating ? (
 										<>
@@ -346,9 +330,9 @@ export default function GeneratorPage() {
 							>
 								{/* Web Preview */}
 								<div className="xl:col-span-12 space-y-4">
-									<div className="flex items-center justify-between px-4">
-										<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
-											<Monitor className="size-4" /> Desktop Verzia (1920x1080)
+									<div className="flex items-center justify-between px-1">
+										<h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+											<Monitor className="size-4" /> Desktop (1920×1080)
 										</h3>
 										<Button
 											variant="ghost"
@@ -356,27 +340,27 @@ export default function GeneratorPage() {
 											onClick={() =>
 												openInCanvas(latestDesign.web.elements, "web")
 											}
-											className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
+											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
+											Upraviť v Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
-									<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner overflow-x-auto">
+									<div className="overflow-x-auto rounded-xl border border-border bg-muted/30 p-6">
 										<DesignPreview
 											elements={latestDesign.web.elements}
 											width={1920}
 											height={1080}
 											scale={0.4}
-											className="mx-auto shadow-[0_30px_100px_rgba(0,0,0,0.2)]"
+											className="mx-auto shadow-sm"
 										/>
 									</div>
 								</div>
 
 								{/* Tablet Preview */}
 								<div className="xl:col-span-7 space-y-4">
-									<div className="flex items-center justify-between px-4">
-										<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
-											<TabletIcon className="size-4" /> Tablet Verzia (768x1024)
+									<div className="flex items-center justify-between px-1">
+										<h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+											<TabletIcon className="size-4" /> Tablet (768×1024)
 										</h3>
 										<Button
 											variant="ghost"
@@ -384,27 +368,27 @@ export default function GeneratorPage() {
 											onClick={() =>
 												openInCanvas(latestDesign.tablet.elements, "tablet")
 											}
-											className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
+											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
+											Upraviť v Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
-									<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
+									<div className="flex justify-center rounded-xl border border-border bg-muted/30 p-6">
 										<DesignPreview
 											elements={latestDesign.tablet.elements}
 											width={768}
 											height={1024}
 											scale={0.5}
-											className="shadow-[0_30px_80px_rgba(0,0,0,0.15)]"
+											className="shadow-sm"
 										/>
 									</div>
 								</div>
 
 								{/* Mobile Preview */}
 								<div className="xl:col-span-5 space-y-4">
-									<div className="flex items-center justify-between px-4">
-										<h3 className="text-sm font-black uppercase tracking-[0.2em] opacity-40 flex items-center gap-2">
-											<Smartphone className="size-4" /> Mobilná Verzia (375x667)
+									<div className="flex items-center justify-between px-1">
+										<h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+											<Smartphone className="size-4" /> Mobil (375×667)
 										</h3>
 										<Button
 											variant="ghost"
@@ -412,18 +396,18 @@ export default function GeneratorPage() {
 											onClick={() =>
 												openInCanvas(latestDesign.mobile.elements, "mobile")
 											}
-											className="rounded-xl hover:bg-primary/10 text-primary uppercase font-black text-[10px] tracking-widest"
+											className="gap-2 text-primary"
 										>
-											Upraviť v Canvas <ExternalLink className="ml-2 size-3" />
+											Upraviť v Canvas <ExternalLink className="size-3" />
 										</Button>
 									</div>
-									<div className="bg-muted/30 rounded-[2rem] p-8 border border-border/50 shadow-inner flex justify-center">
+									<div className="flex justify-center rounded-xl border border-border bg-muted/30 p-6">
 										<DesignPreview
 											elements={latestDesign.mobile.elements}
 											width={375}
 											height={667}
 											scale={0.8}
-											className="shadow-[0_30px_60px_rgba(0,0,0,0.1)]"
+											className="shadow-sm"
 										/>
 									</div>
 								</div>
@@ -438,7 +422,7 @@ export default function GeneratorPage() {
 									<div className="p-10 rounded-full border-4 border-dashed border-muted-foreground/30">
 										<Layers className="size-20" />
 									</div>
-									<p className="text-xl font-bold uppercase tracking-[0.3em] text-center">
+									<p className="text-center text-sm text-muted-foreground">
 										Zadajte prompt pre začiatok generovania
 									</p>
 								</motion.div>
@@ -448,48 +432,42 @@ export default function GeneratorPage() {
 				</div>
 
 				{/* Right Sidebar - History panel */}
-				<div className="lg:col-span-3 sticky top-6">
-					<Card className="bg-background/40 backdrop-blur-3xl border-border/50 rounded-3xl p-6 shadow-2xl flex flex-col">
-						<div className="flex items-center justify-between pb-4 border-b border-border/20 mb-4">
-							<h2 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+				<div className="sticky top-6 lg:col-span-3">
+					<Card className="flex flex-col p-6">
+						<div className="mb-4 flex items-center justify-between border-b border-border pb-4">
+							<h2 className="flex items-center gap-2 text-sm font-medium">
 								<History className="size-4 text-primary" /> História generovaní
 							</h2>
 							{historyItems.length > 0 && (
-								<button
-									onClick={() => {
-										if (confirm("Naozaj chcete vymazať celú históriu?")) {
-											setHistoryItems([]);
-											void idbRemove(IDB_KEYS.generationHistory);
-											toast.success("História vymazaná.");
-										}
-									}}
-									className="text-[9px] font-black uppercase tracking-wider text-muted-foreground hover:text-destructive transition-colors duration-300"
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => setClearHistoryOpen(true)}
+									className="text-muted-foreground hover:text-destructive"
 								>
 									Vyčistiť
-								</button>
+								</Button>
 							)}
 						</div>
 
 						{historyItems.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-12 opacity-35 text-center space-y-3">
-								<Clock className="size-8 text-muted-foreground" />
-								<p className="text-xs font-semibold tracking-wider uppercase">
-									Žiadna história
-								</p>
-								<p className="text-[10px] text-muted-foreground leading-normal max-w-40">
+							<div className="flex flex-col items-center justify-center space-y-3 py-12 text-center text-muted-foreground">
+								<Clock className="size-8 opacity-50" />
+								<p className="text-sm font-medium">Žiadna história</p>
+								<p className="max-w-40 text-xs leading-normal">
 									Vaše úspešne vygenerované dizajny sa uložia sem.
 								</p>
 							</div>
 						) : (
-							<div className="overflow-y-auto space-y-3 max-h-125 pr-1 scrollbar-hide">
+							<div className="max-h-125 space-y-3 overflow-y-auto pr-1 scrollbar-hide">
 								{historyItems.map((item) => (
 									<div
 										key={item.id}
 										onClick={() => restoreHistoryItem(item)}
-										className="group relative p-3.5 rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer flex flex-col gap-1.5"
+										className="group relative flex cursor-pointer flex-col gap-1.5 rounded-lg border border-border p-3 transition-colors hover:border-primary/30 hover:bg-muted/50"
 									>
 										<div className="flex items-start justify-between gap-2">
-											<span className="text-[9px] font-bold text-muted-foreground/60">
+											<span className="text-xs text-muted-foreground">
 												{new Date(item.timestamp).toLocaleTimeString("sk-SK", {
 													hour: "2-digit",
 													minute: "2-digit",
@@ -502,16 +480,17 @@ export default function GeneratorPage() {
 											</span>
 											<button
 												onClick={(e) => deleteHistoryItem(item.id, e)}
-												className="size-5 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 opacity-0 group-hover:opacity-100"
+												className="flex size-5 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+												aria-label="Odstrániť z histórie"
 											>
 												<Trash2 className="size-3.5" />
 											</button>
 										</div>
-										<p className="text-xs font-semibold text-foreground line-clamp-2 leading-relaxed">
+										<p className="line-clamp-2 text-sm leading-relaxed text-foreground">
 											{item.prompt}
 										</p>
-										<div className="flex items-center gap-1.5 mt-0.5 text-[8px] font-black uppercase tracking-wider text-primary opacity-80">
-											<Sparkles className="size-2.5 animate-pulse" />
+										<div className="mt-0.5 flex items-center gap-1.5 text-xs text-primary">
+											<Sparkles className="size-3" />
 											<span>{item.messages.length} správ</span>
 										</div>
 									</div>
@@ -524,25 +503,39 @@ export default function GeneratorPage() {
 
 			{/* Loading State Overlay */}
 			{isGenerating && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-md">
-					<div className="flex flex-col items-center gap-8">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80">
+					<div className="flex flex-col items-center gap-6">
 						<div className="relative">
-							<div className="h-24 w-24 animate-spin rounded-full border-b-2 border-primary" />
+							<div className="size-16 animate-spin rounded-full border-2 border-muted border-t-primary" />
 							<div className="absolute inset-0 flex items-center justify-center">
-								<Sparkles className="size-8 text-primary animate-pulse" />
+								<Sparkles className="size-6 text-primary" />
 							</div>
 						</div>
-						<div className="flex flex-col items-center space-y-2">
-							<h2 className="text-2xl font-black uppercase tracking-widest animate-pulse">
-								Navrhujem Vizuál...
+						<div className="flex flex-col items-center space-y-1 text-center">
+							<h2 className="font-heading text-lg font-semibold">
+								Navrhujem vizuál…
 							</h2>
-							<p className="text-muted-foreground font-medium">
-								Pripravujem Web, Tablet a Mobile verzie
+							<p className="text-sm text-muted-foreground">
+								Pripravujem web, tablet a mobilnú verziu
 							</p>
 						</div>
 					</div>
 				</div>
 			)}
-		</div>
+
+			<ConfirmDialog
+				open={clearHistoryOpen}
+				onOpenChange={setClearHistoryOpen}
+				title="Vymazať históriu?"
+				description="Celá história generovaní bude natrvalo odstránená z tohto zariadenia."
+				confirmLabel="Vymazať"
+				variant="destructive"
+				onConfirm={async () => {
+					setHistoryItems([]);
+					await idbRemove(IDB_KEYS.generationHistory);
+					toast.success("História vymazaná.");
+				}}
+			/>
+		</PageContainer>
 	);
 }

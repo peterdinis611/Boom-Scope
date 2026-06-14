@@ -686,7 +686,7 @@ function DesignPageContent() {
 	};
 
 	return (
-		<div className="relative h-[calc(100vh-3.5rem)] w-full overflow-hidden bg-background text-foreground selection:bg-primary/30">
+		<div className="relative h-[calc(100vh-3.5rem)] min-h-0 w-full overflow-hidden bg-background text-foreground">
 			<input
 				type="file"
 				ref={fileInputRef}

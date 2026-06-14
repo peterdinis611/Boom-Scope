@@ -8,29 +8,44 @@
  * @module
  */
 
-import type {
-	ApiFromModules,
-	FilterApi,
-	FunctionReference,
-} from "convex/server";
 import type * as auth from "../auth.js";
+import type * as authConfig from "../authConfig.js";
+import type * as authEmail from "../authEmail.js";
+import type * as dashboard from "../dashboard.js";
 import type * as design_systems from "../design_systems.js";
 import type * as designs from "../designs.js";
+import type * as emails from "../emails.js";
+import type * as emailsNode from "../emailsNode.js";
 import type * as http from "../http.js";
+import type * as maileroo from "../maileroo.js";
+import type * as mailerooOtp from "../mailerooOtp.js";
 import type * as notes from "../notes.js";
 import type * as openai from "../openai.js";
 import type * as projects from "../projects.js";
 import type * as users from "../users.js";
 
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
+
 declare const fullApi: ApiFromModules<{
-	auth: typeof auth;
-	design_systems: typeof design_systems;
-	designs: typeof designs;
-	http: typeof http;
-	notes: typeof notes;
-	openai: typeof openai;
-	projects: typeof projects;
-	users: typeof users;
+  auth: typeof auth;
+  authConfig: typeof authConfig;
+  authEmail: typeof authEmail;
+  dashboard: typeof dashboard;
+  design_systems: typeof design_systems;
+  designs: typeof designs;
+  emails: typeof emails;
+  emailsNode: typeof emailsNode;
+  http: typeof http;
+  maileroo: typeof maileroo;
+  mailerooOtp: typeof mailerooOtp;
+  notes: typeof notes;
+  openai: typeof openai;
+  projects: typeof projects;
+  users: typeof users;
 }>;
 
 /**
@@ -42,8 +57,8 @@ declare const fullApi: ApiFromModules<{
  * ```
  */
 export declare const api: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "public">
+  typeof fullApi,
+  FunctionReference<any, "public">
 >;
 
 /**
@@ -55,8 +70,8 @@ export declare const api: FilterApi<
  * ```
  */
 export declare const internal: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "internal">
+  typeof fullApi,
+  FunctionReference<any, "internal">
 >;
 
 export declare const components: {};

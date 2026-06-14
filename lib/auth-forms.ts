@@ -20,10 +20,11 @@ export function firstZodIssueMessage(error: z.ZodError): string {
 /** Výsledok `signIn` z Convex Auth (password / OAuth). */
 export function classifySignInResult(
 	result: unknown,
-): "ok" | "redirect" | "fail" {
+): "ok" | "redirect" | "pending" | "fail" {
 	if (!result || typeof result !== "object") return "fail";
 	const r = result as { signingIn?: boolean; redirect?: unknown };
 	if (r.redirect !== undefined && r.redirect !== null) return "redirect";
 	if (r.signingIn === true) return "ok";
+	if (r.signingIn === false) return "pending";
 	return "fail";
 }

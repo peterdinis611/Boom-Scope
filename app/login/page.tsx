@@ -1,13 +1,17 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { motion } from "motion/react";
+import { useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { RedirectingOverlay } from "@/components/auth/RedirectingOverlay";
+import {
+	VERIFICATION_CODE_LENGTH,
+	VerificationCodeInput,
+} from "@/components/auth/VerificationCodeInput";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -25,10 +29,14 @@ import {
 	credentialsSchema,
 	firstZodIssueMessage,
 } from "@/lib/auth-forms";
+import { api } from "@/convex/_generated/api";
 
 export default function LoginPage() {
 	const { signIn } = useAuthActions();
+	const emailVerificationEnabled = useQuery(api.authConfig.emailVerificationEnabled);
 	const router = useRouter();
+	const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
+	const [verificationCode, setVerificationCode] = useState("");
 	const [submitting, setSubmitting] = useState(false);
 	const [navPending, startTransition] = useTransition();
 	const busy = submitting || navPending;
@@ -66,6 +74,15 @@ export default function LoginPage() {
 			if (outcome === "redirect") {
 				return;
 			}
+			if (outcome === "pending") {
+				toast.success("Overovací kód bol odoslaný.", {
+					description:
+						"Skontrolujte doručenú poštu aj spam. Pri testovacej doméne Maileroo musí byť váš email v Authorized Recipients.",
+				});
+				setStep({ email: parsed.data.email });
+				setVerificationCode("");
+				return;
+			}
 			toast.success("Vitajte späť!");
 			// Soft navigation triggers app/dashboard/loading.tsx Suspense fallback while
 			// the dashboard segment streams in. router.refresh() re-runs the root layout
@@ -83,21 +100,61 @@ export default function LoginPage() {
 		}
 	}
 
+	async function onVerify(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (step === "signIn") return;
+
+		const code = verificationCode.trim();
+		if (code.length !== VERIFICATION_CODE_LENGTH) {
+			toast.error("Zadajte celý 8-miestny kód z emailu.");
+			return;
+		}
+
+		const fd = new FormData();
+		fd.set("email", step.email);
+		fd.set("code", code);
+		fd.set("flow", "email-verification");
+
+		setSubmitting(true);
+		try {
+			const result = await signIn("password", fd);
+			const outcome = classifySignInResult(result);
+			if (outcome === "fail" || outcome === "pending") {
+				toast.error("Neplatný alebo expirovaný kód.");
+				return;
+			}
+			if (outcome === "redirect") {
+				return;
+			}
+			toast.success("Email bol overený!");
+			startTransition(() => {
+				router.replace("/dashboard");
+				router.refresh();
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Overenie zlyhalo.";
+			toast.error("Overenie zlyhalo.", { description: message });
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
 	return (
 		<div className="relative flex flex-1 items-center justify-center bg-background px-4 py-16">
-			<motion.div
-				initial={{ opacity: 0, y: 12 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-				className="w-full max-w-md"
-			>
+			<div className="w-full max-w-md">
 				<Card>
 					<CardHeader>
-						<CardTitle>Prihlásenie</CardTitle>
+						<CardTitle>
+							{step === "signIn" ? "Prihlásenie" : "Overenie emailu"}
+						</CardTitle>
 						<CardDescription>
-							Zadajte svoj email a heslo pre vstup do dashboardu.
+							{step === "signIn"
+								? "Zadajte svoj email a heslo pre vstup do dashboardu."
+								: `Zadajte 8-miestny kód odoslaný na ${step.email}.`}
 						</CardDescription>
 					</CardHeader>
+					{step === "signIn" ? (
 					<form noValidate onSubmit={onSubmit}>
 						<fieldset disabled={busy} className="contents">
 							<CardContent className="flex flex-col gap-4">
@@ -120,6 +177,16 @@ export default function LoginPage() {
 										placeholder="••••••••"
 									/>
 								</div>
+								<p className="text-right text-sm">
+									{emailVerificationEnabled ? (
+										<Link
+											href="/forgot-password"
+											className="text-primary underline-offset-4 hover:underline"
+										>
+											Zabudnuté heslo?
+										</Link>
+									) : null}
+								</p>
 							</CardContent>
 							<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
 								<Button type="submit" disabled={busy} size="lg">
@@ -141,8 +208,44 @@ export default function LoginPage() {
 							</CardFooter>
 						</fieldset>
 					</form>
+					) : (
+						<form noValidate onSubmit={onVerify}>
+							<fieldset disabled={busy} className="contents">
+								<CardContent className="flex flex-col gap-4">
+									<VerificationCodeInput
+										value={verificationCode}
+										onChange={setVerificationCode}
+										disabled={busy}
+									/>
+								</CardContent>
+								<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
+									<Button
+										type="submit"
+										disabled={
+											busy ||
+											verificationCode.length !== VERIFICATION_CODE_LENGTH
+										}
+										size="lg"
+									>
+										{submitting ? "Overujem…" : "Overiť a pokračovať"}
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										onClick={() => {
+											setStep("signIn");
+											setVerificationCode("");
+										}}
+										disabled={busy}
+									>
+										Späť
+									</Button>
+								</CardFooter>
+							</fieldset>
+						</form>
+					)}
 				</Card>
-			</motion.div>
+			</div>
 
 			<RedirectingOverlay show={navPending} label="Presmerúvam na dashboard…" />
 		</div>

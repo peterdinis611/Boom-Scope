@@ -1,10 +1,12 @@
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
 import { ConvexError } from "convex/values";
+import { getPasswordEmailProviders } from "./authEmail";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 	providers: [
 		Password({
+			...getPasswordEmailProviders(),
 			profile(params) {
 				const raw = params.email;
 				if (raw === undefined || raw === null) {

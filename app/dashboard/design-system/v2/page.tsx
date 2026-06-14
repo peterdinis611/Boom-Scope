@@ -38,6 +38,8 @@ import {
 import { toast } from "sonner";
 import { z } from "zod";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -290,104 +292,74 @@ export default function DesignSystemV2() {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-primary/20">
-			{/* Top Hero Bar */}
-			<div className="relative h-64 lg:h-80 overflow-hidden bg-muted/40 dark:bg-muted/10 flex flex-col justify-end p-8 lg:p-16 border-b border-border/80">
-				<div className="absolute inset-0 bg-linear-to-t from-background to-transparent z-10" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.05),transparent_70%)]" />
+		<PageContainer size="wide" className="space-y-6">
+			<PageHeader
+				title="Design System Lab"
+				description="Definujte vizuálnu DNA projektu pomocou tokenov alebo AI analýzy."
+			/>
 
-				<div className="relative z-20 space-y-4 max-w-7xl mx-auto w-full">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="flex items-center gap-4"
-					>
-						<div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 backdrop-blur-xl">
-							<Palette className="size-6 text-primary" />
-						</div>
-						<h1 className="text-4xl lg:text-6xl font-black uppercase tracking-tighter italic text-foreground">
-							Design System Lab
-						</h1>
-					</motion.div>
-					<p className="text-muted-foreground max-w-xl text-lg font-medium">
-						Definujte vizuálnu DNA vášho projektu pomocou manuálnych tokenov
-						alebo AI analýzy.
-					</p>
-				</div>
-			</div>
-
-			<main className="flex-1 max-w-7xl mx-auto w-full p-8 lg:p-16 -mt-12 relative z-30">
+			<main className="space-y-6">
 				{/* Project Selector Overlay */}
-				<Card className="mb-12 p-6 bg-background/60 backdrop-blur-3xl border-border/50 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
-					<div className="flex flex-col gap-1.5 flex-1">
-						<label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-							Aktívny Projekt
-						</label>
+				<Card className="flex flex-col items-center justify-between gap-6 p-6 md:flex-row">
+					<div className="flex flex-1 flex-col gap-2">
+						<Label htmlFor="project-select">Aktívny projekt</Label>
 						<Select
 							onValueChange={setSelectedProjectId}
 							value={selectedProjectId || undefined}
 						>
-							<SelectTrigger className="h-14 rounded-2xl bg-transparent border-border/50 text-lg font-bold">
+							<SelectTrigger id="project-select" className="w-full">
 								<SelectValue placeholder="Vyberte projekt pre uloženie..." />
 							</SelectTrigger>
-							<SelectContent className="rounded-2xl">
+							<SelectContent>
 								{projects?.map((p) => (
-									<SelectItem key={p._id} value={p._id} className="rounded-xl">
+									<SelectItem key={p._id} value={p._id}>
 										{p.name}
 									</SelectItem>
 								))}
 							</SelectContent>
 						</Select>
 					</div>
-					<div className="flex gap-3">
+					<div className="flex gap-2">
 						<Button
 							onClick={persistSystem}
 							disabled={!selectedProjectId || isSaving}
-							className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs gap-2"
+							className="gap-2"
 						>
 							{isSaving ? (
 								<RefreshCw className="size-4 animate-spin" />
 							) : (
 								<Save className="size-4" />
 							)}
-							Uložiť Systém
+							Uložiť systém
 						</Button>
 						<Button
 							variant="outline"
+							size="icon"
 							onClick={() => setIsNoteOpen(true)}
-							className="h-14 w-14 rounded-2xl border-border/50"
+							aria-label="Rýchla poznámka"
 						>
-							<NotebookPen className="size-5" />
+							<NotebookPen className="size-4" />
 						</Button>
 					</div>
 				</Card>
 
-				{/* Tab Switcher */}
-				<div className="flex items-center justify-center mb-12">
-					<div className="inline-flex p-1.5 bg-muted/30 backdrop-blur-xl rounded-[2rem] border border-border/50">
-						<button
-							onClick={() => setActiveTab("assets")}
-							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
-								activeTab === "assets"
-									? "bg-background shadow-xl text-primary scale-105"
-									: "text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<MousePointer2 className="size-4" /> Vlastné Veci
-						</button>
-						<button
-							onClick={() => setActiveTab("visual")}
-							className={cn(
-								"flex items-center gap-3 px-8 py-3 rounded-3xl transition-all duration-500 font-black uppercase tracking-widest text-xs",
-								activeTab === "visual"
-									? "bg-background shadow-xl text-primary scale-105"
-									: "text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<ImageIcon className="size-4" /> Vizuálny Lab (AI)
-						</button>
-					</div>
+				<div className="flex flex-wrap justify-center gap-2">
+					<Button
+						type="button"
+						variant={activeTab === "assets" ? "default" : "outline"}
+						onClick={() => setActiveTab("assets")}
+						className="gap-2"
+					>
+						<MousePointer2 className="size-4" /> Vlastné veci
+					</Button>
+					<Button
+						type="button"
+						variant={activeTab === "visual" ? "default" : "outline"}
+						onClick={() => setActiveTab("visual")}
+						className="gap-2"
+					>
+						<ImageIcon className="size-4" /> Vizuálny lab (AI)
+					</Button>
 				</div>
 
 				<AnimatePresence mode="wait">
@@ -402,13 +374,12 @@ export default function DesignSystemV2() {
 							{/* Manual Entry Section */}
 							<div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 								{/* Colors */}
-								<Card className="p-8 rounded-[2.5rem] bg-background/40 border-border/50 space-y-8">
+								<Card className="space-y-6 p-6">
 									<div className="flex items-center justify-between">
-										<h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-											<div className="size-2 rounded-full bg-blue-500 animate-pulse" />{" "}
-											Paleta Farieb
+										<h2 className="font-heading text-lg font-semibold">
+											Paleta farieb
 										</h2>
-										<Plus className="size-5 opacity-20" />
+										<Plus className="size-4 text-muted-foreground" />
 									</div>
 									<div className="space-y-6">
 										<div className="flex gap-3">
@@ -451,10 +422,10 @@ export default function DesignSystemV2() {
 															)}
 														</div>
 													</div>
-													<p className="text-[10px] font-black uppercase truncate">
+													<p className="truncate text-sm font-medium">
 														{c.name}
 													</p>
-													<p className="text-[9px] font-mono opacity-40 uppercase tracking-tighter">
+													<p className="font-mono text-xs text-muted-foreground">
 														{c.hex}
 													</p>
 													<button
@@ -479,9 +450,8 @@ export default function DesignSystemV2() {
 								</Card>
 
 								{/* Fonts */}
-								<Card className="p-8 rounded-[2.5rem] bg-background/40 border-border/50 space-y-8">
-									<h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-										<div className="size-2 rounded-full bg-purple-500 animate-pulse" />{" "}
+								<Card className="space-y-6 p-6">
+									<h2 className="font-heading text-lg font-semibold">
 										Typografia
 									</h2>
 									<div className="space-y-6">
@@ -747,6 +717,6 @@ export default function DesignSystemV2() {
 				onOpenChange={setIsNoteOpen}
 				defaultProjectId={selectedProjectId}
 			/>
-		</div>
+		</PageContainer>
 	);
 }

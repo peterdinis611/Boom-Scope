@@ -24,9 +24,7 @@ export default function SharePage() {
 			<div className="flex h-screen w-full items-center justify-center bg-background">
 				<div className="flex flex-col items-center gap-6">
 					<Loader2 className="size-12 animate-spin text-primary opacity-20" />
-					<p className="text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground/40">
-						Načítavam váš projekt...
-					</p>
+					<p className="text-sm text-muted-foreground">Načítavam projekt…</p>
 				</div>
 			</div>
 		);
@@ -37,11 +35,10 @@ export default function SharePage() {
 	return (
 		<div className="h-screen w-full bg-background overflow-hidden flex flex-col">
 			{/* Read Only Badge */}
-			<div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-8 py-4 rounded-full bg-card/80 border border-border backdrop-blur-2xl shadow-2xl">
-				<div className="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-				<span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">
-					Režim prezerania:{" "}
-					<span className="text-foreground">{design.name}</span>
+			<div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 shadow-sm">
+				<div className="size-2 rounded-full bg-primary" />
+				<span className="text-sm text-muted-foreground">
+					Prezeranie: <span className="text-foreground">{design.name}</span>
 				</span>
 			</div>
 
@@ -58,13 +55,8 @@ export default function SharePage() {
 				readOnly={true}
 			/>
 
-			<div className="absolute bottom-8 right-8 z-50 p-6 rounded-3xl bg-card/50 border border-border backdrop-blur-3xl shadow-2xl">
-				<p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 text-right">
-					Boom Scope Design Editor
-				</p>
-				<p className="text-[8px] font-bold text-muted-foreground/20 uppercase tracking-widest mt-1 text-right">
-					Vytvorené v aplikácii Boom Scope
-				</p>
+			<div className="absolute right-4 bottom-4 z-50 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground shadow-sm">
+				Boom Scope
 			</div>
 		</div>
 	);

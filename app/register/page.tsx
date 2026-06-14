@@ -1,13 +1,17 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { motion } from "motion/react";
+import { useAction, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { RedirectingOverlay } from "@/components/auth/RedirectingOverlay";
+import {
+	VERIFICATION_CODE_LENGTH,
+	VerificationCodeInput,
+} from "@/components/auth/VerificationCodeInput";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -20,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
+import { api } from "@/convex/_generated/api";
 import {
 	classifySignInResult,
 	credentialsSchema,
@@ -28,10 +33,43 @@ import {
 
 export default function RegisterPage() {
 	const { signIn } = useAuthActions();
+	const sendRegistrationWelcome = useAction(api.emailsNode.sendRegistrationWelcome);
+	const emailVerificationEnabled = useQuery(api.authConfig.emailVerificationEnabled);
+	const transactionalEmailsEnabled = useQuery(
+		api.authConfig.transactionalEmailsEnabled,
+	);
 	const router = useRouter();
+	const [step, setStep] = useState<"signUp" | { email: string }>("signUp");
+	const [verificationCode, setVerificationCode] = useState("");
 	const [submitting, setSubmitting] = useState(false);
 	const [navPending, startTransition] = useTransition();
 	const busy = submitting || navPending;
+
+	async function completeRegistration(email: string) {
+		if (!emailVerificationEnabled && transactionalEmailsEnabled) {
+			try {
+				const result = await sendRegistrationWelcome({ email });
+				if (result.sent) {
+					toast.success("Účet bol vytvorený!", {
+						description: "Potvrdenie registrácie sme poslali na váš email.",
+					});
+				} else {
+					toast.success("Účet bol vytvorený!");
+				}
+			} catch {
+				toast.success("Účet bol vytvorený!");
+			}
+		} else {
+			toast.success(
+				emailVerificationEnabled ? "Účet bol overený!" : "Účet bol vytvorený!",
+			);
+		}
+
+		startTransition(() => {
+			router.replace("/dashboard");
+			router.refresh();
+		});
+	}
 
 	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -66,11 +104,15 @@ export default function RegisterPage() {
 			if (outcome === "redirect") {
 				return;
 			}
-			toast.success("Účet bol vytvorený!");
-			startTransition(() => {
-				router.replace("/dashboard");
-				router.refresh();
-			});
+			if (outcome === "pending" && emailVerificationEnabled) {
+				toast.success("Overovací kód bol odoslaný.", {
+					description: "Skontrolujte doručenú poštu aj spam.",
+				});
+				setStep({ email: parsed.data.email });
+				setVerificationCode("");
+				return;
+			}
+			await completeRegistration(parsed.data.email);
 		} catch (error) {
 			const message =
 				error instanceof Error ? error.message : "Registrácia zlyhala.";
@@ -82,69 +124,145 @@ export default function RegisterPage() {
 		}
 	}
 
+	async function onVerify(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (step === "signUp") return;
+
+		const code = verificationCode.trim();
+		if (code.length !== VERIFICATION_CODE_LENGTH) {
+			toast.error("Zadajte celý 8-miestny kód z emailu.");
+			return;
+		}
+
+		const fd = new FormData();
+		fd.set("email", step.email);
+		fd.set("code", code);
+		fd.set("flow", "email-verification");
+
+		setSubmitting(true);
+		try {
+			const result = await signIn("password", fd);
+			const outcome = classifySignInResult(result);
+			if (outcome === "fail" || outcome === "pending") {
+				toast.error("Neplatný alebo expirovaný kód.", {
+					description: "Požiadajte o nový kód registráciou znova.",
+				});
+				return;
+			}
+			if (outcome === "redirect") {
+				return;
+			}
+			await completeRegistration(step.email);
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Overenie zlyhalo.";
+			toast.error("Overenie zlyhalo.", { description: message });
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	const showVerification = emailVerificationEnabled && step !== "signUp";
+
 	return (
 		<div className="relative flex flex-1 items-center justify-center bg-background px-4 py-16">
-			<motion.div
-				initial={{ opacity: 0, y: 12 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-				className="w-full max-w-md"
-			>
+			<div className="w-full max-w-md">
 				<Card>
 					<CardHeader>
-						<CardTitle>Vytvoriť účet</CardTitle>
+						<CardTitle>
+							{showVerification ? "Overenie emailu" : "Vytvoriť účet"}
+						</CardTitle>
 						<CardDescription>
-							Zaregistrujte sa pomocou emailu a hesla pre prístup do dashboardu.
+							{showVerification
+								? `Zadajte 8-miestny kód odoslaný na ${step.email}.`
+								: "Zaregistrujte sa pomocou emailu a hesla pre prístup do dashboardu."}
 						</CardDescription>
 					</CardHeader>
-					<form noValidate onSubmit={onSubmit}>
-						<fieldset disabled={busy} className="contents">
-							<CardContent className="flex flex-col gap-4">
-								<div className="flex flex-col gap-2">
-									<Label htmlFor="email">Email</Label>
-									<Input
-										id="email"
-										name="email"
-										type="email"
-										autoComplete="email"
-										placeholder="vy@firma.sk"
-									/>
-								</div>
-								<div className="flex flex-col gap-2">
-									<Label htmlFor="password">Heslo</Label>
-									<PasswordInput
-										id="password"
-										name="password"
-										autoComplete="new-password"
-										placeholder="Aspoň 8 znakov"
-									/>
-									<p className="text-xs text-muted-foreground">
-										Heslo musí mať minimálne 8 znakov.
+					{!showVerification ? (
+						<form noValidate onSubmit={onSubmit}>
+							<fieldset disabled={busy} className="contents">
+								<CardContent className="flex flex-col gap-4">
+									<div className="flex flex-col gap-2">
+										<Label htmlFor="email">Email</Label>
+										<Input
+											id="email"
+											name="email"
+											type="email"
+											autoComplete="email"
+											placeholder="vy@firma.sk"
+										/>
+									</div>
+									<div className="flex flex-col gap-2">
+										<Label htmlFor="password">Heslo</Label>
+										<PasswordInput
+											id="password"
+											name="password"
+											autoComplete="new-password"
+											placeholder="Aspoň 8 znakov"
+										/>
+										<p className="text-xs text-muted-foreground">
+											Heslo musí mať minimálne 8 znakov.
+										</p>
+									</div>
+								</CardContent>
+								<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
+									<Button type="submit" disabled={busy} size="lg">
+										{submitting
+											? "Registrujem…"
+											: navPending
+												? "Presmerúvam…"
+												: "Zaregistrovať sa"}
+									</Button>
+									<p className="text-center text-sm text-muted-foreground">
+										Už máte účet?{" "}
+										<Link
+											href="/login"
+											className="font-medium text-primary underline-offset-4 hover:underline"
+										>
+											Prihlásiť sa
+										</Link>
 									</p>
-								</div>
-							</CardContent>
-							<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
-								<Button type="submit" disabled={busy} size="lg">
-									{submitting
-										? "Registrujem…"
-										: navPending
-											? "Presmerúvam…"
-											: "Zaregistrovať sa"}
-								</Button>
-								<p className="text-center text-sm text-muted-foreground">
-									Už máte účet?{" "}
-									<Link
-										href="/login"
-										className="font-medium text-primary underline-offset-4 hover:underline"
+								</CardFooter>
+							</fieldset>
+						</form>
+					) : (
+						<form noValidate onSubmit={onVerify}>
+							<fieldset disabled={busy} className="contents">
+								<CardContent className="flex flex-col gap-4">
+									<VerificationCodeInput
+										value={verificationCode}
+										onChange={setVerificationCode}
+										disabled={busy}
+									/>
+								</CardContent>
+								<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
+									<Button
+										type="submit"
+										disabled={
+											busy ||
+											verificationCode.length !== VERIFICATION_CODE_LENGTH
+										}
+										size="lg"
 									>
-										Prihlásiť sa
-									</Link>
-								</p>
-							</CardFooter>
-						</fieldset>
-					</form>
+										{submitting ? "Overujem…" : "Overiť a pokračovať"}
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										onClick={() => {
+											setStep("signUp");
+											setVerificationCode("");
+										}}
+										disabled={busy}
+									>
+										Späť
+									</Button>
+								</CardFooter>
+							</fieldset>
+						</form>
+					)}
 				</Card>
-			</motion.div>
+			</div>
 
 			<RedirectingOverlay show={navPending} label="Presmerúvam na dashboard…" />
 		</div>

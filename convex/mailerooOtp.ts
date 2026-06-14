@@ -1,0 +1,62 @@
+import { RandomReader, generateRandomString } from "@oslojs/crypto/random";
+import type { EmailConfig } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
+import type { ActionCtx } from "./_generated/server";
+import type { VerificationCodeKind } from "../emails/verification-code";
+
+type SendVerificationRequest = NonNullable<
+	EmailConfig["sendVerificationRequest"]
+>;
+type SendVerificationParams = Parameters<SendVerificationRequest>[0];
+
+type OtpProviderConfig = {
+	id: string;
+	kind: VerificationCodeKind;
+};
+
+function createOtpProvider(config: OtpProviderConfig): EmailConfig {
+	const sendVerificationRequest = async (
+		params: SendVerificationParams,
+		ctx: ActionCtx,
+	) => {
+		const email = params.identifier.trim();
+		if (!email) {
+			throw new Error("Chýba emailová adresa príjemcu pri odosielaní OTP.");
+		}
+
+		await ctx.runAction(internal.emailsNode.deliverOtpEmail, {
+			to: email,
+			code: params.token,
+			kind: config.kind,
+		});
+	};
+
+	return {
+		id: config.id,
+		type: "email",
+		name: "Maileroo",
+		from: process.env.MAILEROO_FROM_EMAIL ?? "noreply@maileroo.org",
+		maxAge: 60 * 15,
+		async generateVerificationToken() {
+			const random: RandomReader = {
+				read(bytes) {
+					crypto.getRandomValues(bytes);
+				},
+			};
+			return generateRandomString(random, "0123456789", 8);
+		},
+		sendVerificationRequest:
+			sendVerificationRequest as SendVerificationRequest,
+		options: config,
+	};
+}
+
+export const MailerooVerifyOTP = createOtpProvider({
+	id: "maileroo-verify",
+	kind: "verify",
+});
+
+export const MailerooResetOTP = createOtpProvider({
+	id: "maileroo-reset",
+	kind: "reset",
+});

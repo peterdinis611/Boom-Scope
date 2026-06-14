@@ -83,7 +83,7 @@ const navItems: {
 	},
 	{
 		id: "generate",
-		label: "AI Generator",
+		label: "AI Generátor",
 		description: "Generovať multi-viewport dizajn",
 		icon: Sparkles,
 		href: "/dashboard/generator",
@@ -135,14 +135,7 @@ function NavLinks({
 							)}
 							aria-hidden
 						/>
-						<span className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-							<span className="flex items-center gap-2 font-medium leading-none">
-								{item.label}
-							</span>
-							<span className="text-xs font-normal text-muted-foreground">
-								{item.description}
-							</span>
-						</span>
+						<span className="font-medium leading-none">{item.label}</span>
 					</>
 				);
 
@@ -154,8 +147,8 @@ function NavLinks({
 							onClick={onNavigate}
 							data-active={isActive}
 							className={cn(
-								"flex items-start gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-								"hover:bg-sidebar-accent/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+								"flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+								"hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 								isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
 							)}
 						>
@@ -171,7 +164,7 @@ function NavLinks({
 						aria-disabled="true"
 						tabIndex={-1}
 						className={cn(
-							"flex cursor-not-allowed items-start gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground opacity-80",
+							"flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground opacity-70",
 							isActive &&
 								"bg-sidebar-accent/40 text-sidebar-foreground opacity-100",
 						)}

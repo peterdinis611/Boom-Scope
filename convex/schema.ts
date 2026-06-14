@@ -8,8 +8,14 @@ export default defineSchema({
 		name: v.optional(v.string()),
 		image: v.optional(v.string()),
 		email: v.optional(v.string()),
+		emailVerificationTime: v.optional(v.number()),
+		phone: v.optional(v.string()),
+		phoneVerificationTime: v.optional(v.number()),
+		isAnonymous: v.optional(v.boolean()),
 		accentColor: v.optional(v.string()),
-	}),
+	})
+		.index("email", ["email"])
+		.index("phone", ["phone"]),
 	projects: defineTable({
 		name: v.string(),
 		description: v.optional(v.string()),
