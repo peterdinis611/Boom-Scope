@@ -81,4 +81,8 @@ export default defineSchema({
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),
+	sticky_note_boards: defineTable({
+		userId: v.id("users"),
+		items: v.string(),
+	}).index("by_userId", ["userId"]),
 });

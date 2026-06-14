@@ -8,6 +8,7 @@ import {
 	Palette,
 	Settings as SettingsIcon,
 	Sparkles,
+	StickyNote,
 	Timer,
 } from "lucide-react";
 import type { Route } from "next";
@@ -18,6 +19,7 @@ export type DashboardNavId =
 	| "projects"
 	| "notes"
 	| "links"
+	| "sticky-notes"
 	| "design"
 	| "design-system"
 	| "generate"
@@ -93,6 +95,17 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				activeIconClassName:
 					"bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/25",
 				href: "/dashboard/links",
+			},
+			{
+				id: "sticky-notes",
+				label: "Sticky Notes",
+				description: "Visual board for quick ideas",
+				icon: StickyNote,
+				iconClassName:
+					"bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/15 group-hover:bg-yellow-500/15",
+				activeIconClassName:
+					"bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/25",
+				href: "/dashboard/sticky-notes" as Route,
 			},
 		],
 	},

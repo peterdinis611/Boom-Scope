@@ -26,6 +26,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 		projects: "Projects",
 		notes: "Notes",
 		links: "Link Hub",
+		"sticky-notes": "Sticky Notes",
 		canvas: "Canvas",
 		"design-system": "Design System",
 		v2: "Lab",
