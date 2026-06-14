@@ -29,6 +29,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 		"design-system": "Design System",
 		v2: "Lab",
 		generator: "AI Generator",
+		images: "Placeholder Images",
 		pomodoro: "Pomodoro",
 		settings: "Settings",
 		new: "New",

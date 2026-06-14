@@ -37,7 +37,9 @@ import dynamic from "next/dynamic";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ColorPickerGrid } from "@/components/design/canvas/ColorPickerGrid";
 import { CanvasTopBar } from "@/components/design/canvas/CanvasTopBar";
+import { LayerAddMenu, LayerPanelHeader } from "@/components/design/canvas/LayerAddMenu";
 import { CanvasZoomControls } from "@/components/design/canvas/CanvasZoomControls";
 import { Dock } from "@/components/design/Dock";
 import type { CanvasElement } from "@/components/design/KonvaCanvas";
@@ -74,6 +76,14 @@ import {
 	DEFAULT_CANVAS_SIZE,
 	normalizeCanvasSize,
 } from "@/lib/canvas-defaults";
+import { ARTBOARD_PALETTE } from "@/lib/canvas-colors";
+import {
+	createLayerElement,
+	duplicateLayer,
+	getLayerDisplayName,
+	getLayerTypeLabel,
+	type LayerType,
+} from "@/lib/canvas-layers";
 import {
 	cloneElementsForPaste,
 	getDefaultVisualStyle,
@@ -99,20 +109,6 @@ const KonvaCanvas = dynamic(() => import("@/components/design/KonvaCanvas"), {
 	),
 });
 
-const PALETTE = [
-	"#ffffff",
-	"#000000",
-	"#71717a",
-	"var(--destructive)",
-	"#f97316",
-	"#f59e0b",
-	"var(--success)",
-	"var(--primary)",
-	"#6366f1",
-	"#a855f7",
-	"#ec4899",
-];
-
 const FONTS = [
 	"Inter, sans-serif",
 	"Georgia, serif",
@@ -130,7 +126,7 @@ function DesignPageContent() {
 	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
 	const [strokeColor, setStrokeColor] = useState("var(--primary)");
-	const [fillColor] = useState("none");
+	const [fillColor, setFillColor] = useState("var(--primary)");
 	const [strokeWidth] = useState(2);
 
 	const [leftPanelOpen, setLeftPanelOpen] = useState(true);
@@ -418,7 +414,7 @@ function DesignPageContent() {
 				const canvas = document.querySelector(
 					'[data-slot="konva-canvas"] canvas',
 				) as HTMLCanvasElement | null;
-				if (canvas) {
+				if (canvas && canvas.width > 0 && canvas.height > 0) {
 					const link = document.createElement("a");
 					link.download = "boom-scope-design.png";
 					link.href = canvas.toDataURL("image/png");
@@ -646,6 +642,35 @@ function DesignPageContent() {
 		}
 	}, [commitElements]);
 
+	const handleAddLayer = useCallback(
+		(type: LayerType) => {
+			const newEl = createLayerElement(type, {
+				strokeColor,
+				fillColor,
+				strokeWidth,
+				canvasSize,
+				layerIndex: elementsRef.current.length,
+			});
+			commitElements([...elementsRef.current, newEl]);
+			setSelectedIds([newEl.id]);
+			setActiveTool("select");
+			toast.success(`${getLayerDisplayName(newEl)} added`);
+		},
+		[strokeColor, fillColor, strokeWidth, canvasSize, commitElements],
+	);
+
+	const handleDuplicateLayer = useCallback(() => {
+		const id = selectedIdsRef.current[0];
+		if (!id) return;
+		const el = elementsRef.current.find((item) => item.id === id);
+		if (!el) return;
+		const copy = duplicateLayer(el);
+		commitElements([...elementsRef.current, copy]);
+		setSelectedIds([copy.id]);
+		setActiveTool("select");
+		toast.success("Layer duplicated");
+	}, [commitElements]);
+
 	const handleJsonImport = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
@@ -745,7 +770,7 @@ function DesignPageContent() {
 									)}
 								>
 									<Layers className="size-3.5" />
-									Vrstvy
+									Layers
 								</button>
 								<button
 									type="button"
@@ -763,34 +788,43 @@ function DesignPageContent() {
 							</div>
 						</div>
 
-						<div className="min-h-0 flex-1 overflow-y-auto p-3">
+						<div className="min-h-0 flex-1 overflow-y-auto">
 							{activeTab === "layers" ? (
-								elements.length === 0 ? (
-									<div className="flex h-full flex-col items-center justify-center gap-4 px-2 text-center">
+								<>
+									<LayerPanelHeader
+										layerCount={elements.length}
+										onAdd={handleAddLayer}
+										onDuplicate={handleDuplicateLayer}
+										canDuplicate={selectedIds.length === 1}
+									/>
+									<div className="p-3">
+							{elements.length === 0 ? (
+									<div className="flex flex-col items-center justify-center gap-4 px-2 py-8 text-center">
 										<div className="flex size-12 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40">
 											<Pencil className="size-5 text-muted-foreground" />
 										</div>
 										<div className="space-y-1">
-											<p className="text-sm font-medium">Canvas is ready</p>
+											<p className="text-sm font-medium">No layers yet</p>
 											<p className="text-xs text-muted-foreground leading-relaxed">
-												Choose a tool below or an artboard template.
+												Add a layer below or draw with the tools.
 											</p>
 										</div>
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => setActiveTab("templates")}
-										>
-											<Sparkles className="size-3.5" />
-											Choose template
-										</Button>
+										<LayerAddMenu onAdd={handleAddLayer} disabled={false} />
 									</div>
 								) : (
 									elements
 										.map((el) => (
-											<div key={el.id} className="relative group">
+											<div
+												key={el.id}
+												className={cn(
+													"group flex items-center gap-1 rounded-2xl transition-all duration-500",
+													selectedIds.includes(el.id)
+														? "bg-primary text-white shadow-[0_15px_30px_rgba(37,99,235,0.3)] scale-[1.02]"
+														: "hover:bg-accent text-foreground/50 hover:text-foreground",
+												)}
+											>
 												<button
+													type="button"
 													onClick={(ev) => {
 														if (ev.shiftKey) {
 															setSelectedIds((prev) =>
@@ -802,72 +836,66 @@ function DesignPageContent() {
 															setSelectedIds([el.id]);
 														}
 													}}
-													className={cn(
-														"w-full flex items-center justify-between px-5 py-4 rounded-2xl text-xs transition-all duration-500",
-														selectedIds.includes(el.id)
-															? "bg-primary text-white shadow-[0_15px_30px_rgba(37,99,235,0.3)] scale-[1.02]"
-															: "hover:bg-accent text-foreground/50 hover:text-foreground",
-													)}
+													className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left text-xs"
 												>
-													<div className="flex items-center gap-4">
-														<div
+													<div
+														className={cn(
+															"size-8 shrink-0 rounded-xl flex items-center justify-center border border-border/50",
+															selectedIds.includes(el.id)
+																? "bg-white/20"
+																: "bg-background/40",
+														)}
+													>
+														{el.type === "group" && (
+															<Group className="size-4" />
+														)}
+														{el.type === "rect" && (
+															<Square className="size-4" />
+														)}
+														{el.type === "circle" && (
+															<Circle className="size-4" />
+														)}
+														{el.type === "pencil" && (
+															<Pencil className="size-4" />
+														)}
+														{el.type === "text" && (
+															<Type className="size-4" />
+														)}
+														{el.type === "image" && (
+															<ImageIcon className="size-4" />
+														)}
+													</div>
+													<div className="min-w-0">
+														<p
 															className={cn(
-																"size-8 rounded-xl flex items-center justify-center border border-border/50",
-																selectedIds.includes(el.id)
-																	? "bg-white/20"
-																	: "bg-background/40",
+																"truncate font-black tracking-tight opacity-90",
+																el.isVisible === false &&
+																	"line-through opacity-30",
 															)}
 														>
-															{el.type === "group" && (
-																<Group className="size-4" />
-															)}
-															{el.type === "rect" && (
-																<Square className="size-4" />
-															)}
-															{el.type === "circle" && (
-																<Circle className="size-4" />
-															)}
-															{el.type === "pencil" && (
-																<Pencil className="size-4" />
-															)}
-															{el.type === "text" && (
-																<Type className="size-4" />
-															)}
-															{el.type === "image" && (
-																<ImageIcon className="size-4" />
-															)}
-														</div>
-														<div className="text-left">
-															<p
-																className={cn(
-																	"font-black tracking-tight opacity-90",
-																	el.isVisible === false &&
-																		"line-through opacity-30",
-																)}
-															>
-																{el.type.charAt(0).toUpperCase() +
-																	el.type.slice(1)}
-															</p>
-															<p className="text-[9px] font-bold opacity-30 uppercase tracking-widest">
-																ID: {el.id.split("-")[1]}
-															</p>
-														</div>
+															{getLayerDisplayName(el)}
+														</p>
+														<p className="truncate text-[9px] font-bold opacity-30 uppercase tracking-widest">
+															{el.name?.trim()
+																? getLayerTypeLabel(el.type)
+																: `#${el.id.replace(/^el-/, "").slice(-8)}`}
+														</p>
 													</div>
 												</button>
 
-												{/* Quick Layer Controls */}
 												<div
 													className={cn(
-														"absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
+														"flex shrink-0 items-center gap-0.5 pr-2 opacity-0 transition-opacity group-hover:opacity-100",
 														selectedIds.includes(el.id) && "opacity-100",
 													)}
 												>
 													<button
+														type="button"
 														onClick={(e) => {
 															e.stopPropagation();
 															toggleElementProperty(el.id, "isVisible");
 														}}
-														className="p-1.5 rounded-lg hover:bg-accent transition-colors"
+														className="rounded-lg p-1.5 transition-colors hover:bg-white/10"
 													>
 														{el.isVisible === false ? (
 															<EyeOff className="size-3 text-red-500" />
@@ -876,11 +904,12 @@ function DesignPageContent() {
 														)}
 													</button>
 													<button
+														type="button"
 														onClick={(e) => {
 															e.stopPropagation();
 															toggleElementProperty(el.id, "isLocked");
 														}}
-														className="p-1.5 rounded-lg hover:bg-accent transition-colors"
+														className="rounded-lg p-1.5 transition-colors hover:bg-white/10"
 													>
 														{el.isLocked ? (
 															<Lock className="size-3 text-amber-500" />
@@ -902,7 +931,7 @@ function DesignPageContent() {
 																prev.filter((id) => id !== el.id),
 															);
 														}}
-														className="hover:bg-red-500 hover:text-white rounded-lg transition-all duration-300"
+														className="rounded-lg transition-all duration-300 hover:bg-red-500 hover:text-white"
 													>
 														<Trash2 className="size-3.5" />
 													</Button>
@@ -910,7 +939,9 @@ function DesignPageContent() {
 											</div>
 										))
 										.reverse()
-								)
+								)}
+									</div>
+								</>
 							) : (
 								<div className="space-y-8 pb-10">
 									{/* Social Media Group */}
@@ -977,7 +1008,7 @@ function DesignPageContent() {
 									<div className="space-y-3">
 										<h4 className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-primary/60 flex items-center gap-2">
 											<div className="size-1 bg-primary rounded-full" />
-											Zariadenia
+											Devices
 										</h4>
 										<div className="grid grid-cols-1 gap-2">
 											{CANVAS_PRESETS.filter((p) =>
@@ -1118,7 +1149,7 @@ function DesignPageContent() {
 				{rightPanelOpen ? (
 					<aside className="hidden w-72 shrink-0 flex-col border-l border-border bg-background xl:flex">
 						<div className="border-b border-border px-4 py-3">
-							<h3 className="text-sm font-semibold">Vlastnosti</h3>
+							<h3 className="text-sm font-semibold">Properties</h3>
 							<p className="text-xs text-muted-foreground">
 								Canvas and selected object settings
 							</p>
@@ -1137,7 +1168,7 @@ function DesignPageContent() {
 											className="rounded-xl gap-2 text-[9px] font-black uppercase"
 											onClick={handleGroupSelection}
 										>
-											<Group className="size-3" /> Skupina
+											<Group className="size-3" /> Group
 										</Button>
 										<Button
 											variant="outline"
@@ -1210,12 +1241,12 @@ function DesignPageContent() {
 											<div className="size-8 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
 												<Sliders className="size-4 text-primary" />
 											</div>
-											<div>
+											<div className="min-w-0">
 												<h2 className="text-[10px] font-black uppercase tracking-[0.3em]">
-													Editor Prvku
+													Element editor
 												</h2>
-												<p className="text-[9px] font-bold opacity-30 uppercase tracking-widest">
-													{selectedElement.type}
+												<p className="truncate text-[9px] font-bold opacity-30 uppercase tracking-widest">
+													{getLayerTypeLabel(selectedElement.type)}
 												</p>
 											</div>
 										</div>
@@ -1250,19 +1281,33 @@ function DesignPageContent() {
 										</Button>
 									)}
 
+									<div className="space-y-2">
+										<Label className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">
+											Layer name
+										</Label>
+										<Input
+											value={selectedElement.name ?? ""}
+											onChange={(e) =>
+												updateSelectedElement({ name: e.target.value })
+											}
+											placeholder={getLayerTypeLabel(selectedElement.type)}
+											className="h-9 rounded-xl text-xs"
+										/>
+									</div>
+
 									{/* Geometry Section */}
 									<div className="space-y-6">
 										<div className="flex items-center gap-3">
 											<Maximize2 className="size-3.5 text-primary/60" />
 											<Label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-												Geometria
+												Geometry
 											</Label>
 										</div>
 
 										<div className="grid grid-cols-2 gap-4">
 											<div className="space-y-3">
 												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Os X
+													X axis
 												</p>
 												<Input
 													type="number"
@@ -1277,7 +1322,7 @@ function DesignPageContent() {
 											</div>
 											<div className="space-y-3">
 												<p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-20">
-													Os Y
+													Y axis
 												</p>
 												<Input
 													type="number"
@@ -1424,69 +1469,77 @@ function DesignPageContent() {
 										<div className="space-y-5">
 											<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
 												{selectedElement.fillType === "gradient"
-													? "Farby Gradientu"
+													? "Gradient start"
 													: "Fill color"}
 											</p>
-											<div className="grid grid-cols-6 gap-2.5">
-												{PALETTE.map((color) => (
-													<button
-														key={color}
-														onClick={() => {
-															if (selectedElement.fillType === "gradient") {
-																const colors =
-																	selectedElement.gradientColors || [
-																		"var(--primary)",
-																		"var(--success)",
-																	];
-																updateSelectedElement({
-																	gradientColors: [color, colors[1]],
-																});
-															} else {
-																updateSelectedElement({ fill: color });
-															}
-														}}
-														className={cn(
-															"size-8 rounded-xl border-2 transition-all duration-300 hover:scale-110 active:scale-90",
-															selectedElement.fill === color ||
-																selectedElement.gradientColors?.[0] === color
-																? "border-primary scale-110 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-																: "border-transparent hover:border-foreground/20",
-														)}
-														style={{ backgroundColor: color }}
-													/>
-												))}
-											</div>
+											<ColorPickerGrid
+												value={
+													selectedElement.fillType === "gradient"
+														? selectedElement.gradientColors?.[0] ||
+															"var(--primary)"
+														: selectedElement.fill === "none"
+															? "transparent"
+															: selectedElement.fill
+												}
+												onChange={(color) => {
+													if (selectedElement.fillType === "gradient") {
+														const colors =
+															selectedElement.gradientColors || [
+																"var(--primary)",
+																"var(--success)",
+															];
+														updateSelectedElement({
+															gradientColors: [color, colors[1]],
+														});
+													} else {
+														updateSelectedElement({ fill: color });
+													}
+												}}
+											/>
 										</div>
+
+										{selectedElement.fillType === "gradient" && (
+											<div className="space-y-5">
+												<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
+													Gradient end
+												</p>
+												<ColorPickerGrid
+													value={
+														selectedElement.gradientColors?.[1] ||
+														"var(--success)"
+													}
+													onChange={(color) => {
+														const colors =
+															selectedElement.gradientColors || [
+																"var(--primary)",
+																"var(--success)",
+															];
+														updateSelectedElement({
+															gradientColors: [colors[0], color],
+														});
+													}}
+												/>
+											</div>
+										)}
 
 										{/* Borders / Stroke */}
 										<div className="space-y-6">
 											<div className="flex justify-between items-center">
 												<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-													Obrys (Stroke)
+													Stroke
 												</p>
 												<span className="text-[10px] font-mono font-bold opacity-60">
 													{selectedElement.strokeWidth || 0}px
 												</span>
 											</div>
 											<div className="space-y-5">
-												<div className="grid grid-cols-6 gap-2.5">
-													{PALETTE.map((color) => (
-														<button
-															key={color}
-															onClick={() => {
-																setStrokeColor(color);
-																updateSelectedElement({ stroke: color });
-															}}
-															className={cn(
-																"size-8 rounded-xl border-2 transition-all duration-300 hover:scale-110 active:scale-90",
-																selectedElement.stroke === color
-																	? "border-primary scale-110 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-																	: "border-transparent hover:border-foreground/20",
-															)}
-															style={{ backgroundColor: color }}
-														/>
-													))}
-												</div>
+												<ColorPickerGrid
+													value={selectedElement.stroke}
+													onChange={(color) => {
+														setStrokeColor(color);
+														updateSelectedElement({ stroke: color });
+													}}
+												/>
 											</div>
 											<div className="space-y-4">
 												<input
@@ -1622,7 +1675,7 @@ function DesignPageContent() {
 
 												<div className="space-y-4">
 													<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-20">
-														Content Textu
+														Text content
 													</p>
 													<textarea
 														value={selectedElement.text || ""}
@@ -1659,7 +1712,7 @@ function DesignPageContent() {
 													);
 												}}
 											>
-												<ArrowUp className="size-3" /> Dopredu
+												<ArrowUp className="size-3" /> Bring forward
 											</Button>
 											<Button
 												variant="outline"
@@ -1681,7 +1734,7 @@ function DesignPageContent() {
 													);
 												}}
 											>
-												<ArrowDown className="size-3" /> Dozadu
+												<ArrowDown className="size-3" /> Send backward
 											</Button>
 										</div>
 										<Button
@@ -1696,7 +1749,7 @@ function DesignPageContent() {
 												setSelectedIds([]);
 											}}
 										>
-											<Trash2 className="size-4" /> Delete objekt
+											<Trash2 className="size-4" /> Delete object
 										</Button>
 									</div>
 								</>
@@ -1712,7 +1765,7 @@ function DesignPageContent() {
 									{/* Artboard Size */}
 									<div className="space-y-3">
 										<p className="text-xs font-medium text-muted-foreground">
-											Rozmery artboardu (px)
+											Artboard size (px)
 										</p>
 										<div className="grid grid-cols-2 gap-3">
 											<div className="space-y-1.5">
@@ -1759,29 +1812,59 @@ function DesignPageContent() {
 										<p className="text-xs font-medium text-muted-foreground">
 											Canvas background
 										</p>
-										<div className="grid grid-cols-5 gap-2">
-											{[null, "#ffffff", "#f8fafc", "#18181b", "#000000"].map(
-												(color) => (
-													<button
-														type="button"
-														key={color || "none"}
-														onClick={() => setArtboardColor(color)}
-														className={cn(
-															"size-8 rounded-lg border border-border shadow-sm transition-all hover:scale-105",
-															artboardColor === color &&
-																"ring-2 ring-primary ring-offset-2",
-															!color &&
-																"bg-[linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%),linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%)] bg-size-[8px_8px] bg-position-[0_0,4px_4px]",
-														)}
-														style={{ backgroundColor: color || undefined }}
-														aria-label={
-															color
-																? `Background ${color}`
-																: "Transparent background"
-														}
-													/>
-												),
-											)}
+										<div className="grid grid-cols-6 gap-2">
+											{ARTBOARD_PALETTE.map((color) => (
+												<button
+													type="button"
+													key={color || "none"}
+													onClick={() => setArtboardColor(color)}
+													className={cn(
+														"size-8 rounded-lg border border-border shadow-sm transition-all hover:scale-105",
+														artboardColor === color &&
+															"ring-2 ring-primary ring-offset-2",
+														!color &&
+															"bg-[linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%),linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%)] bg-size-[8px_8px] bg-position-[0_0,4px_4px]",
+													)}
+													style={{ backgroundColor: color || undefined }}
+													aria-label={
+														color
+															? `Background ${color}`
+															: "Transparent background"
+													}
+												/>
+											))}
+										</div>
+										<ColorPickerGrid
+											columns={5}
+											value={artboardColor ?? "#ffffff"}
+											onChange={(color) => setArtboardColor(color)}
+										/>
+									</div>
+
+									{/* Default draw colors */}
+									<div className="space-y-4">
+										<p className="text-xs font-medium text-muted-foreground">
+											Default colors for new layers
+										</p>
+										<div className="space-y-3">
+											<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">
+												Fill
+											</p>
+											<ColorPickerGrid
+												columns={5}
+												value={fillColor}
+												onChange={setFillColor}
+											/>
+										</div>
+										<div className="space-y-3">
+											<p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">
+												Stroke
+											</p>
+											<ColorPickerGrid
+												columns={5}
+												value={strokeColor}
+												onChange={setStrokeColor}
+											/>
 										</div>
 									</div>
 
@@ -1835,7 +1918,7 @@ function DesignPageContent() {
 												<Clipboard className="size-3" /> Change history
 											</span>
 											<span>
-												krok {historyIndex + 1} / {history.length} (
+												step {historyIndex + 1} / {history.length} (
 												{history.length - 1} edits)
 											</span>
 										</div>
@@ -1857,7 +1940,7 @@ function DesignPageContent() {
 								variant="outline"
 								size="sm"
 								onClick={() => handleAction("redo")}
-								title="Dopredu"
+								title="Redo"
 							>
 								<Redo className="size-4" />
 							</Button>

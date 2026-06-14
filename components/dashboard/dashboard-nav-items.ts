@@ -1,6 +1,7 @@
 import {
 	FileText,
 	FolderKanban,
+	Image as ImageIcon,
 	Layout,
 	LayoutDashboard,
 	Palette,
@@ -18,6 +19,7 @@ export type DashboardNavId =
 	| "design"
 	| "design-system"
 	| "generate"
+	| "images"
 	| "pomodoro"
 	| "settings";
 
@@ -117,6 +119,17 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				activeIconClassName:
 					"bg-fuchsia-500/20 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/25",
 				href: "/dashboard/generator",
+			},
+			{
+				id: "images",
+				label: "Placeholder Images",
+				description: "Generate optimized placeholder photos",
+				icon: ImageIcon,
+				iconClassName:
+					"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/15 group-hover:bg-cyan-500/15",
+				activeIconClassName:
+					"bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/25",
+				href: "/dashboard/images",
 			},
 			{
 				id: "pomodoro",

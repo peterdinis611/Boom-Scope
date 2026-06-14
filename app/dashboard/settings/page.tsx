@@ -19,6 +19,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ColorPickerGrid } from "@/components/ui/color-picker-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
@@ -218,44 +219,17 @@ export default function SettingsPage() {
 											Choose the main interface color
 										</p>
 									</div>
-									<div className="flex gap-4">
-										{[
-											"var(--primary)",
-											"#06b6d4", // Cyan
-											"var(--success)", // Green
-											"#84cc16", // Lime
-											"#f59e0b", // Amber
-											"#f97316", // Orange
-											"var(--destructive)", // Red
-											"#f43f5e", // Rose
-											"#8b5cf6", // Violet
-											"#6366f1", // Indigo
-											"#475569", // Slate
-										].map((color) => (
-											<button
-												key={color}
-												onClick={async () => {
-													try {
-														await updateUser({ accentColor: color });
-														toast.success("Accent color changed");
-													} catch {
-														toast.error("Error changing color");
-													}
-												}}
-												className={cn(
-													"size-10 rounded-xl border-2 transition-all cursor-pointer shadow-sm relative flex items-center justify-center",
-													user.accentColor === color
-														? "border-foreground scale-110"
-														: "border-transparent hover:scale-110 hover:border-foreground/20",
-												)}
-												style={{ backgroundColor: color }}
-											>
-												{user.accentColor === color && (
-													<Check className="size-5 text-white drop-shadow-md" />
-												)}
-											</button>
-										))}
-									</div>
+									<ColorPickerGrid
+										value={user.accentColor ?? "var(--primary)"}
+										onChange={async (color) => {
+											try {
+												await updateUser({ accentColor: color });
+												toast.success("Accent color changed");
+											} catch {
+												toast.error("Error changing color");
+											}
+										}}
+									/>
 								</section>
 							</CardContent>
 						</Card>

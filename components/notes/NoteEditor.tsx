@@ -60,6 +60,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ColorPickerGrid } from "@/components/ui/color-picker-grid";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -82,6 +83,10 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import {
+	APP_PALETTE_HEX,
+	HIGHLIGHT_PALETTE,
+} from "@/lib/canvas-colors";
 
 interface NoteEditorProps {
 	content: string;
@@ -137,44 +142,6 @@ const ToolbarSeparator = () => (
 
 // ─── Colour picker ────────────────────────────────────────────────────────────
 
-const TEXT_COLORS = [
-	"#000000", // Black
-	"#374151", // Dark Gray
-	"#6b7280", // Gray
-	"#9ca3af", // Light Gray
-	"#ffffff", // White
-	"#ef4444", // Red
-	"#f97316", // Orange
-	"#f59e0b", // Amber
-	"#eab308", // Yellow
-	"#84cc16", // Lime
-	"#22c55e", // Green
-	"#10b981", // Emerald
-	"#14b8a6", // Teal
-	"#06b6d4", // Cyan
-	"#0ea5e9", // Sky
-	"#3b82f6", // Blue
-	"#6366f1", // Indigo
-	"#8b5cf6", // Violet
-	"#a855f7", // Purple
-	"#d946ef", // Fuchsia
-	"#ec4899", // Pink
-	"#f43f5e", // Rose
-];
-
-const HIGHLIGHT_COLORS = [
-	"#fef08a", // Yellow
-	"#bbf7d0", // Green
-	"#bfdbfe", // Blue
-	"#f5d0fe", // Purple
-	"#fed7aa", // Orange
-	"#fecaca", // Red
-	"#ccfbf1", // Teal
-	"#e0e7ff", // Indigo
-	"#fae8ff", // Pink
-	"#f1f5f9", // Slate
-];
-
 const ColorPicker = ({
 	editor,
 	type,
@@ -182,7 +149,11 @@ const ColorPicker = ({
 	editor: Editor;
 	type: "text" | "highlight";
 }) => {
-	const colors = type === "text" ? TEXT_COLORS : HIGHLIGHT_COLORS;
+	const palette = type === "text" ? APP_PALETTE_HEX : HIGHLIGHT_PALETTE;
+	const currentColor =
+		type === "text"
+			? editor.getAttributes("textStyle").color || "#000000"
+			: editor.getAttributes("highlight").color || HIGHLIGHT_PALETTE[0];
 	const isActive =
 		type === "text"
 			? !!editor.getAttributes("textStyle").color
@@ -210,27 +181,22 @@ const ColorPicker = ({
 					{type === "text" ? "Text color" : "Highlight"}
 				</TooltipContent>
 			</Tooltip>
-			<PopoverContent className="w-auto p-3" align="start">
+			<PopoverContent className="w-72 p-3" align="start">
 				<p className="mb-2 text-xs font-medium text-muted-foreground">
 					{type === "text" ? "Text color" : "Highlight color"}
 				</p>
-				<div className="grid grid-cols-6 gap-1">
-					{colors.map((color) => (
-						<button
-							key={color}
-							title={color}
-							onClick={() => {
-								if (type === "text") {
-									editor.chain().focus().setColor(color).run();
-								} else {
-									editor.chain().focus().toggleHighlight({ color }).run();
-								}
-							}}
-							className="size-6 rounded border border-border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring"
-							style={{ backgroundColor: color }}
-						/>
-					))}
-				</div>
+				<ColorPickerGrid
+					value={currentColor}
+					palette={palette}
+					swatchSize="sm"
+					onChange={(color) => {
+						if (type === "text") {
+							editor.chain().focus().setColor(color).run();
+						} else {
+							editor.chain().focus().setHighlight({ color }).run();
+						}
+					}}
+				/>
 				{type === "text" && (
 					<Button
 						variant="ghost"

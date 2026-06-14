@@ -42,6 +42,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ColorPickerGrid } from "@/components/ui/color-picker-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -54,6 +55,7 @@ import {
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { APP_PALETTE_HEX } from "@/lib/canvas-colors";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
 import { cn } from "@/lib/utils";
 
@@ -375,29 +377,28 @@ export default function DesignSystemV2() {
 								<Card className="space-y-6 p-6">
 									<div className="flex items-center justify-between">
 										<h2 className="font-heading text-lg font-semibold">
-											Paleta farieb
+											Color palette
 										</h2>
 										<Plus className="size-4 text-muted-foreground" />
 									</div>
 									<div className="space-y-6">
-										<div className="flex gap-3">
+										<div className="space-y-3">
 											<Input
-												placeholder="Title farby"
+												placeholder="Color name"
 												value={newColorName}
 												onChange={(e) => setNewColorName(e.target.value)}
 												className="h-12 rounded-xl bg-muted/20 border-none"
 											/>
-											<Input
-												type="color"
+											<ColorPickerGrid
 												value={newColorHex}
-												onChange={(e) => setNewColorHex(e.target.value)}
-												className="w-16 h-12 p-1 rounded-xl bg-muted/20 border-none cursor-pointer"
+												palette={APP_PALETTE_HEX}
+												onChange={setNewColorHex}
 											/>
 											<Button
 												onClick={addManualColor}
-												className="h-12 rounded-xl px-6"
+												className="h-12 w-full rounded-xl"
 											>
-												Add
+												Add color
 											</Button>
 										</div>
 										<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from "vitest";
 import { UserMenu } from "../components/UserMenu";
 import type { Doc } from "../convex/_generated/dataModel";
 
-// Mock Convex
 vi.mock("convex/react", () => ({
 	useQuery: vi.fn(),
 }));
@@ -17,7 +16,6 @@ vi.mock("@convex-dev/auth/react", () => ({
 	}),
 }));
 
-// Mock Next.js navigation
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		replace: vi.fn(),
@@ -25,7 +23,16 @@ vi.mock("next/navigation", () => ({
 	}),
 }));
 
-// Mock Sonner toast
+vi.mock("next/link", () => ({
+	default: ({
+		children,
+		href,
+	}: {
+		children: React.ReactNode;
+		href: string;
+	}) => <a href={href}>{children}</a>,
+}));
+
 vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
@@ -33,14 +40,44 @@ vi.mock("sonner", () => ({
 	},
 }));
 
+vi.mock("@/components/ui/dropdown-menu", () => ({
+	DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+		<div>{children}</div>
+	),
+	DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) => (
+		<>{children}</>
+	),
+	DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+		<div role="menu">{children}</div>
+	),
+	DropdownMenuItem: ({
+		children,
+		onClick,
+		asChild,
+		...props
+	}: {
+		children: React.ReactNode;
+		onClick?: () => void;
+		asChild?: boolean;
+	}) =>
+		asChild ? (
+			<>{children}</>
+		) : (
+			<button type="button" role="menuitem" onClick={onClick} {...props}>
+				{children}
+			</button>
+		),
+	DropdownMenuSeparator: () => <hr />,
+}));
+
 describe("Component: UserMenu", () => {
-	test("renders loading skeletons initially", () => {
+	test("renders loading skeleton initially", () => {
 		vi.mocked(useQuery).mockReturnValue(undefined);
 		const { container } = render(<UserMenu />);
 		expect(container.querySelector(".animate-pulse")).toBeDefined();
 	});
 
-	test("displays user info when loaded", () => {
+	test("displays user info in the account menu", () => {
 		vi.mocked(useQuery).mockReturnValue({
 			name: "Peter Dinis",
 			email: "peter@example.com",
@@ -48,20 +85,22 @@ describe("Component: UserMenu", () => {
 		} as unknown as Doc<"users">);
 
 		render(<UserMenu />);
-		expect(screen.getByText("Peter Dinis")).toBeDefined();
+		fireEvent.click(screen.getByRole("button", { name: /account menu/i }));
+
+		expect(screen.getAllByText("Peter Dinis").length).toBeGreaterThan(0);
 		expect(screen.getByText("peter@example.com")).toBeDefined();
-		// Initials check
-		expect(screen.getByText("PE")).toBeDefined();
+		expect(screen.getAllByText("PE").length).toBeGreaterThan(0);
 	});
 
-	test("calls signOut when button is clicked", async () => {
+	test("calls signOut from the dropdown menu", async () => {
 		vi.mocked(useQuery).mockReturnValue({
 			name: "User",
+			email: "user@example.com",
 		} as unknown as Doc<"users">);
 
 		render(<UserMenu />);
-		const logoutBtn = screen.getByTitle("Sign out");
-		fireEvent.click(logoutBtn);
+		fireEvent.click(screen.getByRole("button", { name: /account menu/i }));
+		fireEvent.click(screen.getByRole("menuitem", { name: /sign out/i }));
 
 		await waitFor(() => {
 			expect(mockSignOut).toHaveBeenCalled();

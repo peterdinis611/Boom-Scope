@@ -7,7 +7,7 @@ describe("Component: Dock", () => {
 		render(<Dock activeTool="select" onToolChange={() => {}} />);
 
 		expect(screen.getByRole("button", { name: /Select/i })).toBeDefined();
-		expect(screen.getByRole("button", { name: /Pero/i })).toBeDefined();
+		expect(screen.getByRole("button", { name: /Pencil/i })).toBeDefined();
 		expect(screen.getByRole("button", { name: /Rectangle/i })).toBeDefined();
 		expect(screen.getByRole("button", { name: /Text/i })).toBeDefined();
 		expect(screen.getByRole("button", { name: /Triangle/i })).toBeDefined();
@@ -19,7 +19,7 @@ describe("Component: Dock", () => {
 		const onToolChange = vi.fn();
 		render(<Dock activeTool="select" onToolChange={onToolChange} />);
 
-		fireEvent.click(screen.getByRole("button", { name: /Pero/i }));
+		fireEvent.click(screen.getByRole("button", { name: /Pencil/i }));
 		expect(onToolChange).toHaveBeenCalledWith("pencil");
 	});
 

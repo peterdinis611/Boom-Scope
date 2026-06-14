@@ -31,6 +31,7 @@ import { resolveCanvasColor } from "@/lib/utils";
 
 export interface CanvasElement {
 	id: string;
+	name?: string;
 	type: string;
 	x: number;
 	y: number;
@@ -78,6 +79,19 @@ interface KonvaCanvasProps {
 }
 
 const GRID_SIZE = 20;
+
+function shapeHasRenderableSize(el: CanvasElement): boolean {
+	if (el.type === "pencil") {
+		return (el.points?.length ?? 0) >= 4;
+	}
+	if (el.type === "text" || el.type === "group") {
+		return true;
+	}
+	if (el.type === "image") {
+		return (el.width ?? 0) > 0 && (el.height ?? 0) > 0;
+	}
+	return Math.abs(el.width ?? 0) > 0 || Math.abs(el.height ?? 0) > 0;
+}
 
 // Custom useImage hook
 function useImage(src: string) {
@@ -168,12 +182,22 @@ export default function KonvaCanvas({
 		if (!containerRef.current) return;
 
 		const observeTarget = containerRef.current;
+
+		const updateSize = () => {
+			const { width, height } = observeTarget.getBoundingClientRect();
+			if (width > 0 && height > 0) {
+				setSize({ width, height });
+			}
+		};
+
+		updateSize();
+
 		const resizeObserver = new ResizeObserver((entries) => {
 			for (const entry of entries) {
-				setSize({
-					width: entry.contentRect.width,
-					height: entry.contentRect.height,
-				});
+				const { width, height } = entry.contentRect;
+				if (width > 0 && height > 0) {
+					setSize({ width, height });
+				}
 			}
 		});
 
@@ -435,7 +459,16 @@ export default function KonvaCanvas({
 
 		if (!isDrawing || !newElement) return;
 
-		commitElements([...elementsRef.current, newElement]);
+		const isFreeHand =
+			newElement.type === "pencil" || activeTool === "eraser";
+		const hasSize = isFreeHand
+			? (newElement.points?.length ?? 0) >= 4
+			: Math.abs(newElement.width || 0) > 0 ||
+				Math.abs(newElement.height || 0) > 0;
+
+		if (hasSize) {
+			commitElements([...elementsRef.current, newElement]);
+		}
 		setNewElement(null);
 		setIsDrawing(false);
 	};
@@ -630,6 +663,8 @@ export default function KonvaCanvas({
 		return lines;
 	};
 
+	const stageReady = size.width > 0 && size.height > 0;
+
 	return (
 		<div
 			ref={containerRef}
@@ -642,6 +677,7 @@ export default function KonvaCanvas({
 				backgroundSize: "18px 18px",
 			}}
 		>
+			{stageReady ? (
 			<Stage
 				ref={stageRef}
 				width={size.width}
@@ -709,7 +745,7 @@ export default function KonvaCanvas({
 							}
 						/>
 					))}
-					{newElement && (
+					{newElement && shapeHasRenderableSize(newElement) && (
 						<RenderElement
 							element={newElement}
 							isSelected={false}
@@ -717,18 +753,19 @@ export default function KonvaCanvas({
 						/>
 					)}
 
-					{selectionBox?.active && (
-						<Rect
-							x={selectionBox.x}
-							y={selectionBox.y}
-							width={selectionBox.width}
-							height={selectionBox.height}
-							fill={resolveCanvasColor("var(--primary)")}
-							opacity={0.1}
-							stroke={resolveCanvasColor("var(--primary)")}
-							strokeWidth={1}
-						/>
-					)}
+					{selectionBox?.active &&
+						(selectionBox.width > 0 || selectionBox.height > 0) && (
+							<Rect
+								x={selectionBox.x}
+								y={selectionBox.y}
+								width={selectionBox.width}
+								height={selectionBox.height}
+								fill={resolveCanvasColor("var(--primary)")}
+								opacity={0.1}
+								stroke={resolveCanvasColor("var(--primary)")}
+								strokeWidth={1}
+							/>
+						)}
 
 					{activeTool === "select" && (
 						<Transformer
@@ -751,6 +788,7 @@ export default function KonvaCanvas({
 					)}
 				</Layer>
 			</Stage>
+			) : null}
 
 			{/* Context Menu */}
 			{contextMenu && (
@@ -773,7 +811,7 @@ export default function KonvaCanvas({
 						}}
 					>
 						<span className="text-[10px] font-black uppercase tracking-widest">
-							Delete objekt
+							Delete object
 						</span>
 						<Trash2 className="size-3.5 opacity-50 group-hover:opacity-100" />
 					</button>
@@ -801,6 +839,7 @@ function RenderElement({
 	const [image] = useImage(el.src || "");
 
 	if (el.isVisible === false) return null;
+	if (!shapeHasRenderableSize(el)) return null;
 
 	const clickSelect =
 		reportSelect &&
@@ -991,7 +1030,7 @@ function RenderElement({
 		);
 	}
 
-	if (el.type === "image" && image) {
+	if (el.type === "image" && image && image.width > 0 && image.height > 0) {
 		return (
 			<KonvaImage
 				{...commonProps}

@@ -75,7 +75,7 @@ describe("Page: Design Canvas", () => {
 
 	test("shows artboard settings when no element is selected", () => {
 		render(<DesignPage />);
-		expect(screen.getByText(/Rozmery Artboardu/i)).toBeInTheDocument();
+		expect(screen.getByText(/Artboard size/i)).toBeInTheDocument();
 		expect(screen.getByText(/Canvas background/i)).toBeInTheDocument();
 	});
 
@@ -83,7 +83,7 @@ describe("Page: Design Canvas", () => {
 		render(<DesignPage />);
 		fireEvent.click(screen.getByRole("button", { name: /Templates/i }));
 		expect(screen.getByText(/Social media/i)).toBeInTheDocument();
-		expect(screen.getByText(/Zariadenia/i)).toBeInTheDocument();
+		expect(screen.getByText(/Devices/i)).toBeInTheDocument();
 	});
 
 	test("shows visual warning for element without fill or stroke", async () => {
@@ -219,12 +219,12 @@ describe("Page: Design Canvas", () => {
 			expect(screen.getByText(/Selection: 2 layers/i)).toBeInTheDocument();
 		});
 
-		const propertiesPanel = screen.getByText(/Vlastnosti/i).closest("div")
+		const propertiesPanel = screen.getByText(/Properties/i).closest("div")
 			?.parentElement?.parentElement;
 		expect(propertiesPanel).toBeTruthy();
 		expect(
 			within(propertiesPanel as HTMLElement).getByRole("button", {
-				name: /Skupina/i,
+				name: /Group/i,
 			}),
 		).toBeInTheDocument();
 	});
