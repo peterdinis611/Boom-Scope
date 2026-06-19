@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Suspense } from "react";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { MotionProvider } from "@/components/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
@@ -54,12 +55,14 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Suspense fallback={<GlobalLoading />}>
-						<ConvexAuthNextjsServerProvider>
-							<ConvexClientProvider>{children}</ConvexClientProvider>
-						</ConvexAuthNextjsServerProvider>
-					</Suspense>
-					<Toaster />
+					<MotionProvider>
+						<Suspense fallback={<GlobalLoading />}>
+							<ConvexAuthNextjsServerProvider>
+								<ConvexClientProvider>{children}</ConvexClientProvider>
+							</ConvexAuthNextjsServerProvider>
+						</Suspense>
+						<Toaster />
+					</MotionProvider>
 				</ThemeProvider>
 			</body>
 		</html>

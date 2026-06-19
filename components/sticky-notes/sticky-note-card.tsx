@@ -34,6 +34,25 @@ export function StickyNoteCard({
 		}
 	}, [note.text]);
 
+	useEffect(() => {
+		const element = noteRef.current;
+		if (!element) return;
+
+		const handlePointerUp = () => {
+			const nextWidth = Math.round(element.offsetWidth);
+			const nextHeight = Math.round(element.offsetHeight);
+			if (
+				nextWidth !== (note.width ?? DEFAULT_STICKY_NOTE_SIZE.width) ||
+				nextHeight !== (note.height ?? DEFAULT_STICKY_NOTE_SIZE.height)
+			) {
+				onUpdate(note.id, { width: nextWidth, height: nextHeight });
+			}
+		};
+
+		element.addEventListener("pointerup", handlePointerUp);
+		return () => element.removeEventListener("pointerup", handlePointerUp);
+	}, [note.id, note.width, note.height, onUpdate]);
+
 	const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
 		if (event.button !== 0) return;
 		onSelect(note.id);
@@ -115,17 +134,6 @@ export function StickyNoteCard({
 				minHeight: 140,
 			}}
 			onPointerDown={() => onSelect(note.id)}
-			onMouseUp={(event) => {
-				const element = event.currentTarget;
-				const nextWidth = Math.round(element.offsetWidth);
-				const nextHeight = Math.round(element.offsetHeight);
-				if (
-					nextWidth !== (note.width ?? DEFAULT_STICKY_NOTE_SIZE.width) ||
-					nextHeight !== (note.height ?? DEFAULT_STICKY_NOTE_SIZE.height)
-				) {
-					onUpdate(note.id, { width: nextWidth, height: nextHeight });
-				}
-			}}
 		>
 			<div
 				className="flex cursor-grab items-center justify-between border-b border-black/10 px-2 py-1 active:cursor-grabbing"

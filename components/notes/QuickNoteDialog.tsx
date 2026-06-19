@@ -96,6 +96,7 @@ export function QuickNoteDialog({
 			>
 				{/* Custom close button */}
 				<button
+					type="button"
 					onClick={handleClose}
 					className="absolute right-5 top-5 rounded-xl p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
 				>

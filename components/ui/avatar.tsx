@@ -21,33 +21,6 @@ function Avatar({
 	);
 }
 
-function AvatarImage({
-	className,
-	...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-	return (
-		<AvatarPrimitive.Image
-			data-slot="avatar-image"
-			className={cn("aspect-square size-full", className)}
-			{...props}
-		/>
-	);
-}
-
-function AvatarFallback({
-	className,
-	...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
-	return (
-		<AvatarPrimitive.Fallback
-			data-slot="avatar-fallback"
-			className={cn(
-				"flex size-full items-center justify-center rounded-full bg-muted text-xs font-medium uppercase text-muted-foreground",
-				className,
-			)}
-			{...props}
-		/>
-	);
-}
-
-export { Avatar, AvatarFallback, AvatarImage };
+export { Avatar };
+export { AvatarFallback } from "./avatar-fallback";
+export { AvatarImage } from "./avatar-image";

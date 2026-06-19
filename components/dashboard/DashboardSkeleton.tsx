@@ -104,18 +104,30 @@ function TableRow({ delay = 0 }: { delay?: number }) {
 // ─── Chart placeholder ────────────────────────────────────────────────────────
 
 function ChartSkeleton({ delay = 0 }: { delay?: number }) {
-	// Fake bars at varying heights to look like a bar chart
-	const heights = [40, 65, 50, 80, 55, 70, 45, 75, 60, 85, 50, 65];
+	const bars = [
+		{ id: "bar-1", height: 40 },
+		{ id: "bar-2", height: 65 },
+		{ id: "bar-3", height: 50 },
+		{ id: "bar-4", height: 80 },
+		{ id: "bar-5", height: 55 },
+		{ id: "bar-6", height: 70 },
+		{ id: "bar-7", height: 45 },
+		{ id: "bar-8", height: 75 },
+		{ id: "bar-9", height: 60 },
+		{ id: "bar-10", height: 85 },
+		{ id: "bar-11", height: 50 },
+		{ id: "bar-12", height: 65 },
+	] as const;
 	return (
 		<div className="flex flex-col gap-3">
 			{/* Y-axis labels */}
 			<div className="flex items-end gap-2 px-1">
-				{heights.map((h, i) => (
+				{bars.map((bar, i) => (
 					<motion.div
-						key={i}
+						key={bar.id}
 						variants={fadeIn}
 						className="flex-1 rounded-t-sm bg-muted"
-						style={{ height: h }}
+						style={{ height: bar.height }}
 						animate={{ opacity: [0.4, 0.7, 0.4] }}
 						transition={{
 							duration: 2.2,
@@ -128,9 +140,9 @@ function ChartSkeleton({ delay = 0 }: { delay?: number }) {
 			</div>
 			{/* X-axis */}
 			<div className="flex gap-2 px-1">
-				{heights.map((_, i) => (
+				{bars.map((bar, i) => (
 					<Sk
-						key={i}
+						key={bar.id}
 						className="h-2.5 flex-1 rounded"
 						delay={delay + 0.1 + i * 0.02}
 					/>
@@ -176,13 +188,13 @@ export function DashboardSkeleton() {
 				{/* Nav section */}
 				<div className="flex flex-col gap-0.5 px-1 py-2">
 					{[
-						{ wide: true, delay: 0.08 },
-						{ wide: false, delay: 0.11 },
-						{ wide: true, delay: 0.14 },
-						{ wide: false, delay: 0.17 },
-						{ wide: true, delay: 0.2 },
-					].map((p, i) => (
-						<SidebarNavItem key={i} {...p} />
+						{ id: "nav-overview", wide: true, delay: 0.08 },
+						{ id: "nav-analytics", wide: false, delay: 0.11 },
+						{ id: "nav-projects", wide: true, delay: 0.14 },
+						{ id: "nav-team", wide: false, delay: 0.17 },
+						{ id: "nav-settings", wide: true, delay: 0.2 },
+					].map((p) => (
+						<SidebarNavItem key={p.id} {...p} />
 					))}
 				</div>
 

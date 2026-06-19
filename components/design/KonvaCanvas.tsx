@@ -27,6 +27,7 @@ import {
 	Transformer,
 } from "react-konva";
 import { normalizeCanvasSize } from "@/lib/canvas-defaults";
+import { useImage } from "@/hooks/useImage";
 import { resolveCanvasColor } from "@/lib/utils";
 
 export interface CanvasElement {
@@ -91,41 +92,6 @@ function shapeHasRenderableSize(el: CanvasElement): boolean {
 		return (el.width ?? 0) > 0 && (el.height ?? 0) > 0;
 	}
 	return Math.abs(el.width ?? 0) > 0 || Math.abs(el.height ?? 0) > 0;
-}
-
-// Custom useImage hook
-function useImage(src: string) {
-	const [image, setImage] = useState<HTMLImageElement | null>(null);
-
-	useEffect(() => {
-		if (!src) {
-			setImage(null);
-			return;
-		}
-
-		const img = new Image();
-
-		const handleLoad = () => {
-			setImage(img);
-		};
-
-		const handleError = () => {
-			setImage(null);
-		};
-
-		img.addEventListener("load", handleLoad);
-		img.addEventListener("error", handleError);
-
-		img.src = src;
-		img.crossOrigin = "Anonymous";
-
-		return () => {
-			img.removeEventListener("load", handleLoad);
-			img.removeEventListener("error", handleError);
-		};
-	}, [src]);
-
-	return [image];
 }
 
 export default function KonvaCanvas({
@@ -630,37 +596,44 @@ export default function KonvaCanvas({
 	}, []);
 
 	const renderGrid = () => {
-		const lines = [];
 		const width = size.width * 10;
 		const height = size.height * 10;
 		const stroke = isDark ? "#ffffff" : "#000000";
 		const opacity = isDark ? 0.05 : 0.2;
 
-		for (let i = -width; i < width; i += GRID_SIZE) {
-			lines.push(
-				<Line
-					key={`v-${i}`}
-					points={[i, -height, i, height]}
-					stroke={stroke}
-					strokeWidth={0.2}
-					opacity={opacity}
-					listening={false}
-				/>,
-			);
+		const verticalCoords: number[] = [];
+		for (let x = -width; x < width; x += GRID_SIZE) {
+			verticalCoords.push(x);
 		}
-		for (let j = -height; j < height; j += GRID_SIZE) {
-			lines.push(
-				<Line
-					key={`h-${j}`}
-					points={[-width, j, width, j]}
-					stroke={stroke}
-					strokeWidth={0.2}
-					opacity={opacity}
-					listening={false}
-				/>,
-			);
+		const horizontalCoords: number[] = [];
+		for (let y = -height; y < height; y += GRID_SIZE) {
+			horizontalCoords.push(y);
 		}
-		return lines;
+
+		return (
+			<>
+				{verticalCoords.map((x) => (
+					<Line
+						key={`grid-v-${x}`}
+						points={[x, -height, x, height]}
+						stroke={stroke}
+						strokeWidth={0.2}
+						opacity={opacity}
+						listening={false}
+					/>
+				))}
+				{horizontalCoords.map((y) => (
+					<Line
+						key={`grid-h-${y}`}
+						points={[-width, y, width, y]}
+						stroke={stroke}
+						strokeWidth={0.2}
+						opacity={opacity}
+						listening={false}
+					/>
+				))}
+			</>
+		);
 	};
 
 	const stageReady = size.width > 0 && size.height > 0;
@@ -797,6 +770,7 @@ export default function KonvaCanvas({
 					style={{ top: contextMenu.y, left: contextMenu.x }}
 				>
 					<button
+						type="button"
 						className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 transition-all group"
 						onClick={(e) => {
 							e.stopPropagation();

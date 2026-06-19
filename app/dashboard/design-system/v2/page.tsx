@@ -403,46 +403,52 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 											{merged.colors.map((c, i) => (
-												<button
-													key={i}
-													type="button"
-													onClick={() => copyToClipboard(c.hex)}
-													className="group text-left relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all cursor-pointer w-full flex flex-col items-start"
+												<div
+													key={c.hex}
+													className="group text-left relative p-3 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/20 transition-all w-full flex flex-col items-start"
 												>
-													<div
-														className="h-16 w-full rounded-xl mb-3 shadow-inner relative flex items-center justify-center overflow-hidden"
-														style={{ backgroundColor: c.hex }}
-													>
-														<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
-															{copiedValue === c.hex ? (
-																<Check className="size-5 text-emerald-400" />
-															) : (
-																<Copy className="size-5 text-white/80" />
-															)}
-														</div>
-													</div>
-													<p className="truncate text-sm font-medium">
-														{c.name}
-													</p>
-													<p className="font-mono text-xs text-muted-foreground">
-														{c.hex}
-													</p>
 													<button
 														type="button"
-														onClick={(e) => {
-															e.stopPropagation();
-															setLocalColors((prev) =>
-																prev.filter(
-																	(_, idx) =>
-																		idx !== i - (system?.colors.length || 0),
-																),
-															);
-														}}
-														className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all z-10"
+														onClick={() => copyToClipboard(c.hex)}
+														className="w-full flex flex-col items-start text-left cursor-pointer"
 													>
-														<Trash2 className="size-3" />
+														<div
+															className="h-16 w-full rounded-xl mb-3 shadow-inner relative flex items-center justify-center overflow-hidden"
+															style={{ backgroundColor: c.hex }}
+														>
+															<div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300">
+																{copiedValue === c.hex ? (
+																	<Check className="size-5 text-emerald-400" />
+																) : (
+																	<Copy className="size-5 text-white/80" />
+																)}
+															</div>
+														</div>
+														<p className="truncate text-sm font-medium">
+															{c.name}
+														</p>
+														<p className="font-mono text-xs text-muted-foreground">
+															{c.hex}
+														</p>
 													</button>
-												</button>
+													{i >= (system?.colors.length || 0) && (
+														<button
+															type="button"
+															onClick={() =>
+																setLocalColors((prev) =>
+																	prev.filter(
+																		(_, idx) =>
+																			idx !== i - (system?.colors.length || 0),
+																	),
+																)
+															}
+															aria-label={`Delete ${c.name}`}
+															className="absolute top-2 right-2 size-6 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white hover:bg-red-500 transition-all z-10"
+														>
+															<Trash2 className="size-3" />
+														</button>
+													)}
+												</div>
 											))}
 										</div>
 									</div>
@@ -471,19 +477,23 @@ export default function DesignSystemV2() {
 										</div>
 										<div className="space-y-3">
 											{merged.fonts.map((f, i) => (
-												<button
-													key={i}
-													type="button"
-													onClick={() => copyToClipboard(f)}
-													className="w-full text-left flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/10 transition-all group cursor-pointer"
+												<div
+													key={f}
+													className="w-full flex items-center justify-between p-4 rounded-2xl bg-muted/10 border border-border/5 hover:border-primary/10 transition-all group relative"
 												>
-													<span
-														className="font-medium text-lg"
-														style={{ fontFamily: f }}
+													<button
+														type="button"
+														onClick={() => copyToClipboard(f)}
+														className="min-w-0 flex-1 text-left cursor-pointer"
 													>
-														{f}
-													</span>
-													<div className="flex items-center gap-2">
+														<span
+															className="font-medium text-lg"
+															style={{ fontFamily: f }}
+														>
+															{f}
+														</span>
+													</button>
+													<div className="flex items-center gap-2 shrink-0">
 														{copiedValue === f ? (
 															<Check className="size-4 text-emerald-500" />
 														) : (
@@ -492,8 +502,7 @@ export default function DesignSystemV2() {
 														{i >= (system?.fonts.length || 0) && (
 															<button
 																type="button"
-																onClick={(e) => {
-																	e.stopPropagation();
+																onClick={() => {
 																	setLocalFonts((prev) =>
 																		prev.filter(
 																			(_, idx) =>
@@ -502,13 +511,14 @@ export default function DesignSystemV2() {
 																	);
 																	toast.info("Font deleted");
 																}}
+																aria-label={`Delete ${f}`}
 																className="size-6 rounded-lg flex items-center justify-center hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
 															>
 																<Trash2 className="size-3.5" />
 															</button>
 														)}
 													</div>
-												</button>
+												</div>
 											))}
 										</div>
 									</div>
@@ -561,23 +571,24 @@ export default function DesignSystemV2() {
 						>
 							{/* AI Visual Lab Section */}
 							<div className="space-y-8">
-								<div
-									onClick={() => fileInputRef.current?.click()}
-									className={cn(
-										"relative group min-h-100 rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
-										"bg-background/20 backdrop-blur-3xl border-foreground/5 hover:border-primary/30 hover:bg-primary/5 shadow-inner",
-									)}
-								>
-									<input
-										type="file"
-										multiple
-										ref={fileInputRef}
-										onChange={handleUpload}
-										className="hidden"
-										accept="image/*"
-									/>
-
-									{images.length === 0 ? (
+								<input
+									type="file"
+									multiple
+									ref={fileInputRef}
+									onChange={handleUpload}
+									className="hidden"
+									accept="image/*"
+									aria-label="Upload inspiration images"
+								/>
+								{images.length === 0 ? (
+									<button
+										type="button"
+										onClick={() => fileInputRef.current?.click()}
+										className={cn(
+											"relative group min-h-100 w-full rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
+											"bg-background/20 backdrop-blur-3xl border-foreground/5 hover:border-primary/30 hover:bg-primary/5 shadow-inner",
+										)}
+									>
 										<div className="space-y-8">
 											<div className="size-24 rounded-[2.5rem] bg-primary/10 flex items-center justify-center mx-auto group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
 												<Upload className="size-10 text-primary opacity-50" />
@@ -592,7 +603,14 @@ export default function DesignSystemV2() {
 												</p>
 											</div>
 										</div>
-									) : (
+									</button>
+								) : (
+									<div
+										className={cn(
+											"relative group min-h-100 w-full rounded-[3rem] border-2 border-dashed transition-all duration-700 overflow-hidden flex flex-col items-center justify-center p-12 text-center",
+											"bg-background/20 backdrop-blur-3xl border-foreground/5 hover:border-primary/30 hover:bg-primary/5 shadow-inner",
+										)}
+									>
 										<div className="flex flex-wrap justify-center gap-6">
 											{images.map((img) => (
 												<div
@@ -605,24 +623,30 @@ export default function DesignSystemV2() {
 														alt="Insp"
 													/>
 													<button
-														onClick={(e) => {
-															e.stopPropagation();
+														type="button"
+														onClick={() =>
 															setImages((prev) =>
 																prev.filter((i) => i.id !== img.id),
-															);
-														}}
+															)
+														}
+														aria-label="Remove image"
 														className="absolute top-4 right-4 p-2 rounded-xl bg-black/60 opacity-0 group-hover/img:opacity-100 hover:bg-red-500 transition-all text-white"
 													>
 														<Trash2 className="size-4" />
 													</button>
 												</div>
 											))}
-											<div className="size-48 rounded-[2rem] border-2 border-dashed border-primary/20 flex items-center justify-center hover:bg-primary/5 transition-all">
+											<button
+												type="button"
+												onClick={() => fileInputRef.current?.click()}
+												className="size-48 rounded-[2rem] border-2 border-dashed border-primary/20 flex items-center justify-center hover:bg-primary/5 transition-all"
+												aria-label="Add more images"
+											>
 												<Plus className="size-6 text-primary opacity-30" />
-											</div>
+											</button>
 										</div>
-									)}
-								</div>
+									</div>
+								)}
 
 								{/* AI Actions */}
 								{images.length > 0 && (
@@ -677,9 +701,9 @@ export default function DesignSystemV2() {
 												Strengths
 											</h4>
 											<ul className="space-y-2">
-												{system.goodThings?.slice(0, 3).map((t, i) => (
+												{system.goodThings?.slice(0, 3).map((t) => (
 													<li
-														key={i}
+														key={t}
 														className="text-xs font-bold flex items-center gap-2"
 													>
 														<CheckCircle2 className="size-3 text-green-500" />{" "}
@@ -693,9 +717,9 @@ export default function DesignSystemV2() {
 												Recommendations
 											</h4>
 											<ul className="space-y-2">
-												{system.suggestions?.slice(0, 3).map((t, i) => (
+												{system.suggestions?.slice(0, 3).map((t) => (
 													<li
-														key={i}
+														key={t}
 														className="text-xs font-bold flex items-center gap-2"
 													>
 														<Lightbulb className="size-3 text-amber-500" /> {t}

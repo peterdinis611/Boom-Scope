@@ -77,6 +77,7 @@ export default function SettingsPage() {
 				<div className="flex flex-col gap-1 rounded-lg border border-border p-1">
 					{tabs.map((tab) => (
 						<button
+							type="button"
 							key={tab.id}
 							onClick={() => setActiveTab(tab.id)}
 							className={cn(

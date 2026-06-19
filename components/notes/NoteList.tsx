@@ -1,5 +1,7 @@
 "use client";
 
+import { stripHtml } from "@/lib/strip-html";
+
 import { usePaginatedQuery } from "convex/react";
 import {
 	Calendar,
@@ -161,10 +163,9 @@ export function NoteList() {
 									</div>
 								</CardHeader>
 								<CardContent className="pb-3">
-									<div
-										className="line-clamp-3 text-sm text-muted-foreground prose-sm prose-p:my-0"
-										dangerouslySetInnerHTML={{ __html: note.content }}
-									/>
+									<div className="line-clamp-3 text-sm text-muted-foreground prose-sm prose-p:my-0">
+										{stripHtml(note.content)}
+									</div>
 								</CardContent>
 								<CardFooter className="flex items-center justify-between gap-2 pt-0 text-xs text-muted-foreground">
 									<div className="flex items-center gap-1">

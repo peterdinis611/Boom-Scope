@@ -25,6 +25,10 @@ const DEFAULT_PARAMS: PlaceholderImageParams = {
 	square: false,
 };
 
+function generateImageSeed() {
+	return `image-${crypto.randomUUID().slice(0, 8)}`;
+}
+
 export function PlaceholderImageStudio() {
 	const [params, setParams] = useState<PlaceholderImageParams>(DEFAULT_PARAMS);
 	const [previewKey, setPreviewKey] = useState(0);
@@ -44,6 +48,10 @@ export function PlaceholderImageStudio() {
 	const copyUrl = async () => {
 		await navigator.clipboard.writeText(imageUrl);
 		toast.success("URL copied to clipboard");
+	};
+
+	const assignRandomSeed = () => {
+		updateParams({ seed: generateImageSeed() });
 	};
 
 	const handleDownload = () => {
@@ -149,10 +157,8 @@ export function PlaceholderImageStudio() {
 							type="button"
 							variant="outline"
 							size="icon"
-							onClick={() =>
-								updateParams({ seed: `image-${Date.now().toString(36)}` })
-							}
-							title="Random seed"
+							onClick={assignRandomSeed}
+							aria-label="Random seed"
 						>
 							<Shuffle className="size-4" />
 						</Button>
@@ -186,6 +192,7 @@ export function PlaceholderImageStudio() {
 						max={10}
 						step={1}
 						value={params.blur ?? 0}
+						aria-label="Blur"
 						onChange={(e) =>
 							updateParams({ blur: Number(e.target.value) || 0 })
 						}

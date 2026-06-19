@@ -39,10 +39,8 @@ function NavItemLink({
 
 	if (!item.href) {
 		return (
-			<div
-				role="link"
+			<span
 				aria-disabled="true"
-				tabIndex={-1}
 				className="flex cursor-not-allowed items-center gap-3 rounded-xl px-2.5 py-2 text-sm text-muted-foreground opacity-70"
 			>
 				<span
@@ -54,7 +52,7 @@ function NavItemLink({
 					<Icon className="size-4" aria-hidden="true" />
 				</span>
 				<span className="font-medium leading-none">{item.label}</span>
-			</div>
+			</span>
 		);
 	}
 
@@ -231,5 +229,3 @@ export function DashboardMobileNav() {
 		</Root>
 	);
 }
-
-export { DASHBOARD_NAV_ITEMS as navItems };

@@ -94,12 +94,15 @@ export function ClipboardManager() {
 									return (
 										<div
 											key={item.id}
-											onClick={() =>
-												copy(item.text, "Item copied from clipboard history")
-											}
-											className="group relative p-3 rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 cursor-pointer flex items-center justify-between gap-3"
+											className="group relative rounded-2xl bg-muted/20 hover:bg-primary/5 border border-border/40 hover:border-primary/20 transition-all duration-300 flex items-center justify-between gap-3"
 										>
-											<div className="flex items-center gap-3 min-w-0 flex-1">
+											<button
+												type="button"
+												onClick={() =>
+													copy(item.text, "Item copied from clipboard history")
+												}
+												className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left"
+											>
 												{/* Left side thumbnail helper (color block or icon) */}
 												{isHex ? (
 													<div
@@ -126,10 +129,10 @@ export function ClipboardManager() {
 														)}
 													</span>
 												</div>
-											</div>
+											</button>
 
 											{/* Copy & Delete Trigger */}
-											<div className="flex items-center gap-1.5 shrink-0">
+											<div className="flex items-center gap-1.5 shrink-0 pr-3">
 												{copiedValue === item.text ? (
 													<Check className="size-4 text-emerald-500" />
 												) : (
@@ -141,6 +144,7 @@ export function ClipboardManager() {
 														e.stopPropagation();
 														deleteHistoryItem(item.id);
 													}}
+													aria-label="Remove item"
 													className="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all duration-300"
 												>
 													<Trash2 className="size-3.5" />

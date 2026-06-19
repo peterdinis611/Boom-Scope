@@ -267,9 +267,9 @@ export default function GeneratorPage() {
 
 							{/* Suggestion Pills */}
 							<div className="flex flex-wrap gap-2 pt-2 border-t border-border/20">
-								{SUGGESTIONS.map((s, idx) => (
+								{SUGGESTIONS.map((s) => (
 									<button
-										key={idx}
+										key={s.text}
 										type="button"
 										onClick={() => handleSuggestionClick(s.text)}
 										disabled={isGenerating}

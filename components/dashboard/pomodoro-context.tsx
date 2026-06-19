@@ -2,7 +2,13 @@
 
 import type React from "react";
 import { useMachine } from "@xstate/react";
-import { createContext, useContext, useEffect } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+} from "react";
 import { toast } from "sonner";
 import { getPomodoroSettings, savePomodoroSettings } from "@/lib/pomodoro-db";
 import {
@@ -79,36 +85,53 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 		send({ type: "ACK_COMPLETE" });
 	}, [justCompleted, completedMode, send]);
 
-	const toggleTimer = () => send({ type: "TOGGLE" });
-	const resetTimer = () => send({ type: "RESET" });
-	const skipMode = () => send({ type: "SKIP_MODE" });
-	const setMode = (newMode: PomodoroMode) =>
-		send({ type: "SET_MODE", mode: newMode });
-	const updateSettings = (newSettings: Partial<PomodoroSettings>) => {
-		const updated = { ...settings, ...newSettings };
-		send({ type: "UPDATE_SETTINGS", settings: newSettings });
-		savePomodoroSettings(updated);
-	};
+	const toggleTimer = useCallback(() => send({ type: "TOGGLE" }), [send]);
+	const resetTimer = useCallback(() => send({ type: "RESET" }), [send]);
+	const skipMode = useCallback(() => send({ type: "SKIP_MODE" }), [send]);
+	const setMode = useCallback(
+		(newMode: PomodoroMode) => send({ type: "SET_MODE", mode: newMode }),
+		[send],
+	);
+	const updateSettings = useCallback(
+		(newSettings: Partial<PomodoroSettings>) => {
+			const updated = { ...settings, ...newSettings };
+			send({ type: "UPDATE_SETTINGS", settings: newSettings });
+			savePomodoroSettings(updated);
+		},
+		[send, settings],
+	);
 
 	const progress = getPomodoroProgress(mode, timeLeft, settings);
 
+	const value = useMemo(
+		() => ({
+			timeLeft,
+			isActive,
+			mode,
+			settings,
+			progress,
+			toggleTimer,
+			resetTimer,
+			skipMode,
+			setMode,
+			updateSettings,
+		}),
+		[
+			timeLeft,
+			isActive,
+			mode,
+			settings,
+			progress,
+			toggleTimer,
+			resetTimer,
+			skipMode,
+			setMode,
+			updateSettings,
+		],
+	);
+
 	return (
-		<PomodoroContext.Provider
-			value={{
-				timeLeft,
-				isActive,
-				mode,
-				settings,
-				progress,
-				toggleTimer,
-				resetTimer,
-				skipMode,
-				setMode,
-				updateSettings,
-			}}
-		>
-			{children}
-		</PomodoroContext.Provider>
+		<PomodoroContext.Provider value={value}>{children}</PomodoroContext.Provider>
 	);
 }
 

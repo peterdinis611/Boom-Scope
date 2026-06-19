@@ -1,3 +1,5 @@
+import { sanitizeNoteHtml } from "@/lib/sanitize-note-html";
+
 /**
  * Utility to download a note as a .txt file.
  * Strips HTML tags from the content to provide a clean text file.
@@ -6,7 +8,7 @@ export function downloadNoteAsTxt(title: string, content: string) {
 	// Simple HTML to text conversion by creating a temporary DOM element
 	// This works in the browser environment
 	const tempDiv = document.createElement("div");
-	tempDiv.innerHTML = content;
+	tempDiv.innerHTML = sanitizeNoteHtml(content);
 	const plainText = tempDiv.textContent || tempDiv.innerText || "";
 
 	const element = document.createElement("a");
@@ -47,7 +49,7 @@ export async function downloadNoteAsPdf(title: string, content: string) {
 	// Add Content
 	const contentEl = document.createElement("div");
 	contentEl.className = "prose prose-sm max-w-none";
-	contentEl.innerHTML = content;
+	contentEl.innerHTML = sanitizeNoteHtml(content);
 	element.appendChild(contentEl);
 
 	const opt = {

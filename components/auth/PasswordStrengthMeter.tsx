@@ -58,13 +58,12 @@ export function PasswordStrengthMeter({
 			aria-live="polite"
 		>
 			<div className="flex items-center justify-between gap-3">
-				<div
-					className="flex flex-1 gap-1"
-					role="progressbar"
-					aria-valuenow={score}
-					aria-valuemin={0}
-					aria-valuemax={4}
+				<meter
+					min={0}
+					max={4}
+					value={score}
 					aria-label="Password strength"
+					className="flex h-1 flex-1 gap-1 border-0 bg-transparent"
 				>
 					{[1, 2, 3, 4].map((segment) => (
 						<div
@@ -75,7 +74,7 @@ export function PasswordStrengthMeter({
 							)}
 						/>
 					))}
-				</div>
+				</meter>
 				<span
 					className={cn("shrink-0 text-xs font-medium", TEXT_COLORS[score])}
 				>

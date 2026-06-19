@@ -513,7 +513,7 @@ function DesignPageContent() {
 				);
 				if (picked.length) {
 					clipboardRef.current = picked.map(
-						(p) => JSON.parse(JSON.stringify(p)) as CanvasElement,
+						(p) => structuredClone(p) as CanvasElement,
 					);
 					toast.success("Copied!");
 				}
@@ -731,6 +731,7 @@ function DesignPageContent() {
 				onChange={handleImageUpload}
 				className="hidden"
 				accept="image/*"
+				aria-label="Upload image"
 			/>
 			<input
 				type="file"
@@ -738,6 +739,7 @@ function DesignPageContent() {
 				onChange={handleJsonImport}
 				className="hidden"
 				accept="application/json,.json"
+				aria-label="Import JSON design"
 			/>
 
 			<CanvasTopBar
@@ -964,6 +966,7 @@ function DesignPageContent() {
 																: LinkedinIcon;
 												return (
 													<button
+														type="button"
 														key={preset.id}
 														onClick={() =>
 															setCanvasSize({
@@ -1018,6 +1021,7 @@ function DesignPageContent() {
 													preset.icon === "smartphone" ? Smartphone : Tablet;
 												return (
 													<button
+														type="button"
 														key={preset.id}
 														onClick={() =>
 															setCanvasSize({
@@ -1195,6 +1199,7 @@ function DesignPageContent() {
 											min="0"
 											max="1"
 											step="0.01"
+											aria-label="Opacity for all selected elements"
 											value={
 												elements.find((e) => e.id === selectedIds[0])
 													?.opacity ?? 1
@@ -1213,6 +1218,7 @@ function DesignPageContent() {
 									{/* Visibility & Lock Quick Controls */}
 									<div className="grid grid-cols-2 gap-3 p-1 rounded-2xl bg-accent border border-border shadow-inner">
 										<button
+											type="button"
 											onClick={() =>
 												updateSelectedElement({
 													isVisible: selectedElement.isVisible === false,
@@ -1251,6 +1257,7 @@ function DesignPageContent() {
 											</div>
 										</div>
 										<button
+											type="button"
 											onClick={() =>
 												updateSelectedElement({
 													isLocked: !selectedElement.isLocked,
@@ -1393,6 +1400,7 @@ function DesignPageContent() {
 												type="range"
 												min="0"
 												max="360"
+												aria-label="Rotation"
 												value={selectedElement.rotation || 0}
 												onChange={(e) =>
 													updateSelectedElement({
@@ -1438,6 +1446,7 @@ function DesignPageContent() {
 											</p>
 											<div className="grid grid-cols-2 gap-2 p-1.5 bg-foreground/5 rounded-2xl border border-border">
 												<button
+													type="button"
 													onClick={() =>
 														updateSelectedElement({ fillType: "solid" })
 													}
@@ -1451,6 +1460,7 @@ function DesignPageContent() {
 													Solid
 												</button>
 												<button
+													type="button"
 													onClick={() =>
 														updateSelectedElement({ fillType: "gradient" })
 													}
@@ -1546,6 +1556,7 @@ function DesignPageContent() {
 													type="range"
 													min="0"
 													max="20"
+													aria-label="Stroke width"
 													value={selectedElement.strokeWidth || 0}
 													onChange={(e) =>
 														updateSelectedElement({
@@ -1561,6 +1572,7 @@ function DesignPageContent() {
 														{ label: "Dotted", value: [2, 4] },
 													].map((style) => (
 														<button
+															type="button"
 															key={style.label}
 															onClick={() =>
 																updateSelectedElement({ dash: style.value })
@@ -1595,6 +1607,7 @@ function DesignPageContent() {
 												min="0"
 												max="1"
 												step="0.01"
+												aria-label="Opacity"
 												value={selectedElement.opacity ?? 1}
 												onChange={(e) =>
 													updateSelectedElement({
@@ -1682,6 +1695,7 @@ function DesignPageContent() {
 														onChange={(e) =>
 															updateSelectedElement({ text: e.target.value })
 														}
+														aria-label="Text content"
 														className="w-full bg-background border border-border focus:border-primary/50 transition-all rounded-2xl p-4 text-xs h-24 outline-none resize-none font-bold"
 													/>
 												</div>

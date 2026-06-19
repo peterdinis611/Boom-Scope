@@ -481,6 +481,7 @@ const ImageInserter = ({ editor }: { editor: Editor }) => {
 					type="file"
 					accept="image/*"
 					className="hidden"
+					aria-label="Upload image from device"
 					onChange={insertFromFile}
 				/>
 			</PopoverContent>
@@ -1000,8 +1001,10 @@ export function NoteEditor({
 		>
 			{/* Backdrop for focus mode */}
 			{isFocusMode && (
-				<div
-					className="fixed inset-0 -z-10 bg-background/80 backdrop-blur-sm"
+				<button
+					type="button"
+					aria-label="Exit focus mode"
+					className="fixed inset-0 -z-10 border-0 bg-background/80 p-0 backdrop-blur-sm"
 					onClick={() => setIsFocusMode(false)}
 				/>
 			)}

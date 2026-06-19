@@ -58,14 +58,17 @@ export function ClipboardPanel() {
 							return (
 								<div
 									key={item.id}
-									onClick={() =>
-										copy(item.text, "Item copied from clipboard history")
-									}
 									className={cn(
-										"group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50",
+										"group flex items-center justify-between gap-3 rounded-lg border border-border transition-colors hover:bg-muted/50",
 									)}
 								>
-									<div className="flex min-w-0 flex-1 items-center gap-3">
+									<button
+										type="button"
+										onClick={() =>
+											copy(item.text, "Item copied from clipboard history")
+										}
+										className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left"
+									>
 										{isHex ? (
 											<div
 												className="size-7 shrink-0 rounded-md border border-border"
@@ -87,8 +90,8 @@ export function ClipboardPanel() {
 												})}
 											</span>
 										</div>
-									</div>
-									<div className="flex shrink-0 items-center gap-1">
+									</button>
+									<div className="flex shrink-0 items-center gap-1 pr-3">
 										{copiedValue === item.text ? (
 											<Check className="size-4 text-success" />
 										) : (

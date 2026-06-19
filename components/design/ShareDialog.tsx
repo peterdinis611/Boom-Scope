@@ -46,6 +46,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 						<div className="absolute top-0 right-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-pink-500" />
 
 						<button
+							type="button"
 							onClick={onClose}
 							className="absolute top-8 right-8 p-3 rounded-full hover:bg-accent text-foreground/40 hover:text-foreground transition-all"
 						>
