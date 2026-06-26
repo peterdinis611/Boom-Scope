@@ -8,6 +8,7 @@ import {
 	Palette,
 	Settings as SettingsIcon,
 	Sparkles,
+	SquareKanban,
 	StickyNote,
 	Timer,
 } from "lucide-react";
@@ -20,6 +21,7 @@ export type DashboardNavId =
 	| "notes"
 	| "links"
 	| "sticky-notes"
+	| "tasks"
 	| "design"
 	| "design-system"
 	| "generate"
@@ -106,6 +108,17 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				activeIconClassName:
 					"bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/25",
 				href: "/dashboard/sticky-notes" as Route,
+			},
+			{
+				id: "tasks",
+				label: "Tasks",
+				description: "Kanban board for project work",
+				icon: SquareKanban,
+				iconClassName:
+					"bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/15 group-hover:bg-teal-500/15",
+				activeIconClassName:
+					"bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-500/25",
+				href: "/dashboard/tasks" as Route,
 			},
 		],
 	},

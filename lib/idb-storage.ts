@@ -8,6 +8,7 @@ export const IDB_KEYS = {
 	importedDesign: "imported_design",
 	importedViewport: "imported_viewport",
 	pomodoroSettings: "pomodoro_settings",
+	pomodoroSessions: "pomodoro_sessions",
 } as const;
 
 let dbPromise: Promise<IDBDatabase> | null = null;

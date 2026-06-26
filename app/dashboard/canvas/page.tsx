@@ -38,6 +38,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ColorPickerGrid } from "@/components/design/canvas/ColorPickerGrid";
+import { DesignSystemTokensPanel } from "@/components/design/canvas/DesignSystemTokensPanel";
 import { CanvasTopBar } from "@/components/design/canvas/CanvasTopBar";
 import { LayerAddMenu, LayerPanelHeader } from "@/components/design/canvas/LayerAddMenu";
 import { CanvasZoomControls } from "@/components/design/canvas/CanvasZoomControls";
@@ -1855,7 +1856,26 @@ function DesignPageContent() {
 										/>
 									</div>
 
-									{/* Default draw colors */}
+									<DesignSystemTokensPanel
+										projectId={selectedProjectId}
+										onApplyColor={(hex) => {
+											setFillColor(hex);
+											setStrokeColor(hex);
+											if (selectedIds.length > 0) {
+												updateSelectedElement({ fill: hex, stroke: hex });
+											}
+											toast.success("Color applied");
+										}}
+										onApplyFont={(font) => {
+											if (selectedIds.length > 0) {
+												updateSelectedElement({ fontFamily: font });
+												toast.success("Font applied");
+											} else {
+												toast.info("Select a text layer to apply a font");
+											}
+										}}
+									/>
+
 									<div className="space-y-4">
 										<p className="text-xs font-medium text-muted-foreground">
 											Default colors for new layers

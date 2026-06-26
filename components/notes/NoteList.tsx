@@ -2,7 +2,7 @@
 
 import { stripHtml } from "@/lib/strip-html";
 
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import {
 	Calendar,
 	Download,
@@ -32,6 +32,9 @@ import { cn } from "@/lib/utils";
 export function NoteList() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+	const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+	const tagOptions = useQuery(api.notes.listTags);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -42,7 +45,10 @@ export function NoteList() {
 
 	const { results, status, loadMore } = usePaginatedQuery(
 		api.notes.list,
-		{ searchTerm: debouncedSearchTerm || undefined },
+		{
+			searchTerm: debouncedSearchTerm || undefined,
+			tag: selectedTag ?? undefined,
+		},
 		{ initialNumItems: 9 },
 	);
 
@@ -83,6 +89,31 @@ export function NoteList() {
 					</Button>
 				</Link>
 			</div>
+
+			{tagOptions && tagOptions.length > 0 ? (
+				<div className="flex flex-wrap gap-2">
+					<Button
+						type="button"
+						size="xs"
+						variant={selectedTag === null ? "default" : "outline"}
+						onClick={() => setSelectedTag(null)}
+					>
+						All
+					</Button>
+					{tagOptions.map(({ tag, count }) => (
+						<Button
+							key={tag}
+							type="button"
+							size="xs"
+							variant={selectedTag === tag ? "default" : "outline"}
+							onClick={() => setSelectedTag(tag)}
+						>
+							{tag}
+							<span className="text-muted-foreground">({count})</span>
+						</Button>
+					))}
+				</div>
+			) : null}
 
 			{preservedResults.length === 0 &&
 			(isFirstLoad || status === "LoadingFirstPage") ? (
@@ -166,6 +197,18 @@ export function NoteList() {
 									<div className="line-clamp-3 text-sm text-muted-foreground prose-sm prose-p:my-0">
 										{stripHtml(note.content)}
 									</div>
+									{note.tags && note.tags.length > 0 ? (
+										<div className="mt-3 flex flex-wrap gap-1">
+											{note.tags.map((tag) => (
+												<span
+													key={tag}
+													className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+												>
+													{tag}
+												</span>
+											))}
+										</div>
+									) : null}
 								</CardContent>
 								<CardFooter className="flex items-center justify-between gap-2 pt-0 text-xs text-muted-foreground">
 									<div className="flex items-center gap-1">

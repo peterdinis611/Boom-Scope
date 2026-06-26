@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { NoteEditor } from "@/components/notes/NoteEditor";
+import { NoteTagsField } from "@/components/notes/NoteTagsField";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ interface NoteFormProps {
 		title: string;
 		content: string;
 		projectId?: Id<"projects">;
+		tags?: string[];
 	};
 }
 
@@ -42,12 +44,13 @@ export function NoteForm({ initialData }: NoteFormProps) {
 	const [projectId, setProjectId] = useState<Id<"projects"> | undefined>(
 		initialData.projectId,
 	);
+	const [tags, setTags] = useState<string[]>(initialData.tags ?? []);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const handleSave = async () => {
-		const validation = noteSchema.safeParse({ title, content, projectId });
+		const validation = noteSchema.safeParse({ title, content, projectId, tags });
 
 		if (!validation.success) {
 			toast.error(validation.error.issues[0]?.message ?? "Invalid input.");
@@ -61,6 +64,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 				title,
 				content,
 				projectId,
+				tags,
 			});
 			toast.success("Note was saved.");
 		} catch (error) {
@@ -151,6 +155,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 							<ProjectSelector value={projectId} onChange={setProjectId} />
 						</div>
 					</div>
+					<NoteTagsField tags={tags} onChange={setTags} />
 				</div>
 
 				<NoteEditor content={content} onChange={setContent} />

@@ -11,6 +11,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { getPomodoroSettings, savePomodoroSettings } from "@/lib/pomodoro-db";
+import { logPomodoroSession } from "@/lib/pomodoro-sessions";
 import {
 	getPomodoroProgress,
 	pomodoroMachine,
@@ -82,8 +83,12 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 			// Audio playback is optional.
 		}
 
+		if (completedMode === "focus") {
+			void logPomodoroSession("focus", settings.focusDuration / 60);
+		}
+
 		send({ type: "ACK_COMPLETE" });
-	}, [justCompleted, completedMode, send]);
+	}, [justCompleted, completedMode, send, settings.focusDuration]);
 
 	const toggleTimer = useCallback(() => send({ type: "TOGGLE" }), [send]);
 	const resetTimer = useCallback(() => send({ type: "RESET" }), [send]);

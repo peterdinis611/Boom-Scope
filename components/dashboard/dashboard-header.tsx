@@ -4,7 +4,12 @@ import { ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
+import {
+	CommandPalette,
+	CommandPaletteTrigger,
+} from "@/components/command-palette/command-palette";
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
@@ -27,6 +32,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 		notes: "Notes",
 		links: "Link Hub",
 		"sticky-notes": "Sticky Notes",
+		tasks: "Tasks",
 		canvas: "Canvas",
 		"design-system": "Design System",
 		v2: "Lab",
@@ -58,10 +64,12 @@ export function DashboardHeader() {
 	const { mode, setClipboardOpen } = useLayoutChrome();
 	const { isCollapsed, toggleSidebar } = useSidebar();
 	const { history } = useCopyToClipboard();
+	const [commandOpen, setCommandOpen] = useState(false);
 	const crumbs = buildBreadcrumbs(pathname);
 	const isImmersive = mode === "immersive";
 
 	return (
+		<>
 		<header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-6">
 			{!isImmersive ? <DashboardMobileNav /> : null}
 			{!isImmersive ? (
@@ -110,6 +118,9 @@ export function DashboardHeader() {
 
 			<div className="ml-auto flex shrink-0 items-center gap-2">
 				{mode === "default" ? (
+					<CommandPaletteTrigger onClick={() => setCommandOpen(true)} />
+				) : null}
+				{mode === "default" ? (
 					<HeaderQuickActions
 						onOpenClipboard={() => setClipboardOpen(true)}
 						clipboardCount={history.length}
@@ -119,5 +130,7 @@ export function DashboardHeader() {
 				<UserMenu />
 			</div>
 		</header>
+		<CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+		</>
 	);
 }

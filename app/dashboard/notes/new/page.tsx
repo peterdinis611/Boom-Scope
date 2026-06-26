@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { NoteEditor } from "@/components/notes/NoteEditor";
+import { NoteTagsField } from "@/components/notes/NoteTagsField";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,10 +24,11 @@ export default function NewNotePage() {
 	const [projectId, setProjectId] = useState<Id<"projects"> | undefined>(
 		undefined,
 	);
+	const [tags, setTags] = useState<string[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 
 	const handleSave = async () => {
-		const validation = noteSchema.safeParse({ title, content, projectId });
+		const validation = noteSchema.safeParse({ title, content, projectId, tags });
 
 		if (!validation.success) {
 			toast.error(validation.error.message);
@@ -39,6 +41,7 @@ export default function NewNotePage() {
 				title,
 				content,
 				projectId,
+				tags,
 			});
 			toast.success("Note was created.");
 			router.push(`/dashboard/notes/${id}`);
@@ -86,6 +89,7 @@ export default function NewNotePage() {
 								<ProjectSelector value={projectId} onChange={setProjectId} />
 							</div>
 						</div>
+						<NoteTagsField tags={tags} onChange={setTags} />
 					</div>
 
 					<NoteEditor

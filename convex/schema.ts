@@ -26,6 +26,7 @@ export default defineSchema({
 		content: v.string(),
 		projectId: v.optional(v.id("projects")),
 		userId: v.id("users"),
+		tags: v.optional(v.array(v.string())),
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),
@@ -85,4 +86,18 @@ export default defineSchema({
 		userId: v.id("users"),
 		items: v.string(),
 	}).index("by_userId", ["userId"]),
+	project_tasks: defineTable({
+		title: v.string(),
+		description: v.optional(v.string()),
+		status: v.union(
+			v.literal("todo"),
+			v.literal("in_progress"),
+			v.literal("done"),
+		),
+		projectId: v.id("projects"),
+		userId: v.id("users"),
+		position: v.number(),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_projectId", ["projectId"]),
 });

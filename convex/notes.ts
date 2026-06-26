@@ -8,6 +8,7 @@ export const list = query({
 		paginationOpts: paginationOptsValidator,
 		searchTerm: v.optional(v.string()),
 		projectId: v.optional(v.id("projects")),
+		tag: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
@@ -50,11 +51,43 @@ export const list = query({
 					note.title.toLowerCase().includes(lowerSearch) ||
 					note.content.toLowerCase().includes(lowerSearch) ||
 					(note.projectName &&
-						note.projectName.toLowerCase().includes(lowerSearch)),
+						note.projectName.toLowerCase().includes(lowerSearch)) ||
+					note.tags?.some((tag) => tag.toLowerCase().includes(lowerSearch)),
+			);
+		}
+
+		if (args.tag?.trim()) {
+			const tag = args.tag.trim().toLowerCase();
+			filteredPage = filteredPage.filter((note) =>
+				note.tags?.includes(tag),
 			);
 		}
 
 		return { ...result, page: filteredPage };
+	},
+});
+
+export const listTags = query({
+	args: {},
+	handler: async (ctx) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId) return [];
+
+		const notes = await ctx.db
+			.query("notes")
+			.withIndex("by_userId", (q) => q.eq("userId", userId))
+			.collect();
+
+		const counts = new Map<string, number>();
+		for (const note of notes) {
+			for (const tag of note.tags ?? []) {
+				counts.set(tag, (counts.get(tag) ?? 0) + 1);
+			}
+		}
+
+		return [...counts.entries()]
+			.map(([tag, count]) => ({ tag, count }))
+			.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 	},
 });
 
@@ -74,15 +107,20 @@ export const create = mutation({
 		title: v.string(),
 		content: v.string(),
 		projectId: v.optional(v.id("projects")),
+		tags: v.optional(v.array(v.string())),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
 		if (!userId) throw new ConvexError("Not authenticated");
+		const tags = args.tags
+			?.map((tag) => tag.trim().toLowerCase())
+			.filter(Boolean);
 		return await ctx.db.insert("notes", {
 			title: args.title,
 			content: args.content,
 			projectId: args.projectId,
 			userId,
+			tags: tags?.length ? [...new Set(tags)] : undefined,
 		});
 	},
 });
@@ -93,6 +131,7 @@ export const update = mutation({
 		title: v.optional(v.string()),
 		content: v.optional(v.string()),
 		projectId: v.optional(v.id("projects")),
+		tags: v.optional(v.array(v.string())),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
@@ -101,8 +140,15 @@ export const update = mutation({
 		if (!existing || existing.userId !== userId)
 			throw new ConvexError("Unauthorized");
 
-		const { noteId, ...updates } = args;
-		await ctx.db.patch(noteId, updates);
+		const { noteId, tags, ...updates } = args;
+		const patch: Record<string, unknown> = { ...updates };
+		if (tags !== undefined) {
+			const normalized = tags
+				.map((tag) => tag.trim().toLowerCase())
+				.filter(Boolean);
+			patch.tags = normalized.length ? [...new Set(normalized)] : undefined;
+		}
+		await ctx.db.patch(noteId, patch);
 	},
 });
 

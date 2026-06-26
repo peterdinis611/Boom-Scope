@@ -15,6 +15,7 @@ export const noteSchema = z.object({
 		.max(100, "Note title is too long"),
 	content: z.string().min(1, "Note content cannot be empty"),
 	projectId: z.string().optional(),
+	tags: z.array(z.string()).optional(),
 });
 
 export const linkSchema = z.object({

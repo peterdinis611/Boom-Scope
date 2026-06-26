@@ -6,8 +6,10 @@ import {
 	FolderKanban,
 	Layout,
 	Palette,
+	SquareKanban,
 	Sparkles,
 } from "lucide-react";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
@@ -45,6 +47,13 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 					href="/dashboard/notes"
 				/>
 				<StatCard
+					title="Tasks"
+					value={stats?.tasks ?? "—"}
+					description="Kanban board per project"
+					icon={SquareKanban}
+					href="/dashboard/tasks"
+				/>
+				<StatCard
 					title="Canvas"
 					value="Open"
 					description="Design workspace"
@@ -66,6 +75,8 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 					href="/dashboard/generator"
 				/>
 			</div>
+
+			<ActivityFeed />
 		</PageContainer>
 	);
 }
