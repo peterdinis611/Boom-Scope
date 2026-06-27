@@ -1,3 +1,18 @@
+import {
+	cachedIdbClear,
+	cachedIdbGet,
+	cachedIdbRemove,
+	cachedIdbSet,
+} from "@/lib/effect/idb-ops";
+import { invalidateMemoryCache } from "@/lib/effect/idb-cache";
+import {
+	flushIdbWriteQueue,
+	queueIdbWrite,
+	registerIdbFlushHandler,
+	resetIdbWriteQueue,
+} from "@/lib/effect/idb-write-queue";
+import { runPromise } from "@/lib/effect/runtime";
+
 const DB_NAME = "boom-scope";
 const STORE_NAME = "kv";
 const DB_VERSION = 2;
@@ -55,25 +70,56 @@ function runTransaction<T>(
 	);
 }
 
-export async function idbGet<T>(key: string): Promise<T | null> {
+async function rawIdbGet<T>(key: string): Promise<T | null> {
 	const value = await runTransaction("readonly", (store) => store.get(key));
 	return value === undefined ? null : (value as T);
 }
 
-export async function idbSet<T>(key: string, value: T): Promise<void> {
+async function rawIdbSet<T>(key: string, value: T): Promise<void> {
 	await runTransaction("readwrite", (store) => store.put(value, key));
 }
 
-export async function idbRemove(key: string): Promise<void> {
+async function rawIdbRemove(key: string): Promise<void> {
 	await runTransaction("readwrite", (store) => store.delete(key));
 }
 
-export async function idbClear(): Promise<void> {
+async function rawIdbClear(): Promise<void> {
 	await runTransaction("readwrite", (store) => store.clear());
+}
+
+registerIdbFlushHandler(async (entries) => {
+	for (const [key, value] of entries) {
+		await rawIdbSet(key, value);
+	}
+});
+
+export async function idbGet<T>(key: string): Promise<T | null> {
+	return runPromise(
+		cachedIdbGet(key, () => rawIdbGet<T>(key)),
+	);
+}
+
+export async function idbSet<T>(key: string, value: T): Promise<void> {
+	queueIdbWrite(key, value);
+}
+
+export async function idbSetImmediate<T>(key: string, value: T): Promise<void> {
+	await runPromise(cachedIdbSet(key, value, () => rawIdbSet(key, value)));
+}
+
+export async function idbRemove(key: string): Promise<void> {
+	await runPromise(cachedIdbRemove(key, () => rawIdbRemove(key)));
+}
+
+export async function idbClear(): Promise<void> {
+	await flushIdbWriteQueue();
+	await runPromise(cachedIdbClear(() => rawIdbClear()));
 }
 
 /** Reset the cached DB connection (for tests). */
 export function idbResetConnection(): void {
+	resetIdbWriteQueue();
+	invalidateMemoryCache();
 	if (dbPromise) {
 		void dbPromise.then((db) => db.close()).catch(() => {});
 	}

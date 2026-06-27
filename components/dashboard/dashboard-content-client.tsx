@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useQuery } from "convex/react";
 import {
 	FileText,
@@ -9,11 +10,21 @@ import {
 	SquareKanban,
 	Sparkles,
 } from "lucide-react";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
+
+const ActivityFeed = dynamic(
+	() =>
+		import("@/components/dashboard/activity-feed").then(
+			(module) => module.ActivityFeed,
+		),
+	{
+		loading: () => <Skeleton className="h-48 w-full rounded-xl" />,
+	},
+);
 
 type ViewerSummary = {
 	name?: string | null;

@@ -1,3 +1,5 @@
+import { Effect } from "effect";
+import { runFork } from "@/lib/effect/runtime";
 import { IDB_KEYS, idbGet, idbSet } from "@/lib/idb-storage";
 import type { PomodoroMode } from "@/machines";
 
@@ -22,21 +24,24 @@ export async function logPomodoroSession(
 	mode: PomodoroMode,
 	durationMinutes: number,
 ): Promise<void> {
-	try {
-		const sessions = await getPomodoroSessions();
-		const next: PomodoroSession = {
-			id: crypto.randomUUID(),
-			mode,
-			durationMinutes,
-			completedAt: Date.now(),
-		};
-		await idbSet(
-			IDB_KEYS.pomodoroSessions,
-			[next, ...sessions].slice(0, MAX_SESSIONS),
-		);
-	} catch {
-		// Optional analytics — ignore storage failures.
-	}
+	runFork(
+		Effect.tryPromise({
+			try: async () => {
+				const sessions = await getPomodoroSessions();
+				const next: PomodoroSession = {
+					id: crypto.randomUUID(),
+					mode,
+					durationMinutes,
+					completedAt: Date.now(),
+				};
+				await idbSet(
+					IDB_KEYS.pomodoroSessions,
+					[next, ...sessions].slice(0, MAX_SESSIONS),
+				);
+			},
+			catch: () => undefined,
+		}).pipe(Effect.ignore),
+	);
 }
 
 export type PomodoroStats = {

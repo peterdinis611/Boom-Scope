@@ -12,6 +12,7 @@ import {
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
 	Dialog,
 	DialogContent,
@@ -39,12 +40,7 @@ type CommandPaletteProps = {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 	const router = useRouter();
 	const [term, setTerm] = useState("");
-	const [debouncedTerm, setDebouncedTerm] = useState("");
-
-	useEffect(() => {
-		const timer = setTimeout(() => setDebouncedTerm(term), 200);
-		return () => clearTimeout(timer);
-	}, [term]);
+	const debouncedTerm = useDebouncedValue(term, 200);
 
 	useEffect(() => {
 		if (!open) setTerm("");

@@ -6,11 +6,15 @@ import {
 	idbReadLegacyStore,
 	idbRemove,
 	idbSet,
+	idbSetImmediate,
 } from "@/lib/idb-storage";
+import { flushIdbWriteQueue } from "@/lib/effect/idb-write-queue";
+import { idbResetConnection } from "@/lib/idb-storage";
 import { getPomodoroSettings, savePomodoroSettings } from "@/lib/pomodoro-db";
 
 describe("Lib: idb-storage", () => {
 	beforeEach(async () => {
+		idbResetConnection();
 		await idbClear();
 	});
 
@@ -20,6 +24,16 @@ describe("Lib: idb-storage", () => {
 			foo: "bar",
 			count: 42,
 		});
+		await flushIdbWriteQueue();
+		expect(await idbGet<{ foo: string; count: number }>("test-key")).toEqual({
+			foo: "bar",
+			count: 42,
+		});
+	});
+
+	test("persists queued writes to disk", async () => {
+		await idbSetImmediate("persist-key", "value");
+		expect(await idbGet("persist-key")).toBe("value");
 	});
 
 	test("remove deletes a key", async () => {

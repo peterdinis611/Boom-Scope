@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,17 +32,10 @@ import { cn } from "@/lib/utils";
 
 export function NoteList() {
 	const [searchTerm, setSearchTerm] = useState("");
-	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+	const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
 	const tagOptions = useQuery(api.notes.listTags);
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedSearchTerm(searchTerm);
-		}, 300);
-		return () => clearTimeout(timer);
-	}, [searchTerm]);
 
 	const { results, status, loadMore } = usePaginatedQuery(
 		api.notes.list,
