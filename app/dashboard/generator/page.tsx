@@ -26,6 +26,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { IDB_KEYS, idbGet, idbRemove, idbSet } from "@/lib/idb-storage";
+import { formatAppDate, formatAppTime } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 interface GeneratedDesign {
@@ -467,12 +468,12 @@ export default function GeneratorPage() {
 									>
 										<div className="flex items-start justify-between gap-2">
 											<span className="text-xs text-muted-foreground">
-												{new Date(item.timestamp).toLocaleTimeString("sk-SK", {
+												{formatAppTime(item.timestamp, {
 													hour: "2-digit",
 													minute: "2-digit",
 												})}{" "}
 												-{" "}
-												{new Date(item.timestamp).toLocaleDateString("sk-SK", {
+												{formatAppDate(item.timestamp, {
 													day: "numeric",
 													month: "short",
 												})}

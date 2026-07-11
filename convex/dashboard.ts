@@ -6,10 +6,10 @@ export const dashboardStats = query({
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
 		if (!userId) {
-			return { projects: 0, notes: 0, designSystems: 0, tasks: 0 };
+			return { projects: 0, notes: 0, designSystems: 0, tasks: 0, stickyNotes: 0 };
 		}
 
-		const [projects, notes, designSystems, tasks] = await Promise.all([
+		const [projects, notes, designSystems, tasks, stickyBoard] = await Promise.all([
 			ctx.db
 				.query("projects")
 				.withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -26,13 +26,28 @@ export const dashboardStats = query({
 				.query("project_tasks")
 				.withIndex("by_userId", (q) => q.eq("userId", userId))
 				.collect(),
+			ctx.db
+				.query("sticky_note_boards")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.first(),
 		]);
+
+		let stickyNotes = 0;
+		if (stickyBoard?.items) {
+			try {
+				const parsed = JSON.parse(stickyBoard.items);
+				stickyNotes = Array.isArray(parsed) ? parsed.length : 0;
+			} catch {
+				stickyNotes = 0;
+			}
+		}
 
 		return {
 			projects: projects.length,
 			notes: notes.length,
 			designSystems: designSystems.length,
 			tasks: tasks.length,
+			stickyNotes,
 		};
 	},
 });

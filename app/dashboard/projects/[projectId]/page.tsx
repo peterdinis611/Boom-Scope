@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkLibrary } from "@/components/links/link-library";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { formatAppDate } from "@/lib/locale";
 
 export default function ProjectDetailPage() {
 	const params = useParams();
@@ -199,7 +200,7 @@ export default function ProjectDetailPage() {
 								</CardHeader>
 								<CardContent className="flex items-center gap-2 text-xs text-muted-foreground">
 									<Clock className="size-3.5" />
-									{new Date(design._creationTime).toLocaleDateString("sk-SK")}
+									{formatAppDate(design._creationTime)}
 								</CardContent>
 							</Card>
 						</Link>

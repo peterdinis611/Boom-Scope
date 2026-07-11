@@ -45,7 +45,7 @@ export default function SettingsPage() {
 		setIsUpdating(true);
 		try {
 			await updateUser({ name });
-			toast.success("Profilee updated successfully");
+			toast.success("Profile updated successfully");
 		} catch {
 			toast.error("Error updating profile");
 		} finally {

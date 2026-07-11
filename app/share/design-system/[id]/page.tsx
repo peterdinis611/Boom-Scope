@@ -104,7 +104,7 @@ export default async function ShareDesignSystemPage({ params }: Props) {
 				<section className="space-y-4">
 					<div className="flex items-center gap-2">
 						<Type className="size-4 text-muted-foreground" />
-						<h2 className="font-heading text-lg font-semibold">Typografia</h2>
+						<h2 className="font-heading text-lg font-semibold">Typography</h2>
 					</div>
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 						{system.fonts.map((font, idx) => (

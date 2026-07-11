@@ -19,7 +19,11 @@ import { StickyNoteCard } from "./sticky-note-card";
 
 const SAVE_DEBOUNCE_MS = 500;
 
-export function StickyNotesBoard() {
+type StickyNotesBoardProps = {
+	focusNoteId?: string | null;
+};
+
+export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 	const board = useQuery(api.sticky_notes.get);
 	const saveBoard = useMutation(api.sticky_notes.save);
 	const [notes, setNotes] = useState<StickyNoteItem[]>(readStickyNotesCache);
@@ -46,6 +50,18 @@ export function StickyNotesBoard() {
 
 		setActiveId((current) => current ?? serverNotes[0]?.id ?? null);
 	}, [board]);
+
+	useEffect(() => {
+		if (!focusNoteId || notes.length === 0) return;
+		if (!notes.some((note) => note.id === focusNoteId)) return;
+
+		setActiveId(focusNoteId);
+		requestAnimationFrame(() => {
+			document
+				.querySelector(`[data-sticky-note-id="${focusNoteId}"]`)
+				?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+		});
+	}, [focusNoteId, notes]);
 
 	useEffect(() => {
 		return () => {

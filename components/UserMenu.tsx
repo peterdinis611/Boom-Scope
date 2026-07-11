@@ -28,6 +28,12 @@ function getInitials(value: string | null | undefined) {
 	return local.slice(0, 2).toUpperCase();
 }
 
+function getTriggerLabel(name: string | null, email: string | null): string {
+	if (name?.trim()) return name.trim();
+	if (email) return email.split("@")[0] ?? email;
+	return "Account";
+}
+
 export function UserMenu() {
 	const viewer = useQuery(api.users.viewer);
 	const { signOut } = useAuthActions();
@@ -59,6 +65,7 @@ export function UserMenu() {
 	const name = viewer?.name ?? null;
 	const image = viewer?.image ?? undefined;
 	const display = name ?? email ?? "Unknown user";
+	const triggerLabel = getTriggerLabel(name, email);
 	const busy = signingOut || navPending;
 
 	if (isLoading) {
@@ -81,18 +88,18 @@ export function UserMenu() {
 					variant="ghost"
 					disabled={busy}
 					aria-label="Account menu"
-					className="h-9 max-w-[220px] gap-2 rounded-full border border-border/60 bg-background px-1.5 pr-2 shadow-xs hover:bg-accent/60"
+					className="h-9 min-w-0 max-w-[10.5rem] justify-start gap-1.5 overflow-hidden rounded-full border border-border/60 bg-background px-1.5 py-0 shadow-xs hover:bg-accent/60 sm:max-w-[12rem] md:max-w-[14rem]"
 				>
-					<Avatar className="size-7">
+					<Avatar className="size-7 shrink-0">
 						{image ? <AvatarImage src={image} alt={display} /> : null}
 						<AvatarFallback className="text-[10px] font-semibold">
 							{getInitials(name ?? email)}
 						</AvatarFallback>
 					</Avatar>
-					<span className="hidden min-w-0 truncate text-sm font-medium sm:inline">
-						{display}
+					<span className="hidden min-w-0 flex-1 truncate text-left text-sm font-medium sm:inline">
+						{triggerLabel}
 					</span>
-					<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+					<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
 				</Button>
 			</DropdownMenuTrigger>
 

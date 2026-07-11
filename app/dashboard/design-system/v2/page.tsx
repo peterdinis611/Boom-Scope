@@ -57,6 +57,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { APP_PALETTE_HEX } from "@/lib/canvas-colors";
 import { designSystemToFigmaTokensJson } from "@/lib/figma-tokens";
+import { formatAppDate } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 const aiSystemSchema = z.object({
@@ -207,7 +208,7 @@ export default function DesignSystemV2() {
 				toast.success("Design system saved!");
 			}
 		} catch {
-			toast.error("Ukladanie zlyhalo.");
+			toast.error("Save failed.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -358,7 +359,7 @@ export default function DesignSystemV2() {
 						onClick={() => setActiveTab("visual")}
 						className="gap-2"
 					>
-						<ImageIcon className="size-4" /> Visualny lab (AI)
+						<ImageIcon className="size-4" /> Visual lab (AI)
 					</Button>
 				</div>
 
@@ -457,12 +458,12 @@ export default function DesignSystemV2() {
 								{/* Fonts */}
 								<Card className="space-y-6 p-6">
 									<h2 className="font-heading text-lg font-semibold">
-										Typografia
+										Typography
 									</h2>
 									<div className="space-y-6">
 										<div className="flex gap-3">
 											<Input
-												placeholder="Title fontu (napr. Inter)"
+												placeholder="Font name (e.g. Inter)"
 												value={newFont}
 												onChange={(e) => setNewFont(e.target.value)}
 												className="h-12 rounded-xl bg-muted/20 border-none"
@@ -544,7 +545,7 @@ export default function DesignSystemV2() {
 													{h.projectName || "Untitled"}
 												</p>
 												<p className="text-[10px] text-muted-foreground opacity-60 font-medium">
-													{new Date(h._creationTime).toLocaleDateString()}
+													{formatAppDate(h._creationTime)}
 												</p>
 												<div className="flex gap-1.5 mt-4">
 													{h.colors.slice(0, 5).map((c, idx) => (

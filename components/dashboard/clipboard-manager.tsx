@@ -4,6 +4,7 @@ import { Check, Clipboard, Copy, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { formatAppTime } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 export function ClipboardManager() {
@@ -119,14 +120,11 @@ export function ClipboardManager() {
 														{item.text}
 													</p>
 													<span className="text-[8px] text-muted-foreground opacity-60">
-														{new Date(item.timestamp).toLocaleTimeString(
-															"sk-SK",
-															{
-																hour: "2-digit",
-																minute: "2-digit",
-																second: "2-digit",
-															},
-														)}
+														{formatAppTime(item.timestamp, {
+															hour: "2-digit",
+															minute: "2-digit",
+															second: "2-digit",
+														})}
 													</span>
 												</div>
 											</button>

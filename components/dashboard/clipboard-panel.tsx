@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { formatAppTime } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 import { useLayoutChrome } from "./layout-chrome-context";
 
@@ -84,7 +85,7 @@ export function ClipboardPanel() {
 												{item.text}
 											</p>
 											<span className="text-xs text-muted-foreground">
-												{new Date(item.timestamp).toLocaleTimeString("sk-SK", {
+												{formatAppTime(item.timestamp, {
 													hour: "2-digit",
 													minute: "2-digit",
 												})}

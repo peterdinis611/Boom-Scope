@@ -38,7 +38,7 @@ export default function SharePage() {
 			<div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 shadow-sm">
 				<div className="size-2 rounded-full bg-primary" />
 				<span className="text-sm text-muted-foreground">
-					Prezeranie: <span className="text-foreground">{design.name}</span>
+					Viewing: <span className="text-foreground">{design.name}</span>
 				</span>
 			</div>
 

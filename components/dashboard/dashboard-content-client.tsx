@@ -9,17 +9,30 @@ import {
 	Palette,
 	SquareKanban,
 	Sparkles,
+	StickyNote,
 } from "lucide-react";
+import { useMemo } from "react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
+import { parseStickyNoteItems } from "@/lib/sticky-notes";
 
 const ActivityFeed = dynamic(
 	() =>
 		import("@/components/dashboard/activity-feed").then(
 			(module) => module.ActivityFeed,
+		),
+	{
+		loading: () => <Skeleton className="h-48 w-full rounded-xl" />,
+	},
+);
+
+const StickyNotesPreview = dynamic(
+	() =>
+		import("@/components/dashboard/sticky-notes-preview").then(
+			(module) => module.StickyNotesPreview,
 		),
 	{
 		loading: () => <Skeleton className="h-48 w-full rounded-xl" />,
@@ -34,6 +47,12 @@ type ViewerSummary = {
 export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 	const greeting = viewer?.name ?? viewer?.email?.split("@")[0] ?? "User";
 	const stats = useQuery(api.dashboard.dashboardStats);
+	const stickyBoard = useQuery(api.sticky_notes.get);
+
+	const stickyNoteCount = useMemo(() => {
+		if (stickyBoard === undefined) return undefined;
+		return parseStickyNoteItems(stickyBoard.items).length;
+	}, [stickyBoard]);
 
 	return (
 		<PageContainer className="space-y-8">
@@ -56,6 +75,13 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 					description="Your notes and documents"
 					icon={FileText}
 					href="/dashboard/notes"
+				/>
+				<StatCard
+					title="Sticky Notes"
+					value={stats?.stickyNotes ?? stickyNoteCount ?? "—"}
+					description="Visual board for quick ideas"
+					icon={StickyNote}
+					href="/dashboard/sticky-notes"
 				/>
 				<StatCard
 					title="Tasks"
@@ -87,7 +113,10 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 				/>
 			</div>
 
-			<ActivityFeed />
+			<div className="grid gap-4 lg:grid-cols-2">
+				<StickyNotesPreview />
+				<ActivityFeed />
+			</div>
 		</PageContainer>
 	);
 }

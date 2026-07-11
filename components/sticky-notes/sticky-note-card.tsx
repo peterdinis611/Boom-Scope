@@ -118,6 +118,7 @@ export function StickyNoteCard({
 	return (
 		<div
 			ref={noteRef}
+			data-sticky-note-id={note.id}
 			className={cn(
 				"absolute flex flex-col overflow-hidden rounded-md shadow-md ring-1 ring-black/10 transition-shadow",
 				isActive && "z-20 shadow-lg ring-black/20",

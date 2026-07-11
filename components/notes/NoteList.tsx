@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
+import { formatAppDate } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
 export function NoteList() {
@@ -208,7 +209,7 @@ export function NoteList() {
 									<div className="flex items-center gap-1">
 										<Calendar className="size-3 opacity-60" />
 										<span>
-											{new Date(note._creationTime).toLocaleDateString("sk-SK")}
+											{formatAppDate(note._creationTime)}
 										</span>
 									</div>
 									{note.projectName ? (

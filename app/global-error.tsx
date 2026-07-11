@@ -11,7 +11,7 @@ export default function GlobalError({
 	reset: () => void;
 }) {
 	return (
-		<html lang="sk">
+		<html lang="en">
 			<body className="min-h-full font-sans antialiased">
 				<ErrorFallback
 					error={error}

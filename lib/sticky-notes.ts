@@ -109,3 +109,14 @@ function isStickyNoteItem(value: unknown): value is StickyNoteItem {
 		(item.height === undefined || typeof item.height === "number")
 	);
 }
+
+export function getStickyNotePreviewTitle(text: string): string {
+	const trimmed = text.trim();
+	if (!trimmed) return "Untitled sticky note";
+	const firstLine = trimmed.split("\n")[0]?.trim();
+	return firstLine.length > 80 ? `${firstLine.slice(0, 77)}…` : firstLine;
+}
+
+export function getStickyNoteHref(noteId: string): string {
+	return `/dashboard/sticky-notes?note=${noteId}`;
+}
