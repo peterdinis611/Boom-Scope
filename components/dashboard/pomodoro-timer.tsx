@@ -18,6 +18,7 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -30,6 +31,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { type PomodoroMode, usePomodoro } from "./pomodoro-context";
+
+const MODES: PomodoroMode[] = ["focus", "shortBreak", "longBreak"];
 
 export function PomodoroTimer() {
 	const {
@@ -52,6 +55,8 @@ export function PomodoroTimer() {
 		const secs = seconds % 60;
 		return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 	};
+
+	const formatMinutes = (seconds: number) => `${Math.round(seconds / 60)}m`;
 
 	const modeConfig: Record<
 		PomodoroMode,
@@ -80,33 +85,115 @@ export function PomodoroTimer() {
 	const { label, icon: Icon, color, description } = modeConfig[mode];
 
 	return (
-		<div className="flex flex-col items-center justify-center gap-8 p-4 md:p-8 max-w-2xl mx-auto">
-			<div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-				{(["focus", "shortBreak", "longBreak"] as PomodoroMode[]).map((m) => (
-					<Button
-						key={m}
-						variant={mode === m ? "default" : "ghost"}
-						size="sm"
-						onClick={() => setMode(m)}
-						className={cn(
-							"rounded-full transition-all duration-300",
-							mode === m && "shadow-lg scale-105",
-						)}
+		<div className="w-full">
+			<Card className="relative overflow-hidden shadow-sm">
+				<div className="border-b border-border bg-muted/20 p-2">
+					<div
+						className="grid grid-cols-3 gap-1 rounded-lg bg-background/70 p-1"
+						role="tablist"
+						aria-label="Pomodoro mode"
 					>
-						{mode === m && (
-							<motion.span
-								layoutId="active-bg"
-								className="absolute inset-0 bg-primary rounded-full -z-10"
-							/>
-						)}
-						{modeConfig[m].label}
-					</Button>
-				))}
-			</div>
+						{MODES.map((m) => (
+							<Button
+								key={m}
+								type="button"
+								role="tab"
+								aria-selected={mode === m}
+								variant={mode === m ? "default" : "ghost"}
+								size="sm"
+								onClick={() => setMode(m)}
+								className={cn(
+									"h-9 rounded-md text-xs sm:text-sm",
+									mode === m && "shadow-sm",
+								)}
+							>
+								{modeConfig[m].label}
+							</Button>
+						))}
+					</div>
+				</div>
 
-			<Card className="w-full shadow-sm">
-				<CardHeader className="text-center">
-					<div className="flex items-center justify-center gap-2 text-primary mb-2">
+				<Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+					<PopoverTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							className="absolute top-3 right-3 z-20 rounded-full"
+							aria-label="Timer settings"
+						>
+							<Settings2 className="size-4 text-muted-foreground" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent className="w-80 p-6" align="end">
+						<div className="space-y-6">
+							<div className="space-y-2">
+								<h4 className="flex items-center gap-2 font-bold leading-none">
+									<Settings2 className="size-4" />
+									Timer settings
+								</h4>
+								<p className="text-sm text-muted-foreground">
+									Customize the length of each interval.
+								</p>
+							</div>
+
+							<div className="space-y-4">
+								<div className="space-y-2">
+									<Label htmlFor="focus">Focus (minutes)</Label>
+									<Input
+										id="focus"
+										type="number"
+										defaultValue={settings.focusDuration / 60}
+										onChange={(e) =>
+											updateSettings({
+												focusDuration: Number(e.target.value) * 60,
+											})
+										}
+										className="bg-background/50"
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="shortBreak">Short break (minutes)</Label>
+									<Input
+										id="shortBreak"
+										type="number"
+										defaultValue={settings.shortBreakDuration / 60}
+										onChange={(e) =>
+											updateSettings({
+												shortBreakDuration: Number(e.target.value) * 60,
+											})
+										}
+										className="bg-background/50"
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="longBreak">Long break (minutes)</Label>
+									<Input
+										id="longBreak"
+										type="number"
+										defaultValue={settings.longBreakDuration / 60}
+										onChange={(e) =>
+											updateSettings({
+												longBreakDuration: Number(e.target.value) * 60,
+											})
+										}
+										className="bg-background/50"
+									/>
+								</div>
+							</div>
+
+							<Button
+								className="w-full"
+								variant="secondary"
+								onClick={() => setIsSettingsOpen(false)}
+							>
+								Save and close
+							</Button>
+						</div>
+					</PopoverContent>
+				</Popover>
+
+				<CardHeader className="pb-2 pt-5 text-center">
+					<div className="mb-1 flex items-center justify-center gap-2">
 						<Icon className={cn("size-5", color)} />
 						<CardTitle className="text-2xl font-bold tracking-tight">
 							{label}
@@ -115,9 +202,8 @@ export function PomodoroTimer() {
 					<CardDescription>{description}</CardDescription>
 				</CardHeader>
 
-				<CardContent className="flex flex-col items-center gap-8 py-8">
-					{/* Circular Progress Indicator */}
-					<div className="relative size-64 md:size-80 flex items-center justify-center">
+				<CardContent className="flex flex-col items-center gap-6 px-4 pb-6 sm:px-8">
+					<div className="relative flex size-56 items-center justify-center sm:size-64">
 						<svg className="size-full -rotate-90 transform">
 							<circle
 								cx="50%"
@@ -151,43 +237,43 @@ export function PomodoroTimer() {
 									initial={{ opacity: 0, y: 10 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, y: -10 }}
-									className="text-6xl md:text-7xl font-mono font-bold tracking-tighter"
+									className="font-mono text-5xl font-bold tracking-tighter sm:text-6xl"
 								>
 									{formatTime(timeLeft)}
 								</motion.span>
 							</AnimatePresence>
-							<span className="text-sm font-medium text-muted-foreground mt-2 uppercase tracking-widest">
+							<span className="mt-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
 								{isActive ? "Focus..." : "Ready"}
 							</span>
 						</div>
 					</div>
 
-					{/* Controls */}
-					<div className="flex items-center gap-4">
+					<div className="flex items-center gap-3 sm:gap-4">
 						<Button
 							variant="outline"
 							size="icon-lg"
 							onClick={resetTimer}
-							className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+							className="rounded-full hover:bg-destructive/10 hover:text-destructive"
 							title="Reset"
 						>
-							<RotateCcw className="size-6" />
+							<RotateCcw className="size-5" />
 						</Button>
 
 						<Button
 							size="icon-lg"
 							onClick={toggleTimer}
 							className={cn(
-								"size-20 rounded-full shadow-xl transition-all duration-300 hover:scale-105 active:scale-95",
+								"size-16 rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 sm:size-[4.5rem]",
 								isActive
 									? "bg-secondary text-secondary-foreground"
 									: "bg-primary text-primary-foreground",
 							)}
+							aria-label={isActive ? "Pause timer" : "Start timer"}
 						>
 							{isActive ? (
-								<Pause className="size-10 fill-current" />
+								<Pause className="size-8 fill-current sm:size-9" />
 							) : (
-								<Play className="size-10 fill-current ml-1" />
+								<Play className="ml-0.5 size-8 fill-current sm:size-9" />
 							)}
 						</Button>
 
@@ -195,121 +281,33 @@ export function PomodoroTimer() {
 							variant="outline"
 							size="icon-lg"
 							onClick={skipMode}
-							className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+							className="rounded-full hover:bg-primary/10 hover:text-primary"
 							title="Skip"
 						>
-							<SkipForward className="size-6" />
+							<SkipForward className="size-5" />
 						</Button>
 					</div>
 				</CardContent>
 
-				<div className="absolute top-4 right-4 z-20">
-					<Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-						<PopoverTrigger asChild>
-							<Button variant="ghost" size="icon-sm" className="rounded-full">
-								<Settings2 className="size-5 text-muted-foreground hover:text-foreground transition-colors" />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-80 p-6" align="end">
-							<div className="space-y-6">
-								<div className="space-y-2">
-									<h4 className="font-bold leading-none flex items-center gap-2">
-										<Settings2 className="size-4" />
-										Timer settings
-									</h4>
-									<p className="text-sm text-muted-foreground">
-										Customize the length of each interval.
-									</p>
-								</div>
-
-								<div className="space-y-4">
-									<div className="space-y-2">
-										<Label htmlFor="focus">Focus (minutes)</Label>
-										<Input
-											id="focus"
-											type="number"
-											defaultValue={settings.focusDuration / 60}
-											onChange={(e) =>
-												updateSettings({
-													focusDuration: Number(e.target.value) * 60,
-												})
-											}
-											className="bg-background/50"
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="shortBreak">Short break (minutes)</Label>
-										<Input
-											id="shortBreak"
-											type="number"
-											defaultValue={settings.shortBreakDuration / 60}
-											onChange={(e) =>
-												updateSettings({
-													shortBreakDuration: Number(e.target.value) * 60,
-												})
-											}
-											className="bg-background/50"
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="longBreak">Long break (minutes)</Label>
-										<Input
-											id="longBreak"
-											type="number"
-											defaultValue={settings.longBreakDuration / 60}
-											onChange={(e) =>
-												updateSettings({
-													longBreakDuration: Number(e.target.value) * 60,
-												})
-											}
-											className="bg-background/50"
-										/>
-									</div>
-								</div>
-
-								<div className="pt-2">
-									<Button
-										className="w-full"
-										variant="secondary"
-										onClick={() => setIsSettingsOpen(false)}
-									>
-										Save and close
-									</Button>
-								</div>
-							</div>
-						</PopoverContent>
-					</Popover>
-				</div>
+				<CardFooter className="grid grid-cols-3 gap-2 border-t bg-muted/15 px-4 py-4 sm:px-6">
+					<div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2.5 text-center">
+						<p className="text-sm font-semibold tabular-nums">
+							{formatMinutes(settings.focusDuration)}
+						</p>
+						<p className="text-[11px] text-muted-foreground">Ideal focus session</p>
+					</div>
+					<div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2.5 text-center">
+						<p className="text-sm font-semibold tabular-nums">
+							{formatMinutes(settings.shortBreakDuration)}
+						</p>
+						<p className="text-[11px] text-muted-foreground">Short break</p>
+					</div>
+					<div className="rounded-lg border border-border/60 bg-background/60 px-3 py-2.5 text-center">
+						<p className="text-sm font-semibold tabular-nums">4 cycles</p>
+						<p className="text-[11px] text-muted-foreground">Before long break</p>
+					</div>
+				</CardFooter>
 			</Card>
-
-			{/* Stats or Tips (Optional) */}
-			<div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-				<Card>
-					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
-						<Brain className="size-5 text-primary" />
-						<div className="text-xl font-semibold">25m</div>
-						<div className="text-xs text-muted-foreground">
-							Ideal focus session
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
-						<Coffee className="size-5 text-success" />
-						<div className="text-xl font-semibold">5m</div>
-						<div className="text-xs text-muted-foreground">Short break</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
-						<RotateCcw className="size-5 text-muted-foreground" />
-						<div className="text-xl font-semibold">4 cycles</div>
-						<div className="text-xs text-muted-foreground">
-							Before long break
-						</div>
-					</CardContent>
-				</Card>
-			</div>
 		</div>
 	);
 }

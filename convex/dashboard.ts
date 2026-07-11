@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import { fuseSearch, stripHtmlForSearch } from "../lib/fuse-search";
 import { query } from "./_generated/server";
 
 export const dashboardStats = query({
@@ -132,52 +133,54 @@ export const recentActivity = query({
 	},
 });
 
+const GLOBAL_SEARCH_NAVIGATION = [
+	{ label: "Overview", href: "/dashboard", keywords: "home dashboard" },
+	{ label: "Projects", href: "/dashboard/projects", keywords: "projects" },
+	{ label: "Notes", href: "/dashboard/notes", keywords: "notes documents" },
+	{ label: "Link Hub", href: "/dashboard/links", keywords: "links resources" },
+	{
+		label: "Sticky Notes",
+		href: "/dashboard/sticky-notes",
+		keywords: "sticky notes board",
+	},
+	{
+		label: "Task Board",
+		href: "/dashboard/tasks",
+		keywords: "tasks kanban board",
+	},
+	{ label: "Canvas", href: "/dashboard/canvas", keywords: "canvas design" },
+	{
+		label: "Design System",
+		href: "/dashboard/design-system/v2",
+		keywords: "design system tokens",
+	},
+	{
+		label: "AI Generator",
+		href: "/dashboard/generator",
+		keywords: "ai generator",
+	},
+	{
+		label: "Placeholder Images",
+		href: "/dashboard/images",
+		keywords: "images placeholder picsum",
+	},
+	{ label: "Pomodoro", href: "/dashboard/pomodoro", keywords: "pomodoro timer focus" },
+	{ label: "Settings", href: "/dashboard/settings", keywords: "settings profile" },
+] as const;
+
 export const globalSearch = query({
 	args: { term: v.string() },
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
 		if (!userId) return { navigation: [], results: [] };
 
-		const term = args.term.trim().toLowerCase();
+		const term = args.term.trim();
 		if (!term) return { navigation: [], results: [] };
 
-		const navigation = [
-			{ label: "Overview", href: "/dashboard", keywords: "home dashboard" },
-			{ label: "Projects", href: "/dashboard/projects", keywords: "projects" },
-			{ label: "Notes", href: "/dashboard/notes", keywords: "notes documents" },
-			{ label: "Link Hub", href: "/dashboard/links", keywords: "links resources" },
-			{
-				label: "Sticky Notes",
-				href: "/dashboard/sticky-notes",
-				keywords: "sticky notes board",
-			},
-			{
-				label: "Task Board",
-				href: "/dashboard/tasks",
-				keywords: "tasks kanban board",
-			},
-			{ label: "Canvas", href: "/dashboard/canvas", keywords: "canvas design" },
-			{
-				label: "Design System",
-				href: "/dashboard/design-system/v2",
-				keywords: "design system tokens",
-			},
-			{
-				label: "AI Generator",
-				href: "/dashboard/generator",
-				keywords: "ai generator",
-			},
-			{
-				label: "Placeholder Images",
-				href: "/dashboard/images",
-				keywords: "images placeholder picsum",
-			},
-			{ label: "Pomodoro", href: "/dashboard/pomodoro", keywords: "pomodoro timer focus" },
-			{ label: "Settings", href: "/dashboard/settings", keywords: "settings profile" },
-		].filter(
-			(item) =>
-				item.label.toLowerCase().includes(term) ||
-				item.keywords.toLowerCase().includes(term),
+		const navigation = fuseSearch(
+			GLOBAL_SEARCH_NAVIGATION,
+			term,
+			["label", "keywords"],
 		);
 
 		const [projects, notes, links, designs, tasks] = await Promise.all([
@@ -204,54 +207,44 @@ export const globalSearch = query({
 		]);
 
 		const results = [
-			...projects
-				.filter((project) => project.name.toLowerCase().includes(term))
-				.map((project) => ({
-					type: "project" as const,
-					label: project.name,
-					href: `/dashboard/projects/${project._id}`,
+			...fuseSearch(projects, term, ["name", "description"]).map((project) => ({
+				type: "project" as const,
+				label: project.name,
+				href: `/dashboard/projects/${project._id}`,
+			})),
+			...fuseSearch(
+				notes.map((note) => ({
+					...note,
+					plainContent: stripHtmlForSearch(note.content),
 				})),
-			...notes
-				.filter(
-					(note) =>
-						note.title.toLowerCase().includes(term) ||
-						note.content.toLowerCase().includes(term) ||
-						note.tags?.some((tag) => tag.includes(term)),
-				)
-				.slice(0, 8)
-				.map((note) => ({
-					type: "note" as const,
-					label: note.title,
-					href: `/dashboard/notes/${note._id}`,
-				})),
-			...links
-				.filter(
-					(link) =>
-						link.title.toLowerCase().includes(term) ||
-						link.url.toLowerCase().includes(term),
-				)
-				.slice(0, 8)
-				.map((link) => ({
+				term,
+				["title", "plainContent", "tags"],
+				undefined,
+				8,
+			).map((note) => ({
+				type: "note" as const,
+				label: note.title,
+				href: `/dashboard/notes/${note._id}`,
+			})),
+			...fuseSearch(links, term, ["title", "url", "description"], undefined, 8).map(
+				(link) => ({
 					type: "link" as const,
 					label: link.title,
 					href: "/dashboard/links",
-				})),
-			...designs
-				.filter((design) => design.name.toLowerCase().includes(term))
-				.slice(0, 8)
-				.map((design) => ({
-					type: "design" as const,
-					label: design.name,
-					href: `/dashboard/canvas?projectId=${design.projectId}&designId=${design._id}`,
-				})),
-			...tasks
-				.filter((task) => task.title.toLowerCase().includes(term))
-				.slice(0, 8)
-				.map((task) => ({
+				}),
+			),
+			...fuseSearch(designs, term, ["name"], undefined, 8).map((design) => ({
+				type: "design" as const,
+				label: design.name,
+				href: `/dashboard/canvas?projectId=${design.projectId}&designId=${design._id}`,
+			})),
+			...fuseSearch(tasks, term, ["title", "description"], undefined, 8).map(
+				(task) => ({
 					type: "task" as const,
 					label: task.title,
 					href: `/dashboard/tasks?projectId=${task.projectId}`,
-				})),
+				}),
+			),
 		];
 
 		return { navigation, results: results.slice(0, 20) };

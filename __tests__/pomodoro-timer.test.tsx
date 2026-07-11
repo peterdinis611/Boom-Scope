@@ -123,7 +123,7 @@ describe("Component: PomodoroTimer", () => {
 			expect(screen.getByText("5m")).toBeDefined();
 			expect(screen.getByText("4 cycles")).toBeDefined();
 			expect(screen.getByText("Ideal focus session")).toBeDefined();
-			expect(screen.getByText("Short break")).toBeDefined();
+			expect(screen.getAllByText("Short break").length).toBeGreaterThanOrEqual(1);
 			expect(screen.getByText("Before long break")).toBeDefined();
 		});
 	});
@@ -240,7 +240,7 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(shortBreakBtns[0]);
 			});
 			expect(screen.getByText("05:00")).toBeDefined();
-			expect(screen.getByText(/Quick rest to recharge/i)).toBeDefined();
+			expect(screen.getByText(/Quick rest/i)).toBeDefined();
 		});
 
 		test("clicking Long break updates the timer to 15:00", () => {
@@ -250,9 +250,7 @@ describe("Component: PomodoroTimer", () => {
 				fireEvent.click(longBreakBtns[0]);
 			});
 			expect(screen.getByText("15:00")).toBeDefined();
-			expect(
-				screen.getByText(/Extended rest for deeper recovery/i),
-			).toBeDefined();
+			expect(screen.getByText(/Longer rest to recharge/i)).toBeDefined();
 		});
 
 		test("clicking the active Focus button is safe and shows 25:00", () => {

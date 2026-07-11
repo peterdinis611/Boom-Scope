@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { FolderKanban, MoreVertical, Plus, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { EmptyState } from "@/components/layout/EmptyState";
@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { fuseSearch } from "@/lib/fuse-search";
 import { projectSchema } from "@/lib/validations";
 
 export default function ProjectsPage() {
@@ -42,9 +43,10 @@ export default function ProjectsPage() {
 	const [deleteTarget, setDeleteTarget] = useState<Id<"projects"> | null>(null);
 	const [deleting, setDeleting] = useState(false);
 
-	const filteredProjects = projects?.filter((p) =>
-		p.name.toLowerCase().includes(searchQuery.toLowerCase()),
-	);
+	const filteredProjects = useMemo(() => {
+		if (!projects) return undefined;
+		return fuseSearch(projects, searchQuery, ["name", "description"]);
+	}, [projects, searchQuery]);
 
 	const handleCreate = async (e: React.FormEvent) => {
 		e.preventDefault();

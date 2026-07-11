@@ -128,6 +128,81 @@ export const update = mutation({
 	},
 });
 
+export const move = mutation({
+	args: {
+		taskId: v.id("project_tasks"),
+		toStatus: taskStatus,
+		toIndex: v.number(),
+	},
+	handler: async (ctx, args) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId) throw new ConvexError("Not authenticated");
+
+		const task = await ctx.db.get(args.taskId);
+		if (!task || task.userId !== userId) {
+			throw new ConvexError("Unauthorized");
+		}
+
+		const projectTasks = await ctx.db
+			.query("project_tasks")
+			.withIndex("by_projectId", (q) => q.eq("projectId", task.projectId))
+			.filter((q) => q.eq(q.field("userId"), userId))
+			.collect();
+
+		const fromStatus = task.status;
+		const toStatus = args.toStatus;
+		const toIndex = Math.max(0, Math.floor(args.toIndex));
+
+		const sourceTasks = projectTasks
+			.filter((item) => item.status === fromStatus)
+			.sort((a, b) => a.position - b.position);
+
+		const activeIndex = sourceTasks.findIndex((item) => item._id === task._id);
+		if (activeIndex === -1) throw new ConvexError("Task not found");
+
+		const [movedTask] = sourceTasks.splice(activeIndex, 1);
+
+		if (fromStatus === toStatus) {
+			const clampedIndex = Math.min(toIndex, sourceTasks.length);
+			sourceTasks.splice(clampedIndex, 0, movedTask);
+			for (let index = 0; index < sourceTasks.length; index++) {
+				const item = sourceTasks[index];
+				if (item.position !== index) {
+					await ctx.db.patch(item._id, { position: index });
+				}
+			}
+			return;
+		}
+
+		const destinationTasks = projectTasks
+			.filter((item) => item.status === toStatus)
+			.sort((a, b) => a.position - b.position);
+		const clampedIndex = Math.min(toIndex, destinationTasks.length);
+		destinationTasks.splice(clampedIndex, 0, movedTask);
+
+		for (let index = 0; index < sourceTasks.length; index++) {
+			const item = sourceTasks[index];
+			if (item.position !== index) {
+				await ctx.db.patch(item._id, { position: index });
+			}
+		}
+
+		for (let index = 0; index < destinationTasks.length; index++) {
+			const item = destinationTasks[index];
+			const patch =
+				item._id === task._id
+					? { position: index, status: toStatus }
+					: { position: index };
+			if (
+				item.position !== index ||
+				(item._id === task._id && item.status !== toStatus)
+			) {
+				await ctx.db.patch(item._id, patch);
+			}
+		}
+	},
+});
+
 export const remove = mutation({
 	args: { taskId: v.id("project_tasks") },
 	handler: async (ctx, args) => {

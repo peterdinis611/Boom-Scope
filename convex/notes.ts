@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
+import { fuseSearch, stripHtmlForSearch } from "../lib/fuse-search";
 import { mutation, query } from "./_generated/server";
 
 export const list = query({
@@ -42,17 +43,16 @@ export const list = query({
 			}),
 		);
 
-		// Manual filtering for search term
+		// Fuzzy filtering for search term
 		let filteredPage = pageWithProjects;
-		if (args.searchTerm) {
-			const lowerSearch = args.searchTerm.toLowerCase();
-			filteredPage = pageWithProjects.filter(
-				(note) =>
-					note.title.toLowerCase().includes(lowerSearch) ||
-					note.content.toLowerCase().includes(lowerSearch) ||
-					(note.projectName &&
-						note.projectName.toLowerCase().includes(lowerSearch)) ||
-					note.tags?.some((tag) => tag.toLowerCase().includes(lowerSearch)),
+		if (args.searchTerm?.trim()) {
+			filteredPage = fuseSearch(
+				pageWithProjects.map((note) => ({
+					...note,
+					plainContent: stripHtmlForSearch(note.content),
+				})),
+				args.searchTerm,
+				["title", "plainContent", "projectName", "tags"],
 			);
 		}
 

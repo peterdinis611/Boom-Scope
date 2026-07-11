@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import {
 	createStickyNote,
+	getStickyNoteHref,
+	getStickyNotePreviewTitle,
 	parseStickyNoteItems,
 	readStickyNotesCache,
 	serializeStickyNoteItems,
@@ -73,5 +75,22 @@ describe("sticky-notes lib", () => {
 		);
 		expect(readStickyNotesCache()).toEqual(items);
 		localStorage.removeItem(STICKY_NOTES_CACHE_KEY);
+	});
+
+	test("getStickyNotePreviewTitle uses first line and handles empty text", () => {
+		expect(getStickyNotePreviewTitle("")).toBe("Untitled sticky note");
+		expect(getStickyNotePreviewTitle("  ")).toBe("Untitled sticky note");
+		expect(getStickyNotePreviewTitle("First line\nSecond line")).toBe(
+			"First line",
+		);
+		expect(getStickyNotePreviewTitle("a".repeat(90))).toBe(
+			`${"a".repeat(77)}…`,
+		);
+	});
+
+	test("getStickyNoteHref builds dashboard deep link", () => {
+		expect(getStickyNoteHref("note-123")).toBe(
+			"/dashboard/sticky-notes?note=note-123",
+		);
 	});
 });

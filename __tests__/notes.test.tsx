@@ -1,16 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { usePaginatedQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import React from "react";
 import { describe, expect, test, vi } from "vitest";
 import { NoteList } from "../components/notes/NoteList";
 import type { Id } from "../convex/_generated/dataModel";
 
-// Mock Convex
 vi.mock("convex/react", () => ({
 	usePaginatedQuery: vi.fn(),
+	useQuery: vi.fn(() => []),
 }));
 
-// Mock Next.js navigation
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -26,7 +25,6 @@ describe("Component: NoteList", () => {
 		});
 
 		const { container } = render(<NoteList />);
-		// Skeletons are rendered as div with className containing skeleton
 		expect(container.querySelector(".animate-pulse")).toBeDefined();
 	});
 
@@ -75,5 +73,21 @@ describe("Component: NoteList", () => {
 		fireEvent.change(input, { target: { value: "test query" } });
 
 		expect((input as HTMLInputElement).value).toBe("test query");
+	});
+
+	test("renders tag filter options from convex", () => {
+		vi.mocked(useQuery).mockReturnValue([
+			{ tag: "design", count: 2 },
+			{ tag: "meeting", count: 1 },
+		]);
+		vi.mocked(usePaginatedQuery).mockReturnValue({
+			results: [],
+			status: "Exhausted",
+			loadMore: vi.fn(),
+		});
+
+		render(<NoteList />);
+		expect(screen.getByRole("button", { name: /design/i })).toBeDefined();
+		expect(screen.getByRole("button", { name: /meeting/i })).toBeDefined();
 	});
 });

@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
+import { fuseSearch } from "../lib/fuse-search";
 import type { Id } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
@@ -72,16 +73,6 @@ export const list = query({
 			links = links.filter((link) => link.category === args.category);
 		}
 
-		if (args.searchTerm?.trim()) {
-			const search = args.searchTerm.trim().toLowerCase();
-			links = links.filter(
-				(link) =>
-					link.title.toLowerCase().includes(search) ||
-					link.url.toLowerCase().includes(search) ||
-					link.description?.toLowerCase().includes(search),
-			);
-		}
-
 		const enriched = await Promise.all(
 			links.map(async (link) => {
 				let projectName: string | null = null;
@@ -93,7 +84,16 @@ export const list = query({
 			}),
 		);
 
-		return enriched.sort((a, b) => {
+		const filteredLinks = args.searchTerm?.trim()
+			? fuseSearch(enriched, args.searchTerm, [
+					"title",
+					"url",
+					"description",
+					"projectName",
+				])
+			: enriched;
+
+		return filteredLinks.sort((a, b) => {
 			const pinDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
 			if (pinDiff !== 0) return pinDiff;
 			return b._creationTime - a._creationTime;

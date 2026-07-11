@@ -3,8 +3,8 @@ import React from "react";
 import { toast } from "sonner";
 import { describe, expect, test, vi } from "vitest";
 import DesignSystemPage from "../app/dashboard/design-system/v2/page";
+import { openVisualLabTab } from "./helpers/design-system";
 
-// Mock next/navigation
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -16,14 +16,12 @@ vi.mock("next/navigation", () => ({
 	})),
 }));
 
-// Mock Convex hooks so the page renders without a ConvexProvider in tests.
 vi.mock("convex/react", () => ({
 	useQuery: vi.fn(() => undefined),
 	useMutation: vi.fn(() => vi.fn()),
 	useAction: vi.fn(() => vi.fn()),
 }));
 
-// Mock Sonner toast
 vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
@@ -31,7 +29,15 @@ vi.mock("sonner", () => ({
 	},
 }));
 
-// Mock FileReader
+vi.mock("motion/react", () => ({
+	motion: {
+		div: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+			<div {...props}>{children}</div>
+		),
+	},
+	AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 class MockFileReader {
 	onload: (() => void) | null = null;
 	readAsDataURL() {
@@ -43,13 +49,15 @@ class MockFileReader {
 vi.stubGlobal("FileReader", MockFileReader);
 
 describe("Page: Design System Generator", () => {
-	test("renders initial upload state", () => {
+	test("renders initial assets tab state", () => {
 		render(<DesignSystemPage />);
-		expect(screen.getByText(/Drop inspiration here/i)).toBeDefined();
+		expect(screen.getByText(/Color palette/i)).toBeDefined();
 	});
 
 	test("shows generation button after image upload", async () => {
 		const { container } = render(<DesignSystemPage />);
+		openVisualLabTab();
+
 		const input = container.querySelector(
 			"input[type='file']",
 		) as HTMLInputElement;
@@ -64,6 +72,7 @@ describe("Page: Design System Generator", () => {
 
 	test("requires a project before analyzing", async () => {
 		const { container } = render(<DesignSystemPage />);
+		openVisualLabTab();
 
 		const input = container.querySelector(
 			"input[type='file']",
@@ -74,11 +83,13 @@ describe("Page: Design System Generator", () => {
 		const generateBtn = await screen.findByText(/Analyze style/i);
 		fireEvent.click(generateBtn);
 
-		expect(toast.error).toHaveBeenCalledWith("Select a project first!");
+		expect(toast.error).toHaveBeenCalledWith("Select a project!");
 	});
 
 	test("shows Generate design button after image upload", async () => {
 		const { container } = render(<DesignSystemPage />);
+		openVisualLabTab();
+
 		const input = container.querySelector(
 			"input[type='file']",
 		) as HTMLInputElement;
@@ -93,6 +104,8 @@ describe("Page: Design System Generator", () => {
 
 	test("Generate design requires a project", async () => {
 		const { container } = render(<DesignSystemPage />);
+		openVisualLabTab();
+
 		const input = container.querySelector(
 			"input[type='file']",
 		) as HTMLInputElement;
@@ -103,7 +116,7 @@ describe("Page: Design System Generator", () => {
 		const generateBtn = await screen.findByText(/Generate design/i);
 		fireEvent.click(generateBtn);
 
-		expect(toast.error).toHaveBeenCalledWith("Select a project first!");
+		expect(toast.error).toHaveBeenCalledWith("Select a project!");
 	});
 
 	test("header Save button is rendered", () => {

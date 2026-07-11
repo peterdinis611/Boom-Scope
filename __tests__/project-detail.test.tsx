@@ -6,12 +6,15 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import ProjectDetailPage from "../app/dashboard/projects/[projectId]/page";
 import type { Id } from "../convex/_generated/dataModel";
 
-// Mock Convex
 vi.mock("convex/react", () => ({
 	useQuery: vi.fn(),
+	useMutation: vi.fn(() => vi.fn()),
 }));
 
-// Mock Next.js navigation
+vi.mock("@/components/links/link-library", () => ({
+	LinkLibrary: () => <div>Link Library</div>,
+}));
+
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -38,16 +41,12 @@ describe("Page: Project Detail", () => {
 			_creationTime: Date.now(),
 		};
 
-		// Mock sequence of queries in ProjectDetailPage:
-		// 1. project = useQuery(api.projects.getById, ...)
-		// 2. designs = useQuery(api.designs.listByProject, ...)
-		// 3. designSystems = useQuery(api.design_systems.getByProject, ...)
-		// 4. notes = useQuery(api.notes.list, ...)
 		vi.mocked(useQuery)
-			.mockReturnValueOnce(mockProject) // project
-			.mockReturnValueOnce([]) // designs
-			.mockReturnValueOnce([]) // systems
-			.mockReturnValueOnce({ page: [] }); // notes
+			.mockReturnValueOnce(mockProject)
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce({ page: [] })
+			.mockReturnValueOnce([]);
 
 		render(<ProjectDetailPage />);
 
@@ -68,19 +67,19 @@ describe("Page: Project Detail", () => {
 			.mockReturnValueOnce(mockProject)
 			.mockReturnValueOnce([])
 			.mockReturnValueOnce([])
-			.mockReturnValueOnce({ page: [] });
+			.mockReturnValueOnce({ page: [] })
+			.mockReturnValueOnce([]);
 
 		render(<ProjectDetailPage />);
 
 		expect(await screen.findByText("Notes")).toBeDefined();
 		expect(screen.getByText("Canvas")).toBeDefined();
 		expect(screen.getByText("Design systems")).toBeDefined();
+		expect(screen.getByText("Link Library")).toBeDefined();
 	});
 
 	test("handles non-existent project", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "wrong-id" });
-
-		// 1. project = useQuery returns null
 		vi.mocked(useQuery).mockReturnValueOnce(null);
 
 		render(<ProjectDetailPage />);

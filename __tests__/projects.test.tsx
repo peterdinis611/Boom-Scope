@@ -1,17 +1,15 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useMutation, useQuery } from "convex/react";
 import React from "react";
 import { describe, expect, test, vi } from "vitest";
 import ProjectsPage from "../app/dashboard/projects/page";
 import type { Id } from "../convex/_generated/dataModel";
 
-// Mock Convex hooks
 vi.mock("convex/react", () => ({
 	useQuery: vi.fn(),
 	useMutation: vi.fn(),
 }));
 
-// Mock Next.js navigation
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -22,7 +20,6 @@ vi.mock("next/navigation", () => ({
 	}),
 }));
 
-// Mock Sonner toast
 vi.mock("sonner", () => ({
 	toast: {
 		success: vi.fn(),
@@ -34,10 +31,7 @@ describe("Page: Projects", () => {
 	test("renders loading state when projects are undefined", () => {
 		vi.mocked(useQuery).mockReturnValue(undefined);
 		render(<ProjectsPage />);
-		// Our ProjectsPage doesn't have a global loading spinner in the current implementation,
-		// but it shows an empty state or handles undefined.
-		// Let's check for the header at least.
-		expect(screen.getByText(/Your/i)).toBeDefined();
+		expect(screen.getByText("Projects")).toBeDefined();
 	});
 
 	test("renders empty state when there are no projects", () => {
@@ -83,17 +77,16 @@ describe("Page: Projects", () => {
 
 		render(<ProjectsPage />);
 
-		// Open modal
 		fireEvent.click(screen.getAllByText(/New project/i)[0]);
 
-		// Fill input
-		const input = screen.getByPlaceholderText(/e.g. Modern Villa/i);
+		const input = screen.getByPlaceholderText(/e.g. Web application/i);
 		fireEvent.change(input, { target: { value: "New Brand" } });
 
-		// Submit
-		const submitButton = screen.getByText(/Create project/i);
-		fireEvent.submit(submitButton);
+		const submitButton = screen.getByRole("button", { name: /^Create$/i });
+		fireEvent.click(submitButton);
 
-		expect(mockCreate).toHaveBeenCalledWith({ name: "New Brand" });
+		await waitFor(() => {
+			expect(mockCreate).toHaveBeenCalledWith({ name: "New Brand" });
+		});
 	});
 });
