@@ -16,6 +16,10 @@ vi.mock("@/lib/pomodoro-db", () => ({
 	savePomodoroSettings: vi.fn(() => Promise.resolve()),
 }));
 
+vi.mock("convex/react", () => ({
+	useMutation: vi.fn(() => vi.fn()),
+}));
+
 // ── Helper component ─────────────────────────────────────────────────────────
 function PomodoroDisplay() {
 	const {

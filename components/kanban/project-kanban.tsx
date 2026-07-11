@@ -19,23 +19,65 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
-import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { Id } from "@/convex/_generated/dataModel";
 import { getErrorMessage } from "@/lib/errors";
+import { filterKanbanTasks } from "@/lib/kanban-filters";
 import { resolveDropTarget } from "@/lib/kanban-dnd";
-import { KANBAN_COLUMNS, type KanbanStatus } from "@/lib/kanban";
-import { KanbanColumn } from "./kanban-column";
+import {
+	DEFAULT_KANBAN_COLUMNS,
+	startOfLocalDay,
+	type KanbanColumn,
+} from "@/lib/kanban";
+import { KanbanColumnManager } from "./kanban-column-manager";
+import { KanbanColumn as KanbanColumnView } from "./kanban-column";
+import {
+	EMPTY_KANBAN_FILTERS,
+	KanbanFiltersBar,
+} from "./kanban-filters-bar";
+import type { EnrichedProjectTask } from "./kanban-task-card";
 import {
 	TaskDetailsDialog,
 	type TaskDetailsFormValues,
 } from "./task-details-dialog";
 
-type ProjectTask = Doc<"project_tasks"> & { projectName?: string | null };
+type ProjectTask = EnrichedProjectTask;
+
+type BoardLane = KanbanColumn & {
+	laneId: string;
+};
 
 type ProjectKanbanProps = {
 	defaultProjectId?: Id<"projects">;
+	variant?: "full" | "embedded";
+	scope?: "project" | "all";
 };
 
-export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
+function formatDueDateInput(value?: number): string {
+	if (!value) return "";
+	return new Date(value).toISOString().slice(0, 10);
+}
+
+function parseDueDateInput(value?: string): number | undefined {
+	if (!value?.trim()) return undefined;
+	const parsed = new Date(`${value}T12:00:00`);
+	if (Number.isNaN(parsed.getTime())) return undefined;
+	return startOfLocalDay(parsed.getTime());
+}
+
+function parseLabelsInput(value: string): string[] {
+	return value
+		.split(",")
+		.map((label) => label.trim())
+		.filter(Boolean);
+}
+
+export function ProjectKanban({
+	defaultProjectId,
+	variant = "full",
+	scope = "project",
+}: ProjectKanbanProps) {
+	const isEmbedded = variant === "embedded";
+	const isAllScope = scope === "all";
 	const [projectId, setProjectId] = useState<Id<"projects"> | undefined>(
 		defaultProjectId,
 	);
@@ -47,12 +89,32 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
 	const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
+	const [filters, setFilters] = useState(EMPTY_KANBAN_FILTERS);
 	const taskInputRef = useRef<HTMLInputElement>(null);
 
 	const projects = useQuery(api.projects.list);
+	const columns = useQuery(
+		api.kanban_columns.list,
+		projectId && !isAllScope ? { projectId } : "skip",
+	);
 	const tasks = useQuery(api.project_tasks.list, {
-		projectId,
+		projectId: isAllScope ? undefined : projectId,
 	});
+	const projectNotes = useQuery(
+		api.notes.list,
+		projectId && !isAllScope
+			? {
+					projectId,
+					paginationOpts: { numItems: 100, cursor: null },
+				}
+			: "skip",
+	);
+	const projectDesigns = useQuery(
+		api.designs.listByProject,
+		projectId && !isAllScope ? { projectId } : "skip",
+	);
+
+	const ensureDefaults = useMutation(api.kanban_columns.ensureDefaults);
 	const createTask = useMutation(api.project_tasks.create);
 	const updateTask = useMutation(api.project_tasks.update);
 	const moveTaskMutation = useMutation(api.project_tasks.move);
@@ -71,38 +133,121 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 	}, [defaultProjectId]);
 
 	useEffect(() => {
-		if (projectId || !projects?.length) return;
+		if (isAllScope || isEmbedded || projectId || !projects?.length) return;
 		setProjectId(projects[0]._id);
-	}, [projectId, projects]);
+	}, [isAllScope, isEmbedded, projectId, projects]);
+
+	useEffect(() => {
+		if (!projectId || isAllScope) return;
+		void ensureDefaults({ projectId });
+	}, [projectId, isAllScope, ensureDefaults]);
+
+	const noteOptions = useMemo(
+		() =>
+			(projectNotes?.page ?? []).map((note) => ({
+				id: note._id,
+				label: note.title,
+			})),
+		[projectNotes],
+	);
+
+	const designOptions = useMemo(
+		() =>
+			(projectDesigns ?? []).map((design) => ({
+				id: design._id,
+				label: design.name,
+			})),
+		[projectDesigns],
+	);
+
+	const filteredTasks = useMemo(
+		() => filterKanbanTasks(tasks ?? [], filters),
+		[tasks, filters],
+	);
+
+	const boardLanes = useMemo((): BoardLane[] => {
+		if (!isAllScope) {
+			return (columns ?? []).map((column) => ({
+				...column,
+				laneId: column._id,
+			}));
+		}
+
+		const lanes: BoardLane[] = DEFAULT_KANBAN_COLUMNS.map((definition, index) => ({
+			_id: `lane-${definition.key}` as Id<"kanban_columns">,
+			projectId: "skip" as Id<"projects">,
+			label: definition.label,
+			color: definition.color,
+			position: index,
+			key: definition.key,
+			laneId: `key:${definition.key}`,
+		}));
+
+		const seen = new Set<string>();
+		for (const task of filteredTasks) {
+			if (!task.columnId || task.columnKey) continue;
+			if (seen.has(task.columnId)) continue;
+			seen.add(task.columnId);
+			lanes.push({
+				_id: task.columnId,
+				projectId: task.projectId,
+				label: task.columnLabel ?? "Column",
+				color:
+					task.columnColor ??
+					"bg-violet-500/10 text-violet-700 dark:text-violet-300",
+				position: lanes.length,
+				key: undefined,
+				laneId: task.columnId,
+			});
+		}
+
+		return lanes;
+	}, [columns, filteredTasks, isAllScope]);
 
 	const grouped = useMemo(() => {
-		const map: Record<KanbanStatus, ProjectTask[]> = {
-			todo: [],
-			in_progress: [],
-			done: [],
-		};
-		for (const task of tasks ?? []) {
-			map[task.status].push(task);
+		const map: Record<string, ProjectTask[]> = {};
+		for (const lane of boardLanes) {
+			map[lane.laneId] = [];
 		}
-		for (const status of KANBAN_COLUMNS) {
-			map[status.id].sort((a, b) => a.position - b.position);
+
+		for (const task of filteredTasks) {
+			if (isAllScope) {
+				const lane = boardLanes.find((candidate) =>
+					candidate.key
+						? task.columnKey === candidate.key
+						: candidate._id === task.columnId,
+				);
+				if (lane) {
+					map[lane.laneId]?.push(task);
+				}
+				continue;
+			}
+
+			if (task.columnId && map[task.columnId]) {
+				map[task.columnId].push(task);
+			}
 		}
+
+		for (const laneId of Object.keys(map)) {
+			map[laneId].sort((a, b) => a.position - b.position);
+		}
+
 		return map;
-	}, [tasks]);
+	}, [boardLanes, filteredTasks, isAllScope]);
 
 	const activeTask = useMemo(() => {
 		if (!activeTaskId) return null;
-		for (const column of KANBAN_COLUMNS) {
-			const match = grouped[column.id].find((task) => task._id === activeTaskId);
-			if (match) return match;
-		}
-		return null;
-	}, [activeTaskId, grouped]);
+		return (tasks ?? []).find((task) => task._id === activeTaskId) ?? null;
+	}, [activeTaskId, tasks]);
+
+	const firstColumnId = useMemo(() => {
+		if (isAllScope || !columns?.length) return undefined;
+		return columns[0]?._id;
+	}, [columns, isAllScope]);
 
 	const handleCreate = async (
 		title: string,
-		description = "",
-		status: KanbanStatus = "todo",
+		details?: Partial<TaskDetailsFormValues>,
 	) => {
 		if (!projectId) {
 			toast.error("Select a project first");
@@ -118,9 +263,15 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 		try {
 			await createTask({
 				title: title.trim(),
-				description: description.trim() || undefined,
+				description: details?.description?.trim() || undefined,
 				projectId,
-				status,
+				columnId: firstColumnId,
+				linkedNoteId: details?.linkedNoteId ?? undefined,
+				linkedDesignId: details?.linkedDesignId ?? undefined,
+				dueDate: parseDueDateInput(details?.dueDate),
+				priority: details?.priority ?? undefined,
+				labels: details?.labels ? parseLabelsInput(details.labels) : undefined,
+				subtasks: details?.subtasks,
 			});
 			setNewTaskTitle("");
 			toast.success("Task created");
@@ -148,26 +299,25 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 	};
 
 	const handleDialogSubmit = async (values: TaskDetailsFormValues) => {
-		if (!projectId) {
+		if (!projectId && dialogMode === "create") {
 			toast.error("Select a project first");
 			return;
 		}
 
 		try {
 			if (dialogMode === "create") {
-				await createTask({
-					title: values.title,
-					description: values.description || undefined,
-					projectId,
-					status: "todo",
-				});
-				setNewTaskTitle("");
-				toast.success("Task created");
+				await handleCreate(values.title, values);
 			} else if (editingTask) {
 				await updateTask({
 					taskId: editingTask._id,
 					title: values.title,
 					description: values.description,
+					linkedNoteId: values.linkedNoteId,
+					linkedDesignId: values.linkedDesignId,
+					dueDate: parseDueDateInput(values.dueDate) ?? null,
+					priority: values.priority,
+					labels: parseLabelsInput(values.labels),
+					subtasks: values.subtasks,
 				});
 				toast.success("Task updated");
 			}
@@ -187,13 +337,42 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 		if (!over || active.id === over.id) return;
 
 		const activeId = active.id as Id<"project_tasks">;
+		const task = (tasks ?? []).find((item) => item._id === activeId);
+		if (!task) return;
+
 		const dropTarget = resolveDropTarget(String(over.id), grouped);
 		if (!dropTarget) return;
+
+		let toColumnId: Id<"kanban_columns"> | null = null;
+
+		if (isAllScope) {
+			if (dropTarget.columnId.startsWith("key:")) {
+				const key = dropTarget.columnId.slice(4) as
+					| "todo"
+					| "in_progress"
+					| "done";
+				try {
+					await moveTaskMutation({
+						taskId: activeId,
+						toColumnKey: key,
+						toIndex: dropTarget.index,
+					});
+				} catch (error) {
+					toast.error(getErrorMessage(error) || "Failed to move task");
+				}
+				return;
+			}
+			toColumnId = dropTarget.columnId as Id<"kanban_columns">;
+		} else {
+			toColumnId = dropTarget.columnId as Id<"kanban_columns">;
+		}
+
+		if (!toColumnId) return;
 
 		try {
 			await moveTaskMutation({
 				taskId: activeId,
-				toStatus: dropTarget.status,
+				toColumnId,
 				toIndex: dropTarget.index,
 			});
 		} catch (error) {
@@ -210,7 +389,7 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 		}
 	};
 
-	if (!projectId) {
+	if (!isAllScope && !projectId) {
 		return (
 			<Card>
 				<CardHeader>
@@ -226,17 +405,81 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 		);
 	}
 
-	const canCreate = Boolean(newTaskTitle.trim()) && !isCreating;
+	const canCreate = Boolean(newTaskTitle.trim()) && !isCreating && !isAllScope;
+	const showCreateBar = !isAllScope;
+	const filterColumns = (columns ?? []) as KanbanColumn[];
 
 	return (
 		<div className="space-y-4">
-			<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-				<div className="w-full max-w-xs space-y-1.5">
-					<p className="text-sm font-medium">Project</p>
-					<ProjectSelector value={projectId} onChange={setProjectId} />
-				</div>
+			{!isEmbedded ? (
+				<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+					{!isAllScope ? (
+						<div className="w-full max-w-xs space-y-1.5">
+							<p className="text-sm font-medium">Project</p>
+							<ProjectSelector value={projectId} onChange={setProjectId} />
+						</div>
+					) : (
+						<div className="space-y-1">
+							<p className="text-sm font-medium">All projects</p>
+							<p className="text-sm text-muted-foreground">
+								Tasks from every project in one board. Drag to change status.
+							</p>
+						</div>
+					)}
 
-				<div className="flex w-full flex-1 flex-col gap-2 sm:flex-row lg:max-w-2xl">
+					<div className="flex flex-wrap items-center gap-2">
+						{projectId && !isAllScope ? (
+							<KanbanColumnManager
+								projectId={projectId}
+								columns={filterColumns}
+							/>
+						) : null}
+						{showCreateBar ? (
+							<div className="flex w-full flex-1 flex-col gap-2 sm:flex-row lg:max-w-2xl">
+								<form
+									className="flex flex-1 gap-2"
+									onSubmit={(event) => {
+										event.preventDefault();
+										void handleQuickCreate();
+									}}
+								>
+									<Input
+										ref={taskInputRef}
+										placeholder="New task title…"
+										value={newTaskTitle}
+										onChange={(event) => setNewTaskTitle(event.target.value)}
+										disabled={isCreating}
+										aria-label="New task title"
+									/>
+									<Button
+										type="submit"
+										disabled={!canCreate}
+										className="shrink-0 gap-2"
+									>
+										{isCreating ? (
+											<Loader2 className="size-4 animate-spin" />
+										) : (
+											<Plus className="size-4" />
+										)}
+										Add
+									</Button>
+								</form>
+								<Button
+									type="button"
+									variant="outline"
+									className="gap-2"
+									onClick={openCreateDialog}
+									disabled={isCreating}
+								>
+									<AlignLeft className="size-4" />
+									Add with details
+								</Button>
+							</div>
+						) : null}
+					</div>
+				</div>
+			) : showCreateBar ? (
+				<div className="flex flex-col gap-2 sm:flex-row">
 					<form
 						className="flex flex-1 gap-2"
 						onSubmit={(event) => {
@@ -269,12 +512,20 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 						disabled={isCreating}
 					>
 						<AlignLeft className="size-4" />
-						Add with details
+						Details
 					</Button>
 				</div>
-			</div>
+			) : null}
 
-			{tasks === undefined ? (
+			{!isEmbedded ? (
+				<KanbanFiltersBar
+					filters={filters}
+					columns={filterColumns}
+					onChange={setFilters}
+				/>
+			) : null}
+
+			{tasks === undefined || (!isAllScope && columns === undefined) ? (
 				<div className="flex justify-center py-16">
 					<Loader2 className="size-6 animate-spin text-muted-foreground" />
 				</div>
@@ -285,16 +536,25 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 					onDragStart={handleDragStart}
 					onDragEnd={(event) => void handleDragEnd(event)}
 				>
-					<div className="grid gap-4 lg:grid-cols-3">
-						{KANBAN_COLUMNS.map((column) => (
-							<KanbanColumn
-								key={column.id}
-								column={column}
-								tasks={grouped[column.id]}
+					<div
+						className="grid gap-4"
+						style={{
+							gridTemplateColumns: `repeat(${Math.max(boardLanes.length, 1)}, minmax(0, 1fr))`,
+						}}
+					>
+						{boardLanes.map((lane) => (
+							<KanbanColumnView
+								key={lane.laneId}
+								column={{
+									...lane,
+									_id: lane.laneId as Id<"kanban_columns">,
+								}}
+								tasks={grouped[lane.laneId] ?? []}
+								showProjectName={isAllScope}
 								onEditTask={openEditDialog}
 								onDeleteTask={(taskId) => void handleDelete(taskId)}
 								onFocusCreate={
-									column.id === "todo"
+									showCreateBar && lane.position === 0
 										? () => taskInputRef.current?.focus()
 										: undefined
 								}
@@ -320,15 +580,29 @@ export function ProjectKanban({ defaultProjectId }: ProjectKanbanProps) {
 				open={dialogOpen}
 				onOpenChange={setDialogOpen}
 				mode={dialogMode}
+				noteOptions={noteOptions}
+				designOptions={designOptions}
 				initialValues={
 					dialogMode === "edit" && editingTask
 						? {
 								title: editingTask.title,
 								description: editingTask.description ?? "",
+								linkedNoteId: editingTask.linkedNoteId ?? null,
+								linkedDesignId: editingTask.linkedDesignId ?? null,
+								dueDate: formatDueDateInput(editingTask.dueDate),
+								priority: editingTask.priority ?? null,
+								labels: (editingTask.labels ?? []).join(", "),
+								subtasks: editingTask.subtasks ?? [],
 							}
 						: {
 								title: newTaskTitle,
 								description: "",
+								linkedNoteId: null,
+								linkedDesignId: null,
+								dueDate: "",
+								priority: null,
+								labels: "",
+								subtasks: [],
 							}
 				}
 				onSubmit={handleDialogSubmit}

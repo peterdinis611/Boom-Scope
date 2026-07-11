@@ -17,6 +17,7 @@ import type * as designs from "../designs.js";
 import type * as emails from "../emails.js";
 import type * as emailsNode from "../emailsNode.js";
 import type * as http from "../http.js";
+import type * as kanban_columns from "../kanban_columns.js";
 import type * as maileroo from "../maileroo.js";
 import type * as mailerooOtp from "../mailerooOtp.js";
 import type * as notes from "../notes.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   emails: typeof emails;
   emailsNode: typeof emailsNode;
   http: typeof http;
+  kanban_columns: typeof kanban_columns;
   maileroo: typeof maileroo;
   mailerooOtp: typeof mailerooOtp;
   notes: typeof notes;

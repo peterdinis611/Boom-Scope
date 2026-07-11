@@ -30,6 +30,13 @@ describe("Component: ActivityFeed", () => {
 				timestamp: Date.now() - 60_000,
 			},
 			{
+				type: "task-event",
+				id: "event-1",
+				title: "Moved to Done",
+				href: "/dashboard/tasks?projectId=proj-1",
+				timestamp: Date.now() - 120_000,
+			},
+			{
 				type: "task",
 				id: "task-1",
 				title: "Ship kanban board",
@@ -44,11 +51,11 @@ describe("Component: ActivityFeed", () => {
 			"href",
 			"/dashboard/notes/note-1",
 		);
-		expect(screen.getByRole("link", { name: /Ship kanban board/i })).toHaveAttribute(
+		expect(screen.getByRole("link", { name: /Moved to Done/i })).toHaveAttribute(
 			"href",
 			"/dashboard/tasks?projectId=proj-1",
 		);
 		expect(screen.getByText(/Note ·/i)).toBeDefined();
-		expect(screen.getByText(/Task ·/i)).toBeDefined();
+		expect(screen.getByText(/Task update ·/i)).toBeDefined();
 	});
 });

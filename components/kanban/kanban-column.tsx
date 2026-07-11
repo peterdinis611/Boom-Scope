@@ -8,24 +8,17 @@ import {
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { Id } from "@/convex/_generated/dataModel";
 import { columnDroppableId } from "@/lib/kanban-dnd";
-import { type KanbanStatus } from "@/lib/kanban";
+import type { KanbanColumn } from "@/lib/kanban";
 import { cn } from "@/lib/utils";
-import { KanbanTaskCard } from "./kanban-task-card";
-
-type ProjectTask = Doc<"project_tasks">;
-
-type KanbanColumnConfig = {
-	id: KanbanStatus;
-	label: string;
-	color: string;
-};
+import { KanbanTaskCard, type EnrichedProjectTask } from "./kanban-task-card";
 
 type KanbanColumnProps = {
-	column: KanbanColumnConfig;
-	tasks: ProjectTask[];
-	onEditTask: (task: ProjectTask) => void;
+	column: KanbanColumn;
+	tasks: EnrichedProjectTask[];
+	showProjectName?: boolean;
+	onEditTask: (task: EnrichedProjectTask) => void;
 	onDeleteTask: (taskId: Id<"project_tasks">) => void;
 	onFocusCreate?: () => void;
 };
@@ -33,12 +26,13 @@ type KanbanColumnProps = {
 export function KanbanColumn({
 	column,
 	tasks,
+	showProjectName = false,
 	onEditTask,
 	onDeleteTask,
 	onFocusCreate,
 }: KanbanColumnProps) {
 	const { setNodeRef, isOver } = useDroppable({
-		id: columnDroppableId(column.id),
+		id: columnDroppableId(column._id),
 	});
 
 	return (
@@ -70,11 +64,9 @@ export function KanbanColumn({
 					{tasks.length === 0 ? (
 						<div className="rounded-lg border border-dashed border-border/80 bg-background/40 px-3 py-6 text-center">
 							<p className="text-sm text-muted-foreground">
-								{column.id === "todo"
-									? "Drop tasks here or add one above."
-									: `Drop tasks into ${column.label.toLowerCase()}.`}
+								Drop tasks into {column.label.toLowerCase()}.
 							</p>
-							{column.id === "todo" && onFocusCreate ? (
+							{onFocusCreate ? (
 								<Button
 									type="button"
 									variant="outline"
@@ -92,6 +84,7 @@ export function KanbanColumn({
 							<KanbanTaskCard
 								key={task._id}
 								task={task}
+								showProjectName={showProjectName}
 								onEdit={onEditTask}
 								onDelete={onDeleteTask}
 							/>

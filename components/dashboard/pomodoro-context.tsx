@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation } from "convex/react";
 import type React from "react";
 import { useMachine } from "@xstate/react";
 import {
@@ -8,9 +9,17 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	useState,
 } from "react";
 import { toast } from "sonner";
+import { api } from "@/convex/_generated/api";
 import { getPomodoroSettings, savePomodoroSettings } from "@/lib/pomodoro-db";
+import {
+	clearPomodoroFocusTarget,
+	getPomodoroFocusTarget,
+	setPomodoroFocusTarget,
+	type PomodoroFocusTarget,
+} from "@/lib/pomodoro-focus";
 import { logPomodoroSession } from "@/lib/pomodoro-sessions";
 import {
 	getPomodoroProgress,
@@ -19,7 +28,7 @@ import {
 	type PomodoroSettings,
 } from "@/machines";
 
-export type { PomodoroMode, PomodoroSettings };
+export type { PomodoroMode, PomodoroSettings, PomodoroFocusTarget };
 
 interface PomodoroContextType {
 	timeLeft: number;
@@ -27,11 +36,14 @@ interface PomodoroContextType {
 	mode: PomodoroMode;
 	settings: PomodoroSettings;
 	progress: number;
+	focusTarget: PomodoroFocusTarget | null;
 	toggleTimer: () => void;
 	resetTimer: () => void;
 	skipMode: () => void;
 	setMode: (mode: PomodoroMode) => void;
 	updateSettings: (settings: Partial<PomodoroSettings>) => void;
+	startFocusOnTask: (target: PomodoroFocusTarget) => void;
+	clearFocusOnTask: () => void;
 }
 
 const PomodoroContext = createContext<PomodoroContextType | undefined>(
@@ -43,6 +55,14 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 	const { mode, timeLeft, settings, justCompleted, completedMode } =
 		snapshot.context;
 	const isActive = snapshot.matches("running");
+	const [focusTarget, setFocusTarget] = useState<PomodoroFocusTarget | null>(
+		null,
+	);
+	const addFocusMinutes = useMutation(api.project_tasks.addFocusMinutes);
+
+	useEffect(() => {
+		setFocusTarget(getPomodoroFocusTarget());
+	}, []);
 
 	useEffect(() => {
 		getPomodoroSettings<PomodoroSettings>().then((saved) => {
@@ -70,7 +90,9 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 			{
 				description:
 					completedMode === "focus"
-						? "Great work! Take a break."
+						? focusTarget
+							? `Finished focus on “${focusTarget.taskTitle}”. Take a break.`
+							: "Great work! Take a break."
 						: "Break is over, let's go!",
 				duration: 5000,
 			},
@@ -84,11 +106,34 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 		}
 
 		if (completedMode === "focus") {
-			void logPomodoroSession("focus", settings.focusDuration / 60);
+			const durationMinutes = settings.focusDuration / 60;
+			const meta = focusTarget
+				? {
+						taskId: focusTarget.taskId,
+						taskTitle: focusTarget.taskTitle,
+						projectId: focusTarget.projectId,
+					}
+				: undefined;
+
+			void logPomodoroSession("focus", durationMinutes, meta);
+
+			if (focusTarget) {
+				void addFocusMinutes({
+					taskId: focusTarget.taskId,
+					minutes: durationMinutes,
+				});
+			}
 		}
 
 		send({ type: "ACK_COMPLETE" });
-	}, [justCompleted, completedMode, send, settings.focusDuration]);
+	}, [
+		justCompleted,
+		completedMode,
+		send,
+		settings.focusDuration,
+		focusTarget,
+		addFocusMinutes,
+	]);
 
 	const toggleTimer = useCallback(() => send({ type: "TOGGLE" }), [send]);
 	const resetTimer = useCallback(() => send({ type: "RESET" }), [send]);
@@ -106,6 +151,21 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 		[send, settings],
 	);
 
+	const startFocusOnTask = useCallback(
+		(target: PomodoroFocusTarget) => {
+			setPomodoroFocusTarget(target);
+			setFocusTarget(target);
+			send({ type: "SET_MODE", mode: "focus" });
+			send({ type: "RESET" });
+		},
+		[send],
+	);
+
+	const clearFocusOnTask = useCallback(() => {
+		clearPomodoroFocusTarget();
+		setFocusTarget(null);
+	}, []);
+
 	const progress = getPomodoroProgress(mode, timeLeft, settings);
 
 	const value = useMemo(
@@ -115,11 +175,14 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 			mode,
 			settings,
 			progress,
+			focusTarget,
 			toggleTimer,
 			resetTimer,
 			skipMode,
 			setMode,
 			updateSettings,
+			startFocusOnTask,
+			clearFocusOnTask,
 		}),
 		[
 			timeLeft,
@@ -127,11 +190,14 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
 			mode,
 			settings,
 			progress,
+			focusTarget,
 			toggleTimer,
 			resetTimer,
 			skipMode,
 			setMode,
 			updateSettings,
+			startFocusOnTask,
+			clearFocusOnTask,
 		],
 	);
 

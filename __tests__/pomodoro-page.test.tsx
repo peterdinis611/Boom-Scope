@@ -17,6 +17,10 @@ vi.mock("@/lib/pomodoro-db", () => ({
 	savePomodoroSettings: vi.fn(() => Promise.resolve()),
 }));
 
+vi.mock("convex/react", () => ({
+	useMutation: vi.fn(() => vi.fn()),
+}));
+
 vi.mock("motion/react", () => ({
 	motion: {
 		span: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,

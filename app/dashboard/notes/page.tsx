@@ -1,6 +1,6 @@
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { NoteList } from "@/components/notes/NoteList";
+import { NotesPageClient } from "./notes-page-client";
 
 export default function NotesPage() {
 	return (
@@ -9,7 +9,7 @@ export default function NotesPage() {
 				title="Notes"
 				description="Manage and organize your project thoughts."
 			/>
-			<NoteList />
+			<NotesPageClient />
 		</PageContainer>
 	);
 }

@@ -61,7 +61,8 @@ export const recentActivity = query({
 
 		const limit = Math.min(args.limit ?? 12, 30);
 
-		const [notes, designs, links, designSystems, tasks] = await Promise.all([
+		const [notes, designs, links, designSystems, tasks, taskEvents] =
+			await Promise.all([
 			ctx.db
 				.query("notes")
 				.withIndex("by_userId", (q) => q.eq("userId", userId))
@@ -87,6 +88,11 @@ export const recentActivity = query({
 				.withIndex("by_userId", (q) => q.eq("userId", userId))
 				.order("desc")
 				.take(limit),
+			ctx.db
+				.query("task_activity_events")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.order("desc")
+				.take(limit),
 		]);
 
 		const items = [
@@ -109,7 +115,9 @@ export const recentActivity = query({
 				type: "link" as const,
 				title: link.title,
 				timestamp: link._creationTime,
-				href: "/dashboard/links",
+				href: link.projectId
+					? `/dashboard/links?projectId=${link.projectId}`
+					: "/dashboard/links",
 			})),
 			...designSystems.map((system) => ({
 				id: system._id,
@@ -124,6 +132,13 @@ export const recentActivity = query({
 				title: task.title,
 				timestamp: task._creationTime,
 				href: `/dashboard/tasks?projectId=${task.projectId}`,
+			})),
+			...taskEvents.map((event) => ({
+				id: event._id,
+				type: "task-event" as const,
+				title: event.summary,
+				timestamp: event._creationTime,
+				href: `/dashboard/tasks?projectId=${event.projectId}`,
 			})),
 		];
 
@@ -248,5 +263,87 @@ export const globalSearch = query({
 		];
 
 		return { navigation, results: results.slice(0, 20) };
+	},
+});
+
+function startOfLocalDay(timestamp = Date.now()): number {
+	const date = new Date(timestamp);
+	date.setHours(0, 0, 0, 0);
+	return date.getTime();
+}
+
+export const todaySummary = query({
+	handler: async (ctx) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId) {
+			return {
+				dueToday: [],
+				dueThisWeek: [],
+				overdue: [],
+				recentNotes: [],
+			};
+		}
+
+		const todayStart = startOfLocalDay();
+		const tomorrowStart = todayStart + 86_400_000;
+		const weekEnd = todayStart + 7 * 86_400_000;
+
+		const [tasks, notes] = await Promise.all([
+			ctx.db
+				.query("project_tasks")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.collect(),
+			ctx.db
+				.query("notes")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.order("desc")
+				.take(5),
+		]);
+
+		const enriched = await Promise.all(
+			tasks.map(async (task) => {
+				const project = await ctx.db.get(task.projectId);
+				const column = task.columnId ? await ctx.db.get(task.columnId) : null;
+				return {
+					_id: task._id,
+					title: task.title,
+					projectId: task.projectId,
+					projectName: project?.name ?? null,
+					dueDate: task.dueDate,
+					priority: task.priority,
+					columnKey: column?.key ?? task.status ?? null,
+				};
+			}),
+		);
+
+		const openTasks = enriched.filter((task) => task.columnKey !== "done");
+
+		const dueToday = openTasks.filter(
+			(task) =>
+				task.dueDate !== undefined &&
+				task.dueDate >= todayStart &&
+				task.dueDate < tomorrowStart,
+		);
+		const dueThisWeek = openTasks.filter(
+			(task) =>
+				task.dueDate !== undefined &&
+				task.dueDate >= tomorrowStart &&
+				task.dueDate < weekEnd,
+		);
+		const overdue = openTasks.filter(
+			(task) => task.dueDate !== undefined && task.dueDate < todayStart,
+		);
+
+		return {
+			dueToday,
+			dueThisWeek,
+			overdue,
+			recentNotes: notes.map((note) => ({
+				_id: note._id,
+				title: note.title,
+				projectId: note.projectId,
+				updatedAt: note._creationTime,
+			})),
+		};
 	},
 });

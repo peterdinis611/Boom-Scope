@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import {
 	ArrowLeft,
 	Clock,
@@ -11,11 +11,15 @@ import {
 	Plus,
 	Settings2,
 	Sparkles,
+	SquareKanban,
+	StickyNote,
+	Timer,
 	Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
+import { ProjectKanban } from "@/components/kanban/project-kanban";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -25,7 +29,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkLibrary } from "@/components/links/link-library";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useProjectFocusMinutes } from "@/hooks/use-project-focus-minutes";
 import { formatAppDate } from "@/lib/locale";
+import { countStickyNotesForProject } from "@/lib/workflow-stats";
 
 export default function ProjectDetailPage() {
 	const params = useParams();
@@ -64,6 +70,19 @@ export default function ProjectDetailPage() {
 		api.project_links.list,
 		projectId ? { projectId: projectId as Id<"projects"> } : "skip",
 	);
+
+	const projectTasks = useQuery(
+		api.project_tasks.list,
+		projectId ? { projectId: projectId as Id<"projects"> } : "skip",
+	);
+
+	const stickyBoard = useQuery(api.sticky_notes.get);
+
+	const focusMinutes = useProjectFocusMinutes(projectId);
+
+	const stickyNotesCount = projectId
+		? countStickyNotesForProject(stickyBoard?.items, projectId)
+		: 0;
 
 	if (project === undefined) {
 		return (
@@ -149,7 +168,46 @@ export default function ProjectDetailPage() {
 					icon={Layout}
 					href={`/dashboard/design-system/v2?projectId=${projectId}`}
 				/>
+				<StatCard
+					title="Tasks"
+					value={projectTasks?.length ?? 0}
+					icon={SquareKanban}
+					href={`/dashboard/tasks?projectId=${projectId}` as Route}
+				/>
+				<StatCard
+					title="Sticky Notes"
+					value={stickyNotesCount}
+					icon={StickyNote}
+					href={`/dashboard/sticky-notes?projectId=${projectId}` as Route}
+				/>
+				<StatCard
+					title="Focus time"
+					value={`${focusMinutes}m`}
+					icon={Timer}
+					href={`/dashboard/pomodoro?projectId=${projectId}` as Route}
+				/>
 			</div>
+
+			<section className="space-y-4">
+				<div className="flex items-center justify-between">
+					<h2 className="section-title">Task board</h2>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={() =>
+							router.push(`/dashboard/tasks?projectId=${projectId}` as Route)
+						}
+						className="gap-2"
+					>
+						<SquareKanban className="size-4" />
+						Open full board
+					</Button>
+				</div>
+				<ProjectKanban
+					defaultProjectId={projectId as Id<"projects">}
+					variant="embedded"
+				/>
+			</section>
 
 			<section className="space-y-4">
 				<div className="flex items-center justify-between">

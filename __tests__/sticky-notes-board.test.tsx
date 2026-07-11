@@ -8,6 +8,15 @@ vi.mock("convex/react", () => ({
 	useMutation: vi.fn(() => vi.fn()),
 }));
 
+vi.mock("convex/react", () => ({
+	useQuery: vi.fn(),
+	useMutation: vi.fn(() => vi.fn()),
+}));
+
+vi.mock("@/components/notes/ProjectSelector", () => ({
+	ProjectSelector: () => <div>Project filter</div>,
+}));
+
 vi.mock("@/lib/sticky-notes", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("@/lib/sticky-notes")>();
 	return {

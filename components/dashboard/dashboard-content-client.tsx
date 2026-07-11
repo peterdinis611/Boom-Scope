@@ -29,6 +29,16 @@ const ActivityFeed = dynamic(
 	},
 );
 
+const TodayWidget = dynamic(
+	() =>
+		import("@/components/dashboard/today-widget").then(
+			(module) => module.TodayWidget,
+		),
+	{
+		loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+	},
+);
+
 const StickyNotesPreview = dynamic(
 	() =>
 		import("@/components/dashboard/sticky-notes-preview").then(
@@ -112,6 +122,8 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 					href="/dashboard/generator"
 				/>
 			</div>
+
+			<TodayWidget />
 
 			<div className="grid gap-4 lg:grid-cols-2">
 				<StickyNotesPreview />

@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { EmptyState } from "@/components/layout/EmptyState";
+import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -27,14 +28,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
 import { formatAppDate } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
-export function NoteList() {
+export function NoteList({
+	defaultProjectId,
+}: {
+	defaultProjectId?: Id<"projects">;
+} = {}) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 	const [selectedTag, setSelectedTag] = useState<string | null>(null);
+	const [projectId, setProjectId] = useState<Id<"projects"> | undefined>(
+		defaultProjectId,
+	);
+
+	useEffect(() => {
+		setProjectId(defaultProjectId);
+	}, [defaultProjectId]);
 
 	const tagOptions = useQuery(api.notes.listTags);
 
@@ -43,6 +56,7 @@ export function NoteList() {
 		{
 			searchTerm: debouncedSearchTerm || undefined,
 			tag: selectedTag ?? undefined,
+			projectId,
 		},
 		{ initialNumItems: 9 },
 	);
@@ -63,19 +77,25 @@ export function NoteList() {
 
 	return (
 		<div className="flex flex-col gap-6">
-			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-				<div className="relative flex-1 max-w-sm">
-					{isSearching ? (
-						<Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary animate-spin" />
-					) : (
-						<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
-					)}
-					<Input
-						placeholder="Search notes…"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						className="pl-9"
-					/>
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+				<div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+					<div className="relative max-w-sm flex-1">
+						{isSearching ? (
+							<Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary animate-spin" />
+						) : (
+							<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
+						)}
+						<Input
+							placeholder="Search notes…"
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							className="pl-9"
+						/>
+					</div>
+					<div className="w-full max-w-xs space-y-1">
+						<p className="text-xs font-medium text-muted-foreground">Project</p>
+						<ProjectSelector value={projectId} onChange={setProjectId} />
+					</div>
 				</div>
 				<Link href="/dashboard/notes/new">
 					<Button size="sm" className="gap-2">

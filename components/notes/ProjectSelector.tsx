@@ -15,12 +15,14 @@ interface ProjectSelectorProps {
 	value?: Id<"projects">;
 	onChange: (value?: Id<"projects">) => void;
 	placeholder?: string;
+	noneLabel?: string;
 }
 
 export function ProjectSelector({
 	value,
 	onChange,
 	placeholder = "Select project",
+	noneLabel = "No project",
 }: ProjectSelectorProps) {
 	const projects = useQuery(api.projects.list);
 
@@ -35,7 +37,7 @@ export function ProjectSelector({
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="none">No project</SelectItem>
+				<SelectItem value="none">{noneLabel}</SelectItem>
 				{projects?.map((project) => (
 					<SelectItem key={project._id} value={project._id}>
 						{project.name}

@@ -30,6 +30,7 @@ export type StickyNoteItem = {
 	position: StickyNotePosition;
 	width?: number;
 	height?: number;
+	projectId?: string;
 };
 
 export function parseStickyNoteItems(raw: string | undefined): StickyNoteItem[] {
@@ -78,6 +79,7 @@ export function pickStickyNoteColor(): string {
 export function createStickyNote(
 	existing: StickyNoteItem[],
 	color = pickStickyNoteColor(),
+	projectId?: string,
 ): StickyNoteItem {
 	const offset = existing.length * 28;
 	return {
@@ -85,6 +87,7 @@ export function createStickyNote(
 		color,
 		text: "",
 		selected: true,
+		projectId,
 		position: {
 			x: 32 + offset,
 			y: 32 + offset,
@@ -106,7 +109,8 @@ function isStickyNoteItem(value: unknown): value is StickyNoteItem {
 		typeof item.position?.x === "number" &&
 		typeof item.position?.y === "number" &&
 		(item.width === undefined || typeof item.width === "number") &&
-		(item.height === undefined || typeof item.height === "number")
+		(item.height === undefined || typeof item.height === "number") &&
+		(item.projectId === undefined || typeof item.projectId === "string")
 	);
 }
 

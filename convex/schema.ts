@@ -86,18 +86,58 @@ export default defineSchema({
 		userId: v.id("users"),
 		items: v.string(),
 	}).index("by_userId", ["userId"]),
+	kanban_columns: defineTable({
+		projectId: v.id("projects"),
+		userId: v.id("users"),
+		label: v.string(),
+		color: v.string(),
+		position: v.number(),
+		key: v.optional(v.string()),
+	})
+		.index("by_projectId", ["projectId"]),
 	project_tasks: defineTable({
 		title: v.string(),
 		description: v.optional(v.string()),
-		status: v.union(
-			v.literal("todo"),
-			v.literal("in_progress"),
-			v.literal("done"),
+		status: v.optional(
+			v.union(v.literal("todo"), v.literal("in_progress"), v.literal("done")),
 		),
+		columnId: v.optional(v.id("kanban_columns")),
 		projectId: v.id("projects"),
 		userId: v.id("users"),
 		position: v.number(),
+		linkedNoteId: v.optional(v.id("notes")),
+		linkedDesignId: v.optional(v.id("designs")),
+		focusMinutes: v.optional(v.number()),
+		dueDate: v.optional(v.number()),
+		priority: v.optional(
+			v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+		),
+		labels: v.optional(v.array(v.string())),
+		subtasks: v.optional(
+			v.array(
+				v.object({
+					id: v.string(),
+					title: v.string(),
+					completed: v.boolean(),
+				}),
+			),
+		),
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),
+	task_activity_events: defineTable({
+		userId: v.id("users"),
+		projectId: v.id("projects"),
+		taskId: v.id("project_tasks"),
+		kind: v.union(
+			v.literal("created"),
+			v.literal("updated"),
+			v.literal("moved"),
+			v.literal("completed"),
+			v.literal("deleted"),
+		),
+		summary: v.string(),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_taskId", ["taskId"]),
 });

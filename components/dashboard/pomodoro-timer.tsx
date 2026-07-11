@@ -10,6 +10,7 @@ import {
 	RotateCcw,
 	Settings2,
 	SkipForward,
+	X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
@@ -41,11 +42,13 @@ export function PomodoroTimer() {
 		mode,
 		settings,
 		progress,
+		focusTarget,
 		toggleTimer,
 		resetTimer,
 		skipMode,
 		setMode,
 		updateSettings,
+		clearFocusOnTask,
 	} = usePomodoro();
 
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -87,6 +90,25 @@ export function PomodoroTimer() {
 	return (
 		<div className="w-full">
 			<Card className="relative overflow-hidden shadow-sm">
+				{focusTarget ? (
+					<div className="flex items-center justify-between gap-3 border-b border-primary/20 bg-primary/5 px-4 py-3">
+						<div className="min-w-0">
+							<p className="text-xs font-medium uppercase tracking-wide text-primary">
+								Focusing on
+							</p>
+							<p className="truncate text-sm font-medium">{focusTarget.taskTitle}</p>
+						</div>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-sm"
+							onClick={clearFocusOnTask}
+							aria-label="Clear task focus"
+						>
+							<X className="size-4" />
+						</Button>
+					</div>
+				) : null}
 				<div className="border-b border-border bg-muted/20 p-2">
 					<div
 						className="grid grid-cols-3 gap-1 rounded-lg bg-background/70 p-1"

@@ -33,6 +33,10 @@ vi.mock("@/lib/pomodoro-db", () => ({
 	savePomodoroSettings: vi.fn(() => Promise.resolve()),
 }));
 
+vi.mock("convex/react", () => ({
+	useMutation: vi.fn(() => vi.fn()),
+}));
+
 // Mock the Popover to render its content inline so that inputs are always visible
 vi.mock("@/components/ui/popover", () => ({
 	Popover: ({ children }: { children: React.ReactNode }) => <>{children}</>,

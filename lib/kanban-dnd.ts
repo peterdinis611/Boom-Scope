@@ -1,33 +1,28 @@
-import type { KanbanStatus } from "@/lib/kanban";
-
-export function columnDroppableId(status: KanbanStatus): string {
-	return `column:${status}`;
+export function columnDroppableId(columnId: string): string {
+	return `column:${columnId}`;
 }
 
-export function parseColumnDroppableId(id: string): KanbanStatus | null {
+export function parseColumnDroppableId(id: string): string | null {
 	if (!id.startsWith("column:")) return null;
-	const status = id.slice("column:".length);
-	if (status === "todo" || status === "in_progress" || status === "done") {
-		return status;
-	}
-	return null;
+	const columnId = id.slice("column:".length);
+	return columnId.length > 0 ? columnId : null;
 }
 
-type TaskLike = { _id: string; status: KanbanStatus };
+type TaskLike = { _id: string; columnId?: string };
 
 export function resolveDropTarget(
 	overId: string,
-	tasksByStatus: Record<KanbanStatus, TaskLike[]>,
-): { status: KanbanStatus; index: number } | null {
-	const columnStatus = parseColumnDroppableId(overId);
-	if (columnStatus) {
-		return { status: columnStatus, index: tasksByStatus[columnStatus].length };
+	tasksByColumn: Record<string, TaskLike[]>,
+): { columnId: string; index: number } | null {
+	const columnId = parseColumnDroppableId(overId);
+	if (columnId) {
+		return { columnId, index: tasksByColumn[columnId]?.length ?? 0 };
 	}
 
-	for (const status of ["todo", "in_progress", "done"] as KanbanStatus[]) {
-		const index = tasksByStatus[status].findIndex((task) => task._id === overId);
+	for (const [groupColumnId, tasks] of Object.entries(tasksByColumn)) {
+		const index = tasks.findIndex((task) => task._id === overId);
 		if (index !== -1) {
-			return { status, index };
+			return { columnId: groupColumnId, index };
 		}
 	}
 

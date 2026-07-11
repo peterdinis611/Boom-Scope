@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { ProjectKanban } from "@/components/kanban/project-kanban";
+import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 vi.mock("@dnd-kit/core", () => ({
@@ -47,6 +48,17 @@ vi.mock("sonner", () => ({
 	},
 }));
 
+vi.mock("next/navigation", () => ({
+	useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("@/components/dashboard/pomodoro-context", () => ({
+	usePomodoro: () => ({
+		startFocusOnTask: vi.fn(),
+		focusTarget: null,
+	}),
+}));
+
 vi.mock("@/components/notes/ProjectSelector", () => ({
 	ProjectSelector: ({
 		value,
@@ -72,8 +84,52 @@ vi.mock("@/components/notes/ProjectSelector", () => ({
 	),
 }));
 
+const defaultColumns = [
+	{
+		_id: "col-todo" as Id<"kanban_columns">,
+		projectId: "proj-1" as Id<"projects">,
+		label: "To do",
+		color: "bg-slate-500/10 text-slate-700 dark:text-slate-300",
+		position: 0,
+		key: "todo",
+	},
+	{
+		_id: "col-progress" as Id<"kanban_columns">,
+		projectId: "proj-1" as Id<"projects">,
+		label: "In progress",
+		color: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+		position: 1,
+		key: "in_progress",
+	},
+	{
+		_id: "col-done" as Id<"kanban_columns">,
+		projectId: "proj-1" as Id<"projects">,
+		label: "Done",
+		color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+		position: 2,
+		key: "done",
+	},
+];
+
 function mockQueries(tasks: unknown) {
-	vi.mocked(useQuery).mockImplementation(() => tasks);
+	let projectScopedCall = 0;
+
+	vi.mocked(useQuery).mockImplementation((_query, args) => {
+		if (args === "skip") return undefined;
+		if (!args) {
+			return [{ _id: "proj-1" as Id<"projects">, name: "Alpha" }];
+		}
+		if (typeof args === "object" && "paginationOpts" in args) {
+			return { page: [] };
+		}
+		if (typeof args === "object" && "projectId" in args) {
+			projectScopedCall += 1;
+			if (projectScopedCall % 3 === 1) return defaultColumns;
+			if (projectScopedCall % 3 === 2) return tasks ?? [];
+			return [];
+		}
+		return undefined;
+	});
 }
 
 describe("Component: ProjectKanban", () => {
@@ -82,7 +138,12 @@ describe("Component: ProjectKanban", () => {
 	});
 
 	test("prompts to select a project when none is chosen", () => {
-		mockQueries(undefined);
+		vi.mocked(useQuery).mockImplementation((query, args) => {
+			if (args === "skip") return undefined;
+			if (query === api.projects.list) return [];
+			if (query === api.project_tasks.list) return [];
+			return undefined;
+		});
 		render(<ProjectKanban />);
 		expect(screen.getByText(/Select a project/i)).toBeDefined();
 	});
@@ -92,7 +153,7 @@ describe("Component: ProjectKanban", () => {
 			{
 				_id: "task-1" as Id<"project_tasks">,
 				title: "Write tests",
-				status: "todo",
+				columnId: "col-todo" as Id<"kanban_columns">,
 				position: 0,
 				projectId: "proj-1" as Id<"projects">,
 				_creationTime: Date.now(),
@@ -123,11 +184,12 @@ describe("Component: ProjectKanban", () => {
 		fireEvent.click(screen.getByRole("button", { name: /^Add$/i }));
 
 		await waitFor(() => {
-			expect(mockCreate).toHaveBeenCalledWith({
-				title: "Deploy release",
-				projectId: "proj-1",
-				status: "todo",
-			});
+			expect(mockCreate).toHaveBeenCalledWith(
+				expect.objectContaining({
+					title: "Deploy release",
+					projectId: "proj-1",
+				}),
+			);
 			expect(toast.success).toHaveBeenCalledWith("Task created");
 		});
 	});
@@ -149,7 +211,7 @@ describe("Component: ProjectKanban", () => {
 				_id: "task-1" as Id<"project_tasks">,
 				title: "Write tests",
 				description: "Cover drag and drop",
-				status: "todo",
+				columnId: "col-todo" as Id<"kanban_columns">,
 				position: 0,
 				projectId: "proj-1" as Id<"projects">,
 				_creationTime: Date.now(),

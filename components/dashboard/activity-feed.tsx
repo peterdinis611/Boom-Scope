@@ -21,6 +21,11 @@ const ACTIVITY_META = {
 	link: { icon: Link2, label: "Link", color: "text-indigo-600" },
 	"design-system": { icon: Layout, label: "Design system", color: "text-amber-600" },
 	task: { icon: SquareKanban, label: "Task", color: "text-sky-600" },
+	"task-event": {
+		icon: SquareKanban,
+		label: "Task update",
+		color: "text-teal-600",
+	},
 	project: { icon: FolderKanban, label: "Project", color: "text-sky-600" },
 } as const;
 

@@ -1,18 +1,72 @@
 import { describe, expect, test } from "vitest";
-import { getKanbanColumnLabel, KANBAN_COLUMNS } from "@/lib/kanban";
+import {
+	DEFAULT_KANBAN_COLUMNS,
+	formatDueDate,
+	getKanbanColumnLabel,
+	isTaskOverdue,
+	startOfLocalDay,
+} from "@/lib/kanban";
+import {
+	EMPTY_KANBAN_FILTERS,
+	filterKanbanTasks,
+} from "@/lib/kanban-filters";
 
-describe("kanban lib", () => {
-	test("defines three workflow columns", () => {
-		expect(KANBAN_COLUMNS.map((column) => column.id)).toEqual([
+describe("Lib: kanban", () => {
+	test("exposes default column presets", () => {
+		expect(DEFAULT_KANBAN_COLUMNS.map((column) => column.key)).toEqual([
 			"todo",
 			"in_progress",
 			"done",
 		]);
 	});
 
-	test("getKanbanColumnLabel returns human-readable labels", () => {
+	test("resolves column labels", () => {
 		expect(getKanbanColumnLabel("todo")).toBe("To do");
 		expect(getKanbanColumnLabel("in_progress")).toBe("In progress");
-		expect(getKanbanColumnLabel("done")).toBe("Done");
+	});
+
+	test("detects overdue tasks", () => {
+		const yesterday = startOfLocalDay() - 86_400_000;
+		expect(isTaskOverdue(yesterday, "todo")).toBe(true);
+		expect(isTaskOverdue(yesterday, "done")).toBe(false);
+	});
+
+	test("formats due dates", () => {
+		expect(formatDueDate(Date.UTC(2026, 4, 23))).toMatch(/May/);
+	});
+});
+
+describe("Lib: kanban-filters", () => {
+	test("filters by search text and priority", () => {
+		const tasks = [
+			{
+				_id: "1",
+				title: "Write docs",
+				description: "",
+				projectId: "p1",
+				userId: "u1",
+				position: 0,
+				priority: "high" as const,
+				labels: ["docs"],
+			},
+			{
+				_id: "2",
+				title: "Ship feature",
+				description: "",
+				projectId: "p1",
+				userId: "u1",
+				position: 1,
+				priority: "low" as const,
+			},
+		];
+
+		const filtered = filterKanbanTasks(tasks, {
+			...EMPTY_KANBAN_FILTERS,
+			search: "docs",
+			priority: "high",
+		});
+
+		expect(filtered).toHaveLength(1);
+		expect(filtered[0]?.title).toBe("Write docs");
 	});
 });

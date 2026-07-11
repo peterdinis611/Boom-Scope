@@ -8,6 +8,9 @@ export type PomodoroSession = {
 	mode: PomodoroMode;
 	durationMinutes: number;
 	completedAt: number;
+	taskId?: string;
+	taskTitle?: string;
+	projectId?: string;
 };
 
 const MAX_SESSIONS = 500;
@@ -23,6 +26,7 @@ export async function getPomodoroSessions(): Promise<PomodoroSession[]> {
 export async function logPomodoroSession(
 	mode: PomodoroMode,
 	durationMinutes: number,
+	meta?: Pick<PomodoroSession, "taskId" | "taskTitle" | "projectId">,
 ): Promise<void> {
 	runFork(
 		Effect.tryPromise({
@@ -33,6 +37,7 @@ export async function logPomodoroSession(
 					mode,
 					durationMinutes,
 					completedAt: Date.now(),
+					...meta,
 				};
 				await idbSet(
 					IDB_KEYS.pomodoroSessions,

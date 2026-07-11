@@ -8,32 +8,31 @@ import {
 
 describe("Lib: kanban-dnd", () => {
 	test("creates and parses column droppable ids", () => {
-		expect(columnDroppableId("todo")).toBe("column:todo");
-		expect(parseColumnDroppableId("column:in_progress")).toBe("in_progress");
+		expect(columnDroppableId("col-1")).toBe("column:col-1");
+		expect(parseColumnDroppableId("column:key:done")).toBe("key:done");
 		expect(parseColumnDroppableId("task-1")).toBeNull();
 	});
 
 	test("resolves drop on empty column", () => {
 		const target = resolveDropTarget("column:done", {
-			todo: [{ _id: "t1", status: "todo" }],
-			in_progress: [],
+			todo: [{ _id: "t1" }],
 			done: [],
 		});
 
-		expect(target).toEqual({ status: "done", index: 0 });
+		expect(target).toEqual({ columnId: "done", index: 0 });
 	});
 
 	test("resolves drop on task index", () => {
 		const target = resolveDropTarget("t2", {
 			todo: [],
 			in_progress: [
-				{ _id: "t1", status: "in_progress" },
-				{ _id: "t2", status: "in_progress" },
+				{ _id: "t1" },
+				{ _id: "t2" },
 			],
 			done: [],
 		});
 
-		expect(target).toEqual({ status: "in_progress", index: 1 });
+		expect(target).toEqual({ columnId: "in_progress", index: 1 });
 	});
 
 	test("reorders ids within a list", () => {

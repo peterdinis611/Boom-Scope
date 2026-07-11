@@ -2,9 +2,11 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { Plus } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import {
 	createStickyNote,
 	parseStickyNoteItems,
@@ -21,12 +23,19 @@ const SAVE_DEBOUNCE_MS = 500;
 
 type StickyNotesBoardProps = {
 	focusNoteId?: string | null;
+	defaultProjectId?: Id<"projects">;
 };
 
-export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
+export function StickyNotesBoard({
+	focusNoteId,
+	defaultProjectId,
+}: StickyNotesBoardProps = {}) {
 	const board = useQuery(api.sticky_notes.get);
 	const saveBoard = useMutation(api.sticky_notes.save);
 	const [notes, setNotes] = useState<StickyNoteItem[]>(readStickyNotesCache);
+	const [projectFilter, setProjectFilter] = useState<Id<"projects"> | undefined>(
+		defaultProjectId,
+	);
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [selectedColor, setSelectedColor] = useState<string>(
 		STICKY_NOTE_COLORS[0],
@@ -50,6 +59,10 @@ export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 
 		setActiveId((current) => current ?? serverNotes[0]?.id ?? null);
 	}, [board]);
+
+	useEffect(() => {
+		setProjectFilter(defaultProjectId);
+	}, [defaultProjectId]);
 
 	useEffect(() => {
 		if (!focusNoteId || notes.length === 0) return;
@@ -101,8 +114,13 @@ export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 		[persistNotes],
 	);
 
+	const visibleNotes = useMemo(() => {
+		if (!projectFilter) return notes;
+		return notes.filter((note) => note.projectId === projectFilter);
+	}, [notes, projectFilter]);
+
 	const handleAddNote = () => {
-		const note = createStickyNote(notes, selectedColor);
+		const note = createStickyNote(notes, selectedColor, projectFilter);
 		commitNotes((current) => [...current, note]);
 		setActiveId(note.id);
 	};
@@ -125,6 +143,14 @@ export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 					<Plus data-icon="inline-start" />
 					Add note
 				</Button>
+				<div className="w-full max-w-[220px]">
+					<ProjectSelector
+						value={projectFilter}
+						onChange={setProjectFilter}
+						noneLabel="All projects"
+						placeholder="All projects"
+					/>
+				</div>
 				<div className="flex flex-wrap items-center gap-1.5">
 					{STICKY_NOTE_COLORS.map((color) => (
 						<button
@@ -147,11 +173,13 @@ export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 				className="relative min-h-0 flex-1 overflow-auto bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.08)_1px,transparent_0)] [background-size:24px_24px] dark:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)]"
 				onPointerDown={() => setActiveId(null)}
 			>
-				{notes.length === 0 ? (
+				{visibleNotes.length === 0 ? (
 					<div className="flex h-full min-h-[360px] items-center justify-center px-6 text-center">
 						<div className="space-y-2">
 							<p className="text-sm font-medium text-foreground">
-								Your board is empty
+								{projectFilter
+									? "No sticky notes for this project"
+									: "Your board is empty"}
 							</p>
 							<p className="text-sm text-muted-foreground">
 								Click <span className="font-medium">Add note</span> to start
@@ -160,7 +188,7 @@ export function StickyNotesBoard({ focusNoteId }: StickyNotesBoardProps = {}) {
 						</div>
 					</div>
 				) : (
-					notes.map((note) => (
+					visibleNotes.map((note) => (
 						<StickyNoteCard
 							key={note.id}
 							note={note}

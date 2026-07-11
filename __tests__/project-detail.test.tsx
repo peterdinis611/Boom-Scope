@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { useQuery } from "convex/react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import React from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import ProjectDetailPage from "../app/dashboard/projects/[projectId]/page";
@@ -15,6 +15,14 @@ vi.mock("@/components/links/link-library", () => ({
 	LinkLibrary: () => <div>Link Library</div>,
 }));
 
+vi.mock("@/components/kanban/project-kanban", () => ({
+	ProjectKanban: () => <div>Embedded Task Board</div>,
+}));
+
+vi.mock("@/hooks/use-project-focus-minutes", () => ({
+	useProjectFocusMinutes: () => 45,
+}));
+
 vi.mock("next/navigation", () => ({
 	useRouter: () => ({
 		push: vi.fn(),
@@ -26,6 +34,24 @@ vi.mock("next/navigation", () => ({
 	})),
 }));
 
+function mockProjectDetailQueries() {
+	const mockProject = {
+		_id: "test-id" as unknown as Id<"projects">,
+		name: "Architecture Project",
+		description: "A custom villa design",
+		_creationTime: Date.now(),
+	};
+
+	vi.mocked(useQuery)
+		.mockReturnValueOnce(mockProject)
+		.mockReturnValueOnce([])
+		.mockReturnValueOnce([])
+		.mockReturnValueOnce({ page: [] })
+		.mockReturnValueOnce([])
+		.mockReturnValueOnce([])
+		.mockReturnValueOnce({ items: "[]" });
+}
+
 describe("Page: Project Detail", () => {
 	beforeEach(() => {
 		vi.resetAllMocks();
@@ -33,20 +59,7 @@ describe("Page: Project Detail", () => {
 
 	test("renders project title and description", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
-
-		const mockProject = {
-			_id: "test-id" as unknown as Id<"projects">,
-			name: "Architecture Project",
-			description: "A custom villa design",
-			_creationTime: Date.now(),
-		};
-
-		vi.mocked(useQuery)
-			.mockReturnValueOnce(mockProject)
-			.mockReturnValueOnce([])
-			.mockReturnValueOnce([])
-			.mockReturnValueOnce({ page: [] })
-			.mockReturnValueOnce([]);
+		mockProjectDetailQueries();
 
 		render(<ProjectDetailPage />);
 
@@ -54,7 +67,7 @@ describe("Page: Project Detail", () => {
 		expect(screen.getByText("A custom villa design")).toBeDefined();
 	});
 
-	test("shows the correct module sections", async () => {
+	test("shows workflow sections and stats", async () => {
 		vi.mocked(useParams).mockReturnValue({ projectId: "test-id" });
 
 		const mockProject = {
@@ -68,13 +81,18 @@ describe("Page: Project Detail", () => {
 			.mockReturnValueOnce([])
 			.mockReturnValueOnce([])
 			.mockReturnValueOnce({ page: [] })
-			.mockReturnValueOnce([]);
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce([])
+			.mockReturnValueOnce({ items: "[]" });
 
 		render(<ProjectDetailPage />);
 
 		expect(await screen.findByText("Notes")).toBeDefined();
-		expect(screen.getByText("Canvas")).toBeDefined();
-		expect(screen.getByText("Design systems")).toBeDefined();
+		expect(screen.getByText("Tasks")).toBeDefined();
+		expect(screen.getByText("Sticky Notes")).toBeDefined();
+		expect(screen.getByText("Focus time")).toBeDefined();
+		expect(screen.getByText("Task board")).toBeDefined();
+		expect(screen.getByText("Embedded Task Board")).toBeDefined();
 		expect(screen.getByText("Link Library")).toBeDefined();
 	});
 
