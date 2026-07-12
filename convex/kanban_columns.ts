@@ -152,6 +152,7 @@ export const update = mutation({
 		columnId: v.id("kanban_columns"),
 		label: v.optional(v.string()),
 		color: v.optional(v.string()),
+		wipLimit: v.optional(v.union(v.number(), v.null())),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
@@ -162,13 +163,24 @@ export const update = mutation({
 			throw new ConvexError("Unauthorized");
 		}
 
-		const updates: Record<string, string> = {};
+		const updates: Record<string, unknown> = {};
 		if (args.label !== undefined) {
 			const label = args.label.trim();
 			if (!label) throw new ConvexError("Column label is required");
 			updates.label = label;
 		}
 		if (args.color !== undefined) updates.color = args.color;
+		if (args.wipLimit !== undefined) {
+			if (args.wipLimit === null) {
+				updates.wipLimit = undefined;
+			} else {
+				const wipLimit = Math.floor(args.wipLimit);
+				if (wipLimit < 1) {
+					throw new ConvexError("WIP limit must be at least 1");
+				}
+				updates.wipLimit = wipLimit;
+			}
+		}
 
 		if (Object.keys(updates).length > 0) {
 			await ctx.db.patch(args.columnId, updates);

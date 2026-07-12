@@ -41,6 +41,7 @@ export type KanbanColumn = {
 	color: string;
 	position: number;
 	key?: string | null;
+	wipLimit?: number | null;
 };
 
 export type TaskPriority = "low" | "medium" | "high";
@@ -108,4 +109,23 @@ export function createSubtask(title: string): TaskSubtask {
 		title: title.trim(),
 		completed: false,
 	};
+}
+
+export function formatWipCount(taskCount: number, wipLimit?: number | null): string {
+	if (!wipLimit) return String(taskCount);
+	return `${taskCount}/${wipLimit}`;
+}
+
+export function isWipLimitReached(
+	taskCount: number,
+	wipLimit?: number | null,
+): boolean {
+	return Boolean(wipLimit && wipLimit > 0 && taskCount >= wipLimit);
+}
+
+export function isWipLimitExceeded(
+	taskCount: number,
+	wipLimit?: number | null,
+): boolean {
+	return Boolean(wipLimit && wipLimit > 0 && taskCount > wipLimit);
 }

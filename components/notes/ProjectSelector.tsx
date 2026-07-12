@@ -12,6 +12,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 interface ProjectSelectorProps {
+	id?: string;
 	value?: Id<"projects">;
 	onChange: (value?: Id<"projects">) => void;
 	placeholder?: string;
@@ -19,6 +20,7 @@ interface ProjectSelectorProps {
 }
 
 export function ProjectSelector({
+	id,
 	value,
 	onChange,
 	placeholder = "Select project",
@@ -33,7 +35,7 @@ export function ProjectSelector({
 				onChange(val === "none" ? undefined : (val as Id<"projects">))
 			}
 		>
-			<SelectTrigger className="w-full">
+			<SelectTrigger id={id} className="h-9 w-full">
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent>

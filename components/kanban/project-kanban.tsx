@@ -25,6 +25,7 @@ import { filterKanbanTasks } from "@/lib/kanban-filters";
 import { resolveDropTarget } from "@/lib/kanban-dnd";
 import {
 	DEFAULT_KANBAN_COLUMNS,
+	isWipLimitReached,
 	startOfLocalDay,
 	type KanbanColumn,
 } from "@/lib/kanban";
@@ -240,6 +241,14 @@ export function ProjectKanban({
 		return (tasks ?? []).find((task) => task._id === activeTaskId) ?? null;
 	}, [activeTaskId, tasks]);
 
+	const columnsById = useMemo(() => {
+		const map = new Map<string, KanbanColumn>();
+		for (const column of columns ?? []) {
+			map.set(column._id, column);
+		}
+		return map;
+	}, [columns]);
+
 	const firstColumnId = useMemo(() => {
 		if (isAllScope || !columns?.length) return undefined;
 		return columns[0]?._id;
@@ -368,6 +377,22 @@ export function ProjectKanban({
 		}
 
 		if (!toColumnId) return;
+
+		if (!isAllScope) {
+			const destinationColumn = columnsById.get(toColumnId);
+			const movingAcrossColumns = task.columnId !== toColumnId;
+			const destinationCount = grouped[dropTarget.columnId]?.length ?? 0;
+
+			if (
+				movingAcrossColumns &&
+				isWipLimitReached(destinationCount, destinationColumn?.wipLimit)
+			) {
+				toast.error(
+					`WIP limit reached for ${destinationColumn?.label ?? "column"} (${destinationColumn?.wipLimit})`,
+				);
+				return;
+			}
+		}
 
 		try {
 			await moveTaskMutation({

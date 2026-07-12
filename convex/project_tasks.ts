@@ -428,6 +428,21 @@ export const move = mutation({
 		const fromColumnId = task.columnId;
 		const toIndex = Math.max(0, Math.floor(args.toIndex));
 
+		if (
+			fromColumnId !== toColumnId &&
+			destinationColumn.wipLimit &&
+			destinationColumn.wipLimit > 0
+		) {
+			const destinationCount = projectTasks.filter(
+				(item) => item.columnId === toColumnId,
+			).length;
+			if (destinationCount >= destinationColumn.wipLimit) {
+				throw new ConvexError(
+					`WIP limit reached for ${destinationColumn.label} (${destinationColumn.wipLimit})`,
+				);
+			}
+		}
+
 		const sourceTasks = projectTasks
 			.filter((item) => item.columnId === fromColumnId)
 			.sort((a, b) => a.position - b.position);

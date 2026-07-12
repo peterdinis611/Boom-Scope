@@ -2,19 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useQuery } from "convex/react";
-import {
-	FileText,
-	FolderKanban,
-	Layout,
-	Palette,
-	SquareKanban,
-	Sparkles,
-	StickyNote,
-} from "lucide-react";
 import { useMemo } from "react";
+import { DashboardQuickAccess } from "@/components/dashboard/dashboard-quick-access";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { StatCard } from "@/components/layout/StatCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { parseStickyNoteItems } from "@/lib/sticky-notes";
@@ -65,65 +56,23 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 	}, [stickyBoard]);
 
 	return (
-		<PageContainer className="space-y-8">
+		<PageContainer className="space-y-6">
 			<PageHeader
 				title={`Welcome back, ${greeting}`}
-				description="Overview of your work in Boom Scope."
+				description="Your day at a glance — deadlines, focus, and recent work."
 			/>
 
-			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				<StatCard
-					title="Projects"
-					value={stats?.projects ?? "—"}
-					description="Manage projects in one place"
-					icon={FolderKanban}
-					href="/dashboard/projects"
-				/>
-				<StatCard
-					title="Notes"
-					value={stats?.notes ?? "—"}
-					description="Your notes and documents"
-					icon={FileText}
-					href="/dashboard/notes"
-				/>
-				<StatCard
-					title="Sticky Notes"
-					value={stats?.stickyNotes ?? stickyNoteCount ?? "—"}
-					description="Visual board for quick ideas"
-					icon={StickyNote}
-					href="/dashboard/sticky-notes"
-				/>
-				<StatCard
-					title="Tasks"
-					value={stats?.tasks ?? "—"}
-					description="Kanban board per project"
-					icon={SquareKanban}
-					href="/dashboard/tasks"
-				/>
-				<StatCard
-					title="Canvas"
-					value="Open"
-					description="Design workspace"
-					icon={Palette}
-					href="/dashboard/canvas"
-				/>
-				<StatCard
-					title="Design System"
-					value={stats?.designSystems ?? "—"}
-					description="Project visual DNA"
-					icon={Layout}
-					href="/dashboard/design-system/v2"
-				/>
-				<StatCard
-					title="AI Generator"
-					value="Launch"
-					description="Generate multi-viewport designs"
-					icon={Sparkles}
-					href="/dashboard/generator"
-				/>
+			<div className="grid gap-4 xl:grid-cols-12 xl:items-start">
+				<div className="xl:col-span-8">
+					<TodayWidget />
+				</div>
+				<div className="xl:col-span-4">
+					<DashboardQuickAccess
+						stats={stats ?? undefined}
+						stickyNoteCount={stickyNoteCount}
+					/>
+				</div>
 			</div>
-
-			<TodayWidget />
 
 			<div className="grid gap-4 lg:grid-cols-2">
 				<StickyNotesPreview />

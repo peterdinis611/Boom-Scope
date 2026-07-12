@@ -93,6 +93,7 @@ export default defineSchema({
 		color: v.string(),
 		position: v.number(),
 		key: v.optional(v.string()),
+		wipLimit: v.optional(v.number()),
 	})
 		.index("by_projectId", ["projectId"]),
 	project_tasks: defineTable({

@@ -26,6 +26,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -78,27 +79,39 @@ export function NoteList({
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-				<div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-					<div className="relative max-w-sm flex-1">
-						{isSearching ? (
-							<Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary animate-spin" />
-						) : (
-							<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
-						)}
-						<Input
-							placeholder="Search notes…"
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							className="pl-9"
+				<div className="grid flex-1 gap-3 sm:grid-cols-2 lg:max-w-2xl">
+					<div className="space-y-1.5">
+						<Label htmlFor="notes-search" className="text-xs text-muted-foreground">
+							Search
+						</Label>
+						<div className="relative">
+							{isSearching ? (
+								<Loader2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary animate-spin" />
+							) : (
+								<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground opacity-60" />
+							)}
+							<Input
+								id="notes-search"
+								placeholder="Search notes…"
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								className="pl-9"
+							/>
+						</div>
+					</div>
+					<div className="space-y-1.5">
+						<Label htmlFor="notes-project" className="text-xs text-muted-foreground">
+							Project
+						</Label>
+						<ProjectSelector
+							id="notes-project"
+							value={projectId}
+							onChange={setProjectId}
 						/>
 					</div>
-					<div className="w-full max-w-xs space-y-1">
-						<p className="text-xs font-medium text-muted-foreground">Project</p>
-						<ProjectSelector value={projectId} onChange={setProjectId} />
-					</div>
 				</div>
-				<Link href="/dashboard/notes/new">
-					<Button size="sm" className="gap-2">
+				<Link href="/dashboard/notes/new" className="shrink-0">
+					<Button size="sm" className="w-full gap-2 sm:w-auto">
 						<Plus className="size-4" />
 						New note
 					</Button>

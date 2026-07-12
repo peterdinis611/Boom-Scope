@@ -63,5 +63,6 @@ describe("Page: Tasks", () => {
 		expect(screen.getByText(/Organize project work/i)).toBeDefined();
 		expect(screen.getByText("Project board")).toBeDefined();
 		expect(screen.getByText("My tasks")).toBeDefined();
+		expect(screen.getByText("Calendar")).toBeDefined();
 	});
 });

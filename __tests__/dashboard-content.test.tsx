@@ -15,7 +15,7 @@ vi.mock("next/dynamic", () => ({
 }));
 
 describe("Component: DashboardContent", () => {
-	test("shows placeholder counts while sticky note data is loading", () => {
+	test("shows quick access placeholders while sticky note data is loading", () => {
 		vi.mocked(useQuery)
 			.mockReturnValueOnce({
 				projects: 1,
@@ -28,11 +28,12 @@ describe("Component: DashboardContent", () => {
 		render(<DashboardContent viewer={{ email: "pdinis1@gmail.com" }} />);
 
 		expect(screen.getByText(/Welcome back, pdinis1/i)).toBeDefined();
-		expect(screen.getByText("Sticky Notes").closest("a")).toBeDefined();
+		expect(screen.getByText("Quick access")).toBeDefined();
+		expect(screen.getByText("Sticky notes")).toBeDefined();
 		expect(screen.getAllByText("—").length).toBeGreaterThan(0);
 	});
 
-	test("renders sticky note count from convex board data", () => {
+	test("renders sticky note count in quick access", () => {
 		vi.mocked(useQuery)
 			.mockReturnValueOnce({
 				projects: 1,
@@ -61,8 +62,8 @@ describe("Component: DashboardContent", () => {
 
 		render(<DashboardContent viewer={{ name: "Peter" }} />);
 
-		const stickyCard = screen.getByText("Sticky Notes").closest("a");
-		expect(stickyCard).toBeDefined();
-		expect(stickyCard?.textContent).toContain("2");
+		const stickyRow = screen.getByText("Sticky notes").closest("a");
+		expect(stickyRow).toBeDefined();
+		expect(stickyRow?.textContent).toContain("2");
 	});
 });

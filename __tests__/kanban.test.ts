@@ -2,8 +2,11 @@ import { describe, expect, test } from "vitest";
 import {
 	DEFAULT_KANBAN_COLUMNS,
 	formatDueDate,
+	formatWipCount,
 	getKanbanColumnLabel,
 	isTaskOverdue,
+	isWipLimitExceeded,
+	isWipLimitReached,
 	startOfLocalDay,
 } from "@/lib/kanban";
 import {
@@ -33,6 +36,14 @@ describe("Lib: kanban", () => {
 
 	test("formats due dates", () => {
 		expect(formatDueDate(Date.UTC(2026, 4, 23))).toMatch(/May/);
+	});
+
+	test("formats and evaluates WIP limits", () => {
+		expect(formatWipCount(3)).toBe("3");
+		expect(formatWipCount(3, 5)).toBe("3/5");
+		expect(isWipLimitReached(5, 5)).toBe(true);
+		expect(isWipLimitReached(4, 5)).toBe(false);
+		expect(isWipLimitExceeded(6, 5)).toBe(true);
 	});
 });
 

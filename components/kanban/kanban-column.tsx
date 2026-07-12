@@ -11,6 +11,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Id } from "@/convex/_generated/dataModel";
 import { columnDroppableId } from "@/lib/kanban-dnd";
 import type { KanbanColumn } from "@/lib/kanban";
+import {
+	formatWipCount,
+	isWipLimitExceeded,
+	isWipLimitReached,
+} from "@/lib/kanban";
 import { cn } from "@/lib/utils";
 import { KanbanTaskCard, type EnrichedProjectTask } from "./kanban-task-card";
 
@@ -35,16 +40,21 @@ export function KanbanColumn({
 		id: columnDroppableId(column._id),
 	});
 
+	const wipReached = isWipLimitReached(tasks.length, column.wipLimit);
+	const wipExceeded = isWipLimitExceeded(tasks.length, column.wipLimit);
+
 	return (
 		<Card
 			ref={setNodeRef}
 			className={cn(
 				"bg-muted/20 transition-colors",
 				isOver && "ring-2 ring-primary/30",
+				wipReached && "ring-1 ring-amber-500/40",
+				wipExceeded && "ring-1 ring-destructive/40",
 			)}
 		>
 			<CardHeader className="pb-3">
-				<CardTitle className="flex items-center justify-between text-sm">
+				<CardTitle className="flex items-center justify-between gap-2 text-sm">
 					<span
 						className={cn(
 							"rounded-full px-2.5 py-1 text-xs font-medium",
@@ -53,8 +63,26 @@ export function KanbanColumn({
 					>
 						{column.label}
 					</span>
-					<span className="text-muted-foreground">{tasks.length}</span>
+					<span
+						className={cn(
+							"tabular-nums text-muted-foreground",
+							wipExceeded && "font-medium text-destructive",
+							wipReached && !wipExceeded && "font-medium text-amber-600",
+						)}
+					>
+						{formatWipCount(tasks.length, column.wipLimit)}
+					</span>
 				</CardTitle>
+				{wipReached ? (
+					<p
+						className={cn(
+							"text-[11px]",
+							wipExceeded ? "text-destructive" : "text-amber-600",
+						)}
+					>
+						{wipExceeded ? "Over WIP limit" : "WIP limit reached"}
+					</p>
+				) : null}
 			</CardHeader>
 			<CardContent className="space-y-2">
 				<SortableContext
