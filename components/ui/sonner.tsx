@@ -17,24 +17,40 @@ const Toaster = ({ ...props }: ToasterProps) => {
 		<Sonner
 			theme={theme as ToasterProps["theme"]}
 			className="toaster group"
+			richColors
+			closeButton
+			position="bottom-right"
 			icons={{
-				success: <CircleCheckIcon className="size-4" />,
-				info: <InfoIcon className="size-4" />,
-				warning: <TriangleAlertIcon className="size-4" />,
-				error: <OctagonXIcon className="size-4" />,
-				loading: <Loader2Icon className="size-4 animate-spin" />,
+				success: (
+					<CircleCheckIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
+				),
+				info: <InfoIcon className="size-4 text-sky-600 dark:text-sky-400" />,
+				warning: (
+					<TriangleAlertIcon className="size-4 text-amber-600 dark:text-amber-400" />
+				),
+				error: (
+					<OctagonXIcon className="size-4 text-rose-600 dark:text-rose-400" />
+				),
+				loading: (
+					<Loader2Icon className="size-4 animate-spin text-violet-600 dark:text-violet-400" />
+				),
 			}}
-			style={
-				{
-					"--normal-bg": "var(--popover)",
-					"--normal-text": "var(--popover-foreground)",
-					"--normal-border": "var(--border)",
-					"--border-radius": "var(--radius)",
-				} as React.CSSProperties
-			}
 			toastOptions={{
 				classNames: {
-					toast: "cn-toast",
+					toast: "cn-toast group-[.toaster]:shadow-lg group-[.toaster]:backdrop-blur-sm",
+					title: "group-[.toast]:font-medium",
+					description: "group-[.toast]:text-[13px] group-[.toast]:opacity-90",
+					actionButton:
+						"group-[.toast]:rounded-md group-[.toast]:font-medium",
+					cancelButton:
+						"group-[.toast]:rounded-md group-[.toast]:font-medium",
+					closeButton:
+						"group-[.toast]:rounded-md group-[.toast]:border group-[.toast]:border-current/10",
+					success: "cn-toast-success",
+					error: "cn-toast-error",
+					warning: "cn-toast-warning",
+					info: "cn-toast-info",
+					loading: "cn-toast-loading",
 				},
 			}}
 			{...props}
