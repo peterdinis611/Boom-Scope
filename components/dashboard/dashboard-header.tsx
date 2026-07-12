@@ -38,6 +38,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 		v2: "Lab",
 		generator: "AI Generator",
 		images: "Placeholder Images",
+		"placeholder-text": "Placeholder Text",
 		pomodoro: "Pomodoro",
 		settings: "Settings",
 		new: "New",

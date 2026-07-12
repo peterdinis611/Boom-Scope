@@ -179,6 +179,11 @@ const GLOBAL_SEARCH_NAVIGATION = [
 		href: "/dashboard/images",
 		keywords: "images placeholder picsum",
 	},
+	{
+		label: "Placeholder Text",
+		href: "/dashboard/placeholder-text",
+		keywords: "text lorem ipsum placeholder copy filler",
+	},
 	{ label: "Pomodoro", href: "/dashboard/pomodoro", keywords: "pomodoro timer focus" },
 	{ label: "Settings", href: "/dashboard/settings", keywords: "settings profile" },
 ] as const;

@@ -10,6 +10,7 @@ import {
 	Sparkles,
 	SquareKanban,
 	StickyNote,
+	TextQuote,
 	Timer,
 } from "lucide-react";
 import type { Route } from "next";
@@ -26,6 +27,7 @@ export type DashboardNavId =
 	| "design-system"
 	| "generate"
 	| "images"
+	| "placeholder-text"
 	| "pomodoro"
 	| "settings";
 
@@ -169,6 +171,17 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				activeIconClassName:
 					"bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/25",
 				href: "/dashboard/images",
+			},
+			{
+				id: "placeholder-text",
+				label: "Placeholder Text",
+				description: "Generate random lorem ipsum copy",
+				icon: TextQuote,
+				iconClassName:
+					"bg-lime-500/10 text-lime-600 dark:text-lime-400 border-lime-500/15 group-hover:bg-lime-500/15",
+				activeIconClassName:
+					"bg-lime-500/20 text-lime-600 dark:text-lime-400 border-lime-500/25",
+				href: "/dashboard/placeholder-text" as Route,
 			},
 			{
 				id: "pomodoro",
