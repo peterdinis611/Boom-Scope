@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { ensureProjectColumns } from "./kanban_columns";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
 
@@ -81,23 +81,7 @@ async function logTaskActivity(
 	await ctx.db.insert("task_activity_events", args);
 }
 
-async function enrichTask(ctx: QueryCtx, task: {
-	_id: Id<"project_tasks">;
-	title: string;
-	description?: string;
-	status?: "todo" | "in_progress" | "done";
-	columnId?: Id<"kanban_columns">;
-	projectId: Id<"projects">;
-	userId: Id<"users">;
-	position: number;
-	linkedNoteId?: Id<"notes">;
-	linkedDesignId?: Id<"designs">;
-	focusMinutes?: number;
-	dueDate?: number;
-	priority?: "low" | "medium" | "high";
-	labels?: string[];
-	subtasks?: Array<{ id: string; title: string; completed: boolean }>;
-}) {
+async function enrichTask(ctx: QueryCtx, task: Doc<"project_tasks">) {
 	const project = await ctx.db.get(task.projectId);
 	const linkedNote = task.linkedNoteId
 		? await ctx.db.get(task.linkedNoteId)

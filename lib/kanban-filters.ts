@@ -1,4 +1,3 @@
-import type { EnrichedProjectTask } from "@/components/kanban/kanban-task-card";
 import type { Id } from "@/convex/_generated/dataModel";
 import { isTaskOverdue, type TaskPriority } from "@/lib/kanban";
 
@@ -16,10 +15,21 @@ export const EMPTY_KANBAN_FILTERS: KanbanFilters = {
 	showOverdueOnly: false,
 };
 
-export function filterKanbanTasks(
-	tasks: EnrichedProjectTask[],
+export type KanbanFilterableTask = {
+	title: string;
+	description?: string | null;
+	projectName?: string | null;
+	labels?: string[] | null;
+	priority?: TaskPriority | null;
+	columnId?: Id<"kanban_columns"> | null;
+	columnKey?: string | null;
+	dueDate?: number | null;
+};
+
+export function filterKanbanTasks<T extends KanbanFilterableTask>(
+	tasks: T[],
 	filters: KanbanFilters,
-): EnrichedProjectTask[] {
+): T[] {
 	const search = filters.search.trim().toLowerCase();
 
 	return tasks.filter((task) => {
@@ -33,7 +43,7 @@ export function filterKanbanTasks(
 
 		if (
 			filters.showOverdueOnly &&
-			!isTaskOverdue(task.dueDate, task.columnKey)
+			!isTaskOverdue(task.dueDate ?? undefined, task.columnKey)
 		) {
 			return false;
 		}
