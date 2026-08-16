@@ -1837,8 +1837,7 @@ function DesignPageContent() {
 														"size-8 rounded-lg border border-border shadow-sm transition-all hover:scale-105",
 														artboardColor === color &&
 															"ring-2 ring-primary ring-offset-2",
-														!color &&
-															"bg-[linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%),linear-gradient(45deg,#e5e7eb_25%,transparent_25%,transparent_75%,#e5e7eb_75%)] bg-size-[8px_8px] bg-position-[0_0,4px_4px]",
+														!color && "bg-muted",
 													)}
 													style={{ backgroundColor: color || undefined }}
 													aria-label={

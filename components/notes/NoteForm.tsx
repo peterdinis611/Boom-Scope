@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
-import { NoteEditor } from "@/components/notes/NoteEditor";
+import { NoteEditorDynamic } from "@/components/notes/note-editor-dynamic";
 import { NoteTagsField } from "@/components/notes/NoteTagsField";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
@@ -158,7 +158,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 					<NoteTagsField tags={tags} onChange={setTags} />
 				</div>
 
-				<NoteEditor content={content} onChange={setContent} />
+				<NoteEditorDynamic content={content} onChange={setContent} />
 			</div>
 
 			<ConfirmDialog

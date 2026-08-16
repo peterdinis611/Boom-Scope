@@ -15,7 +15,7 @@ export function StickyNotesBoardSkeleton() {
 					))}
 				</div>
 			</div>
-			<div className="relative min-h-0 flex-1 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.08)_1px,transparent_0)] [background-size:24px_24px] dark:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)]">
+			<div className="relative min-h-0 flex-1 bg-muted/40">
 				<div className="absolute left-8 top-8 h-52 w-56 animate-pulse rounded-md bg-muted/80" />
 				<div className="absolute left-40 top-24 h-48 w-52 animate-pulse rounded-md bg-muted/60" />
 			</div>

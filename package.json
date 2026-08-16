@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:nosmaps": "SOURCEMAPS=false next build",
     "start": "next start",
     "lint": "eslint",
     "format": "bunx --bun @biomejs/biome check --write",

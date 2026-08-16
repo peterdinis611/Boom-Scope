@@ -1,31 +1,29 @@
 import Link from "next/link";
-
+import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
-	CardDescription,
+	CardContent,
 	CardFooter,
-	CardHeader,
-	CardTitle,
 } from "@/components/ui/card";
 
 export default function ForgotPasswordPage() {
 	return (
-		<div className="flex flex-1 items-center justify-center bg-background px-4 py-16">
-			<Card className="w-full max-w-md">
-				<CardHeader>
-					<CardTitle>Reset password</CardTitle>
-					<CardDescription>
-						Password reset via email is temporarily unavailable. Contact support
-						if you need help accessing your account.
-					</CardDescription>
-				</CardHeader>
+		<AuthShell
+			title="Reset password"
+			description="Password reset via email is temporarily unavailable."
+		>
+			<Card className="border-border/80 bg-card/80 shadow-lg shadow-primary/5 backdrop-blur-sm">
+				<CardContent className="pt-6 text-sm text-muted-foreground">
+					Contact support if you need help accessing your account. You can return
+					to sign in anytime.
+				</CardContent>
 				<CardFooter>
-					<Button asChild variant="outline">
+					<Button asChild variant="outline" className="w-full">
 						<Link href="/login">Back to sign in</Link>
 					</Button>
 				</CardFooter>
 			</Card>
-		</div>
+		</AuthShell>
 	);
 }

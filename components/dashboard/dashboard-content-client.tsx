@@ -59,7 +59,7 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 		<PageContainer className="space-y-6">
 			<PageHeader
 				title={`Welcome back, ${greeting}`}
-				description="Your day at a glance — deadlines, focus, and recent work."
+				description="Deadlines, focus, and recent work — scoped for today."
 			/>
 
 			<div className="grid gap-4 xl:grid-cols-12 xl:items-start">

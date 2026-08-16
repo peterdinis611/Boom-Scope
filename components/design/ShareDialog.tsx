@@ -43,7 +43,7 @@ export function ShareDialog({ isOpen, onClose, designId }: ShareDialogProps) {
 						exit={{ scale: 0.9, opacity: 0, y: 20 }}
 						className="relative w-full max-w-lg bg-background border border-border rounded-[40px] shadow-2xl overflow-hidden p-10"
 					>
-						<div className="absolute top-0 right-0 w-full h-1 bg-linear-to-r from-primary via-purple-500 to-pink-500" />
+						<div className="absolute top-0 right-0 h-1 w-full bg-primary" />
 
 						<button
 							type="button"

@@ -170,7 +170,7 @@ export function StickyNotesBoard({
 			</div>
 
 			<div
-				className="relative min-h-0 flex-1 overflow-auto bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.08)_1px,transparent_0)] [background-size:24px_24px] dark:bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)]"
+				className="relative min-h-0 flex-1 overflow-auto bg-muted/40"
 				onPointerDown={() => setActiveId(null)}
 			>
 				{visibleNotes.length === 0 ? (

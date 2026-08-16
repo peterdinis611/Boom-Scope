@@ -110,6 +110,9 @@ bun install
 Create a `.env.local` file at the project root:
 
 ```env
+# Public site URL used for sitemap, robots, and Open Graph absolute links
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
 # Convex — obtained by running `npx convex dev` and following the prompts
 CONVEX_DEPLOYMENT=dev:<your-deployment-slug>
 NEXT_PUBLIC_CONVEX_URL=https://<your-deployment>.convex.cloud

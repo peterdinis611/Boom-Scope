@@ -642,13 +642,7 @@ export default function KonvaCanvas({
 		<div
 			ref={containerRef}
 			data-slot="konva-canvas"
-			className="relative h-full w-full overflow-hidden bg-[#eceef2] dark:bg-[#141414]"
-			style={{
-				backgroundImage: isDark
-					? "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)"
-					: "radial-gradient(circle, rgba(0,0,0,0.09) 1px, transparent 1px)",
-				backgroundSize: "18px 18px",
-			}}
+			className="relative h-full w-full overflow-hidden bg-muted/50"
 		>
 			{stageReady ? (
 			<Stage

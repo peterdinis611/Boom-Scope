@@ -253,7 +253,7 @@ export function PlaceholderImageStudio() {
 					</span>
 				</div>
 
-				<div className="flex min-h-[420px] items-center justify-center bg-[linear-gradient(45deg,rgba(0,0,0,0.04)_25%,transparent_25%,transparent_75%,rgba(0,0,0,0.04)_75%),linear-gradient(45deg,rgba(0,0,0,0.04)_25%,transparent_25%,transparent_75%,rgba(0,0,0,0.04)_75%)] bg-size-[20px_20px] bg-position-[0_0,10px_10px] p-6">
+				<div className="flex min-h-[420px] items-center justify-center bg-muted/40 p-6">
 					<div
 						className="relative overflow-hidden rounded-xl border border-border bg-background shadow-lg"
 						style={{ width: previewWidth, height: previewHeight }}

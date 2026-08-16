@@ -8,14 +8,12 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { RedirectingOverlay } from "@/components/auth/RedirectingOverlay";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
-	CardHeader,
-	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,61 +103,56 @@ export default function RegisterPage() {
 	}
 
 	return (
-		<div className="relative flex flex-1 items-center justify-center bg-background px-4 py-16">
-			<div className="w-full max-w-md">
-				<Card>
-					<CardHeader>
-						<CardTitle>Create account</CardTitle>
-						<CardDescription>
-							Sign up with your email and password to access the dashboard.
-						</CardDescription>
-					</CardHeader>
-					<form noValidate onSubmit={onSubmit}>
-						<fieldset disabled={busy} className="contents">
-							<CardContent className="flex flex-col gap-4">
-								<div className="flex flex-col gap-2">
-									<Label htmlFor="email">Email</Label>
-									<Input
-										id="email"
-										name="email"
-										type="email"
-										autoComplete="email"
-										placeholder="you@company.com"
-									/>
-								</div>
-								<PasswordField
-									id="password"
-									name="password"
-									label="Password"
-									autoComplete="new-password"
-									placeholder="At least 8 characters"
-									showStrength
+		<AuthShell
+			title="Create account"
+			description="Sign up with your email and password to access the dashboard."
+		>
+			<Card className="border-border/80 bg-card/80 shadow-lg shadow-primary/5 backdrop-blur-sm">
+				<form noValidate onSubmit={onSubmit}>
+					<fieldset disabled={busy} className="contents">
+						<CardContent className="flex flex-col gap-4 pt-6">
+							<div className="flex flex-col gap-2">
+								<Label htmlFor="email">Email</Label>
+								<Input
+									id="email"
+									name="email"
+									type="email"
+									autoComplete="email"
+									placeholder="you@company.com"
 								/>
-							</CardContent>
-							<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
-								<Button type="submit" disabled={busy} size="lg">
-									{submitting
-										? "Signing up…"
-										: navPending
-											? "Redirecting…"
-											: "Sign up"}
-								</Button>
-								<p className="text-center text-sm text-muted-foreground">
-									Already have an account?{" "}
-									<Link
-										href="/login"
-										className="font-medium text-primary underline-offset-4 hover:underline"
-									>
-										Sign in
-									</Link>
-								</p>
-							</CardFooter>
-						</fieldset>
-					</form>
-				</Card>
-			</div>
+							</div>
+							<PasswordField
+								id="password"
+								name="password"
+								label="Password"
+								autoComplete="new-password"
+								placeholder="At least 8 characters"
+								showStrength
+							/>
+						</CardContent>
+						<CardFooter className="mt-6 flex flex-col items-stretch gap-3">
+							<Button type="submit" disabled={busy} size="lg">
+								{submitting
+									? "Signing up…"
+									: navPending
+										? "Redirecting…"
+										: "Sign up"}
+							</Button>
+							<p className="text-center text-sm text-muted-foreground">
+								Already have an account?{" "}
+								<Link
+									href="/login"
+									className="font-medium text-primary underline-offset-4 hover:underline"
+								>
+									Sign in
+								</Link>
+							</p>
+						</CardFooter>
+					</fieldset>
+				</form>
+			</Card>
 
 			<RedirectingOverlay show={navPending} label="Redirecting to dashboard…" />
-		</div>
+		</AuthShell>
 	);
 }

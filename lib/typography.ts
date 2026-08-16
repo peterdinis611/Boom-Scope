@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils";
 
 export const typography = {
 	pageTitle:
-		"font-heading text-2xl font-semibold tracking-tight text-foreground",
+		"font-heading text-3xl font-semibold tracking-tight text-foreground",
 	sectionTitle:
 		"font-heading text-lg font-semibold tracking-tight text-foreground",
 	body: "text-sm text-foreground",
-	caption: "text-xs text-muted-foreground",
+	caption: "text-sm text-muted-foreground",
 } as const;
 
 export function pageTitleClass(className?: string) {

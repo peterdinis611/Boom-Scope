@@ -15,36 +15,18 @@ function AnimatedSkeleton({ className, delay = 0 }: AnimatedSkeletonProps) {
 		<motion.div
 			data-slot="animated-skeleton"
 			aria-hidden
-			className={cn(
-				"relative overflow-hidden rounded-md bg-muted/60",
-				className,
-			)}
+			className={cn("rounded-md bg-muted/60", className)}
 			initial={{ opacity: 0 }}
-			animate={{ opacity: [0, 0.95, 0.6, 0.95, 0.6] }}
+			animate={{ opacity: [0.45, 0.9, 0.45] }}
 			transition={{
 				opacity: {
-					times: [0, 0.15, 0.5, 0.85, 1],
-					duration: 1.8,
+					duration: 1.6,
 					repeat: Infinity,
-					repeatType: "loop",
 					ease: "easeInOut",
 					delay,
 				},
 			}}
-		>
-			<motion.span
-				aria-hidden
-				className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
-				initial={{ x: "-100%" }}
-				animate={{ x: "100%" }}
-				transition={{
-					duration: 1.4,
-					repeat: Infinity,
-					ease: "easeInOut",
-					delay,
-				}}
-			/>
-		</motion.div>
+		/>
 	);
 }
 

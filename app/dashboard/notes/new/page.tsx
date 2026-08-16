@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { NoteEditor } from "@/components/notes/NoteEditor";
+import { NoteEditorDynamic } from "@/components/notes/note-editor-dynamic";
 import { NoteTagsField } from "@/components/notes/NoteTagsField";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
 import { Button } from "@/components/ui/button";
@@ -92,7 +92,7 @@ export default function NewNotePage() {
 						<NoteTagsField tags={tags} onChange={setTags} />
 					</div>
 
-					<NoteEditor
+					<NoteEditorDynamic
 						content={content}
 						onChange={setContent}
 						placeholder="Start writing your note..."

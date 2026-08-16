@@ -9,18 +9,17 @@ import {
 	Title,
 	Trigger,
 } from "@radix-ui/react-dialog";
-import { Menu, PanelLeftClose, X, Zap } from "lucide-react";
-import type { Route } from "next";
+import { Menu, PanelLeftClose, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
+import { ScopeMark } from "@/components/brand/scope-mark";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import {
 	DASHBOARD_NAV_GROUPS,
-	DASHBOARD_NAV_ITEMS,
 	type DashboardNavItem,
 	isDashboardNavItemActive,
 } from "./dashboard-nav-items";
@@ -138,9 +137,7 @@ function SidebarBrand({ onToggle }: { onToggle?: () => void }) {
 				href="/dashboard"
 				className="flex min-w-0 items-center gap-2.5 rounded-lg px-1 py-1 transition-colors hover:bg-sidebar-accent/60"
 			>
-				<span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-					<Zap className="size-4" aria-hidden="true" />
-				</span>
+				<ScopeMark size="sm" />
 				<span className="truncate font-heading text-base font-semibold tracking-tight text-sidebar-foreground">
 					Boom Scope
 				</span>
@@ -171,8 +168,8 @@ export function DashboardSidebarNav() {
 				<NavLinks />
 			</div>
 			<div className="shrink-0 border-t border-sidebar-border px-4 py-3">
-				<p className="text-[11px] text-muted-foreground">
-					Boom Scope · Workspace
+				<p className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+					Boom Scope · Field lab
 				</p>
 			</div>
 		</div>
@@ -205,9 +202,7 @@ export function DashboardMobileNav() {
 				>
 					<div className="flex h-14 shrink-0 items-center justify-between border-b border-sidebar-border px-3">
 						<Title className="flex items-center gap-2 font-heading text-base font-semibold">
-							<span className="flex size-7 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-								<Zap className="size-3.5" aria-hidden="true" />
-							</span>
+							<ScopeMark size="sm" />
 							Boom Scope
 						</Title>
 						<Close asChild>
