@@ -32,7 +32,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 					<OctagonXIcon className="size-4 text-rose-600 dark:text-rose-400" />
 				),
 				loading: (
-					<Loader2Icon className="size-4 animate-spin text-violet-600 dark:text-violet-400" />
+					<Loader2Icon className="size-4 animate-spin text-primary" />
 				),
 			}}
 			toastOptions={{

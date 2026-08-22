@@ -195,7 +195,7 @@ export function ProjectKanban({
 				label: task.columnLabel ?? "Column",
 				color:
 					task.columnColor ??
-					"bg-violet-500/10 text-violet-700 dark:text-violet-300",
+					"bg-scope/10 text-scope",
 				position: lanes.length,
 				key: undefined,
 				laneId: task.columnId,

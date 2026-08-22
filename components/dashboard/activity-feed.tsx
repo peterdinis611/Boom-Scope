@@ -16,17 +16,17 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 
 const ACTIVITY_META = {
-	note: { icon: FileText, label: "Note", color: "text-emerald-600" },
-	design: { icon: Palette, label: "Canvas", color: "text-violet-600" },
-	link: { icon: Link2, label: "Link", color: "text-indigo-600" },
-	"design-system": { icon: Layout, label: "Design system", color: "text-amber-600" },
-	task: { icon: SquareKanban, label: "Task", color: "text-sky-600" },
+	note: { icon: FileText, label: "Note", color: "text-success" },
+	design: { icon: Palette, label: "Canvas", color: "text-scope" },
+	link: { icon: Link2, label: "Link", color: "text-scope" },
+	"design-system": { icon: Layout, label: "Design system", color: "text-warning" },
+	task: { icon: SquareKanban, label: "Task", color: "text-primary" },
 	"task-event": {
 		icon: SquareKanban,
 		label: "Task update",
-		color: "text-teal-600",
+		color: "text-primary",
 	},
-	project: { icon: FolderKanban, label: "Project", color: "text-sky-600" },
+	project: { icon: FolderKanban, label: "Project", color: "text-scope" },
 } as const;
 
 function formatRelativeTime(timestamp: number): string {

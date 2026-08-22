@@ -285,14 +285,14 @@ export default function GeneratorPage() {
 							<div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
 								<div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
 									<span className="flex items-center gap-1.5">
-										<span className="size-1.5 rounded-full bg-green-500" /> Web
+										<span className="size-1.5 rounded-full bg-success" /> Web
 									</span>
 									<span className="flex items-center gap-1.5">
-										<span className="size-1.5 rounded-full bg-purple-500" />{" "}
+										<span className="size-1.5 rounded-full bg-primary" />{" "}
 										Tablet
 									</span>
 									<span className="flex items-center gap-1.5">
-										<span className="size-1.5 rounded-full bg-blue-500" /> Mobil
+										<span className="size-1.5 rounded-full bg-scope" /> Mobil
 									</span>
 									<span className="text-muted-foreground/70">
 										Enter = send, Shift+Enter = new line

@@ -23,8 +23,8 @@ export function ClipboardManager() {
 				type="button"
 				onClick={() => setIsOpen((prev) => !prev)}
 				className={cn(
-					"relative p-4 rounded-full shadow-2xl bg-primary hover:bg-primary/95 text-white flex items-center justify-center border border-white/20 transition-all duration-300 active:scale-95 group focus:outline-none",
-					isOpen && "bg-neutral-800 hover:bg-neutral-900 border-neutral-700",
+					"relative flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-colors duration-300 hover:bg-primary/95 focus:outline-none",
+					isOpen && "bg-foreground text-background border-border hover:bg-foreground/90",
 				)}
 				whileHover={{ scale: 1.05 }}
 				whileTap={{ scale: 0.95 }}
@@ -40,7 +40,7 @@ export function ClipboardManager() {
 					<motion.span
 						initial={{ scale: 0 }}
 						animate={{ scale: 1 }}
-						className="absolute -top-1.5 -right-1.5 size-5 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center border-2 border-background shadow-lg"
+						className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full border-2 border-background bg-destructive text-[9px] font-semibold text-primary-foreground shadow-sm"
 					>
 						{history.length}
 					</motion.span>
@@ -55,7 +55,7 @@ export function ClipboardManager() {
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						exit={{ opacity: 0, y: 20, scale: 0.95 }}
 						transition={{ type: "spring", duration: 0.4 }}
-						className="absolute bottom-16 right-0 w-80 md:w-96 rounded-3xl border border-border/50 bg-background/50 backdrop-blur-3xl p-5 shadow-[0_30px_100px_rgba(0,0,0,0.3)] space-y-4"
+						className="absolute bottom-14 right-0 w-80 space-y-4 rounded-xl border border-border bg-popover p-4 shadow-lg md:w-96"
 					>
 						{/* Header */}
 						<div className="flex items-center justify-between pb-3 border-b border-border/20">

@@ -25,8 +25,7 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "New note",
 		description: "Quick note",
 		icon: FileText,
-		iconClassName:
-			"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+		iconClassName: "bg-success/15 text-success border-success/20",
 		action: "note",
 	},
 	{
@@ -34,7 +33,7 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "Canvas",
 		description: "Design workspace",
 		icon: Palette,
-		iconClassName: "bg-primary/15 text-primary border-primary/20",
+		iconClassName: "bg-scope/15 text-scope border-scope/20",
 		href: "/dashboard/canvas",
 	},
 	{
@@ -42,8 +41,7 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "AI Generator",
 		description: "Generate design",
 		icon: Sparkles,
-		iconClassName:
-			"bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-500/20",
+		iconClassName: "bg-primary/15 text-primary border-primary/20",
 		href: "/dashboard/generator",
 	},
 	{
@@ -51,8 +49,7 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "Pomodoro",
 		description: "Start timer",
 		icon: Timer,
-		iconClassName:
-			"bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
+		iconClassName: "bg-warning/15 text-warning border-warning/20",
 		href: "/dashboard/pomodoro",
 	},
 	{
@@ -60,8 +57,7 @@ export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
 		label: "Projects",
 		description: "Manage projects",
 		icon: FolderKanban,
-		iconClassName:
-			"bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/20",
+		iconClassName: "bg-scope/15 text-scope border-scope/20",
 		href: "/dashboard/projects",
 	},
 ];
@@ -71,6 +67,5 @@ export const CLIPBOARD_ACTION: QuickActionItem = {
 	label: "Clipboard",
 	description: "Recently copied",
 	icon: Clipboard,
-	iconClassName:
-		"bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/20",
+	iconClassName: "bg-primary/15 text-primary border-primary/20",
 };

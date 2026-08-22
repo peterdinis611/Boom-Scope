@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
 			title="Reset password"
 			description="Password reset via email is temporarily unavailable."
 		>
-			<Card className="border-border/80 bg-card/80 shadow-lg shadow-primary/5 backdrop-blur-sm">
+			<Card className="border-border bg-card shadow-sm">
 				<CardContent className="pt-6 text-sm text-muted-foreground">
 					Contact support if you need help accessing your account. You can return
 					to sign in anytime.

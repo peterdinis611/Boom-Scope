@@ -8,19 +8,19 @@ export const DEFAULT_COLUMN_DEFS = [
 	{
 		key: "todo",
 		label: "To do",
-		color: "bg-slate-500/10 text-slate-700 dark:text-slate-300",
+		color: "bg-muted text-muted-foreground",
 		position: 0,
 	},
 	{
 		key: "in_progress",
 		label: "In progress",
-		color: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+		color: "bg-scope/10 text-scope",
 		position: 1,
 	},
 	{
 		key: "done",
 		label: "Done",
-		color: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+		color: "bg-success/10 text-success",
 		position: 2,
 	},
 ] as const;
@@ -141,7 +141,7 @@ export const create = mutation({
 			label,
 			color:
 				args.color ??
-				"bg-violet-500/10 text-violet-700 dark:text-violet-300",
+				"bg-scope/10 text-scope",
 			position,
 		});
 	},

@@ -169,7 +169,7 @@ export function DashboardSidebarNav() {
 			</div>
 			<div className="shrink-0 border-t border-sidebar-border px-4 py-3">
 				<p className="font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
-					Boom Scope · Field lab
+					Boom Scope · Field workspace
 				</p>
 			</div>
 		</div>

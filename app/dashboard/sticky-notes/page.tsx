@@ -4,7 +4,12 @@ export default function StickyNotesPage() {
 	return (
 		<div className="flex h-[calc(100dvh-3.5rem)] flex-col p-4 md:p-6">
 			<div className="mb-4 shrink-0">
-				<h1 className="text-2xl font-semibold tracking-tight">Sticky Notes</h1>
+				<p className="font-mono text-[11px] tracking-[0.2em] text-scope uppercase">
+					Field workspace
+				</p>
+				<h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground">
+					Sticky Notes
+				</h1>
 				<p className="mt-1 text-sm text-muted-foreground">
 					Drag, resize, and edit notes on your board. Changes sync automatically.
 				</p>

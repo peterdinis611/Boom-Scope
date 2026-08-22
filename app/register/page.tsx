@@ -107,7 +107,7 @@ export default function RegisterPage() {
 			title="Create account"
 			description="Sign up with your email and password to access the dashboard."
 		>
-			<Card className="border-border/80 bg-card/80 shadow-lg shadow-primary/5 backdrop-blur-sm">
+			<Card className="border-border bg-card shadow-sm">
 				<form noValidate onSubmit={onSubmit}>
 					<fieldset disabled={busy} className="contents">
 						<CardContent className="flex flex-col gap-4 pt-6">

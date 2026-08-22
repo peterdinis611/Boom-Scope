@@ -93,10 +93,10 @@ export function QuickActions() {
 					type="button"
 					onClick={() => setIsOpen((prev) => !prev)}
 					className={cn(
-						"relative flex size-14 items-center justify-center rounded-full border shadow-2xl transition-colors duration-300 focus:outline-none",
+						"relative flex size-11 items-center justify-center rounded-xl border shadow-md transition-colors duration-300 focus:outline-none",
 						isOpen
-							? "border-neutral-700 bg-neutral-800 text-white hover:bg-neutral-900"
-							: "border-white/20 bg-primary text-white hover:bg-primary/95",
+							? "border-border bg-foreground text-background hover:bg-foreground/90"
+							: "border-primary/20 bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/95",
 					)}
 					whileHover={{ scale: 1.06 }}
 					whileTap={{ scale: 0.94 }}
@@ -125,7 +125,7 @@ export function QuickActions() {
 							>
 								<Zap className="size-5" />
 								<motion.span
-									className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
+									className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-success"
 									animate={{ scale: [1, 1.3, 1] }}
 									transition={{
 										duration: 2,

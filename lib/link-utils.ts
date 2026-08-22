@@ -39,13 +39,13 @@ export function getLinkHostname(url: string): string {
 export function getLinkCategoryClassName(category: LinkCategory): string {
 	switch (category) {
 		case "design":
-			return "bg-violet-500/10 text-violet-600 dark:text-violet-400";
+			return "bg-scope/10 text-scope";
 		case "docs":
-			return "bg-sky-500/10 text-sky-600 dark:text-sky-400";
+			return "bg-primary/10 text-primary";
 		case "tools":
-			return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+			return "bg-warning/15 text-warning";
 		case "reference":
-			return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+			return "bg-success/10 text-success";
 		case "other":
 			return "bg-muted text-muted-foreground";
 		default:

@@ -47,6 +47,30 @@ export type DashboardNavGroup = {
 	items: DashboardNavItem[];
 };
 
+/** Shared Field Scope chip styles — primary / scope / success / warning / muted only */
+const chip = {
+	primary: {
+		idle: "bg-primary/10 text-primary border-primary/15 group-hover:bg-primary/15",
+		active: "bg-primary/20 text-primary border-primary/25",
+	},
+	scope: {
+		idle: "bg-scope/10 text-scope border-scope/15 group-hover:bg-scope/15",
+		active: "bg-scope/20 text-scope border-scope/25",
+	},
+	success: {
+		idle: "bg-success/10 text-success border-success/15 group-hover:bg-success/15",
+		active: "bg-success/20 text-success border-success/25",
+	},
+	warning: {
+		idle: "bg-warning/15 text-warning border-warning/20 group-hover:bg-warning/20",
+		active: "bg-warning/25 text-warning border-warning/30",
+	},
+	muted: {
+		idle: "bg-muted text-muted-foreground border-border/60 group-hover:bg-muted/80",
+		active: "bg-muted text-foreground border-border",
+	},
+} as const;
+
 export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 	{
 		id: "main",
@@ -56,9 +80,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Overview",
 				description: "Project home page",
 				icon: LayoutDashboard,
-				iconClassName:
-					"bg-primary/10 text-primary border-primary/15 group-hover:bg-primary/15",
-				activeIconClassName: "bg-primary/20 text-primary border-primary/25",
+				iconClassName: chip.primary.idle,
+				activeIconClassName: chip.primary.active,
 				href: "/dashboard",
 			},
 		],
@@ -72,10 +95,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Projects",
 				description: "Manage your projects",
 				icon: FolderKanban,
-				iconClassName:
-					"bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/15 group-hover:bg-sky-500/15",
-				activeIconClassName:
-					"bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-500/25",
+				iconClassName: chip.scope.idle,
+				activeIconClassName: chip.scope.active,
 				href: "/dashboard/projects",
 			},
 			{
@@ -83,10 +104,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Notes",
 				description: "Write project notes",
 				icon: FileText,
-				iconClassName:
-					"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/15 group-hover:bg-emerald-500/15",
-				activeIconClassName:
-					"bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
+				iconClassName: chip.success.idle,
+				activeIconClassName: chip.success.active,
 				href: "/dashboard/notes",
 			},
 			{
@@ -94,10 +113,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Link Hub",
 				description: "Save project links and resources",
 				icon: Link2,
-				iconClassName:
-					"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/15 group-hover:bg-indigo-500/15",
-				activeIconClassName:
-					"bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/25",
+				iconClassName: chip.scope.idle,
+				activeIconClassName: chip.scope.active,
 				href: "/dashboard/links",
 			},
 			{
@@ -105,10 +122,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Sticky Notes",
 				description: "Visual board for quick ideas",
 				icon: StickyNote,
-				iconClassName:
-					"bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/15 group-hover:bg-yellow-500/15",
-				activeIconClassName:
-					"bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/25",
+				iconClassName: chip.warning.idle,
+				activeIconClassName: chip.warning.active,
 				href: "/dashboard/sticky-notes" as Route,
 			},
 			{
@@ -116,10 +131,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Tasks",
 				description: "Kanban board for project work",
 				icon: SquareKanban,
-				iconClassName:
-					"bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/15 group-hover:bg-teal-500/15",
-				activeIconClassName:
-					"bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-500/25",
+				iconClassName: chip.primary.idle,
+				activeIconClassName: chip.primary.active,
 				href: "/dashboard/tasks" as Route,
 			},
 		],
@@ -133,10 +146,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Canvas",
 				description: "Design workspace",
 				icon: Palette,
-				iconClassName:
-					"bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/15 group-hover:bg-violet-500/15",
-				activeIconClassName:
-					"bg-violet-500/20 text-violet-600 dark:text-violet-400 border-violet-500/25",
+				iconClassName: chip.scope.idle,
+				activeIconClassName: chip.scope.active,
 				href: "/dashboard/canvas",
 			},
 			{
@@ -144,10 +155,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Design System",
 				description: "Project visual DNA",
 				icon: Layout,
-				iconClassName:
-					"bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/15 group-hover:bg-amber-500/15",
-				activeIconClassName:
-					"bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/25",
+				iconClassName: chip.warning.idle,
+				activeIconClassName: chip.warning.active,
 				href: "/dashboard/design-system/v2",
 			},
 			{
@@ -155,10 +164,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "AI Generator",
 				description: "Generate multi-viewport designs",
 				icon: Sparkles,
-				iconClassName:
-					"bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/15 group-hover:bg-fuchsia-500/15",
-				activeIconClassName:
-					"bg-fuchsia-500/20 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/25",
+				iconClassName: chip.primary.idle,
+				activeIconClassName: chip.primary.active,
 				href: "/dashboard/generator",
 			},
 			{
@@ -166,10 +173,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Placeholder Images",
 				description: "Generate optimized placeholder photos",
 				icon: ImageIcon,
-				iconClassName:
-					"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/15 group-hover:bg-cyan-500/15",
-				activeIconClassName:
-					"bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/25",
+				iconClassName: chip.scope.idle,
+				activeIconClassName: chip.scope.active,
 				href: "/dashboard/images",
 			},
 			{
@@ -177,10 +182,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Placeholder Text",
 				description: "Generate random lorem ipsum copy",
 				icon: TextQuote,
-				iconClassName:
-					"bg-lime-500/10 text-lime-600 dark:text-lime-400 border-lime-500/15 group-hover:bg-lime-500/15",
-				activeIconClassName:
-					"bg-lime-500/20 text-lime-600 dark:text-lime-400 border-lime-500/25",
+				iconClassName: chip.muted.idle,
+				activeIconClassName: chip.muted.active,
 				href: "/dashboard/placeholder-text" as Route,
 			},
 			{
@@ -188,10 +191,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Pomodoro",
 				description: "Focused work with a timer",
 				icon: Timer,
-				iconClassName:
-					"bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/15 group-hover:bg-orange-500/15",
-				activeIconClassName:
-					"bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/25",
+				iconClassName: chip.primary.idle,
+				activeIconClassName: chip.primary.active,
 				href: "/dashboard/pomodoro",
 			},
 		],
@@ -205,9 +206,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				label: "Settings",
 				description: "Account and preferences",
 				icon: SettingsIcon,
-				iconClassName:
-					"bg-muted text-muted-foreground border-border/60 group-hover:bg-muted/80",
-				activeIconClassName: "bg-muted text-foreground border-border",
+				iconClassName: chip.muted.idle,
+				activeIconClassName: chip.muted.active,
 				href: "/dashboard/settings",
 			},
 		],
