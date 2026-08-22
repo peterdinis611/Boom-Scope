@@ -30,6 +30,16 @@ const TodayWidget = dynamic(
 	},
 );
 
+const WeeklyReviewWidget = dynamic(
+	() =>
+		import("@/components/dashboard/weekly-review-widget").then(
+			(module) => module.WeeklyReviewWidget,
+		),
+	{
+		loading: () => <Skeleton className="h-64 w-full rounded-xl" />,
+	},
+);
+
 const StickyNotesPreview = dynamic(
 	() =>
 		import("@/components/dashboard/sticky-notes-preview").then(
@@ -73,6 +83,8 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 					/>
 				</div>
 			</div>
+
+			<WeeklyReviewWidget />
 
 			<div className="grid gap-4 lg:grid-cols-2">
 				<StickyNotesPreview />

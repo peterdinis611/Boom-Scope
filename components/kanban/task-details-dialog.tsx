@@ -285,9 +285,9 @@ export function TaskDetailsDialog({
 							</div>
 						</div>
 					</div>
-					{noteOptions.length > 0 ? (
-						<div className="space-y-2">
-							<Label>Linked note</Label>
+					<div className="space-y-2">
+						<Label>Linked note</Label>
+						{noteOptions.length > 0 ? (
 							<Select
 								value={values.linkedNoteId ?? "none"}
 								onValueChange={(value) =>
@@ -310,11 +310,16 @@ export function TaskDetailsDialog({
 									))}
 								</SelectContent>
 							</Select>
-						</div>
-					) : null}
-					{designOptions.length > 0 ? (
-						<div className="space-y-2">
-							<Label>Linked canvas</Label>
+						) : (
+							<p className="text-xs text-muted-foreground">
+								No notes in this project yet. Create one from Notes, then link
+								it here.
+							</p>
+						)}
+					</div>
+					<div className="space-y-2">
+						<Label>Linked canvas</Label>
+						{designOptions.length > 0 ? (
 							<Select
 								value={values.linkedDesignId ?? "none"}
 								onValueChange={(value) =>
@@ -337,8 +342,17 @@ export function TaskDetailsDialog({
 									))}
 								</SelectContent>
 							</Select>
-						</div>
-					) : null}
+						) : (
+							<p className="text-xs text-muted-foreground">
+								No canvases in this project yet. Open Canvas to create one,
+								then link it here.
+							</p>
+						)}
+					</div>
+					<p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+						Tip: use Focus on the task card to start Pomodoro with this task
+						attached.
+					</p>
 					<DialogFooter>
 						<Button
 							type="button"

@@ -2,6 +2,7 @@ import {
 	FileText,
 	FolderKanban,
 	Image as ImageIcon,
+	Inbox,
 	Layout,
 	LayoutDashboard,
 	Link2,
@@ -18,6 +19,7 @@ import type { ElementType } from "react";
 
 export type DashboardNavId =
 	| "overview"
+	| "inbox"
 	| "projects"
 	| "notes"
 	| "links"
@@ -83,6 +85,15 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				iconClassName: chip.primary.idle,
 				activeIconClassName: chip.primary.active,
 				href: "/dashboard",
+			},
+			{
+				id: "inbox",
+				label: "Inbox",
+				description: "Capture and triage later",
+				icon: Inbox,
+				iconClassName: chip.warning.idle,
+				activeIconClassName: chip.warning.active,
+				href: "/dashboard/inbox" as Route,
 			},
 		],
 	},

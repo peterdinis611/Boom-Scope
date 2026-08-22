@@ -4,7 +4,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
 	CalendarClock,
-	ExternalLink,
 	FileText,
 	GripVertical,
 	Palette,
@@ -178,52 +177,69 @@ export function KanbanTaskCard({
 				</div>
 			</div>
 
-			{(task.linkedNoteId || task.linkedDesignId) && (
-				<div className="mt-2 flex flex-wrap gap-1.5 pl-7">
+			<div className="mt-3 flex flex-wrap items-center justify-between gap-1 pl-7">
+				<div className="flex flex-wrap gap-1">
 					{task.linkedNoteId ? (
 						<Button
 							asChild
-							variant="outline"
 							size="xs"
-							className="h-6 gap-1 px-2 text-[11px]"
+							variant="outline"
+							className="h-7 gap-1 px-2 text-[11px]"
 						>
 							<Link href={`/dashboard/notes/${task.linkedNoteId}`}>
 								<FileText className="size-3" />
 								{task.linkedNoteTitle ?? "Note"}
-								<ExternalLink className="size-3 opacity-60" />
 							</Link>
 						</Button>
-					) : null}
+					) : (
+						<Button
+							type="button"
+							size="xs"
+							variant="ghost"
+							className="h-7 gap-1 px-2 text-[11px] text-muted-foreground"
+							onClick={() => onEdit(task)}
+						>
+							<FileText className="size-3" />
+							Link note
+						</Button>
+					)}
 					{task.linkedDesignId ? (
 						<Button
 							asChild
-							variant="outline"
 							size="xs"
-							className="h-6 gap-1 px-2 text-[11px]"
+							variant="outline"
+							className="h-7 gap-1 px-2 text-[11px]"
 						>
 							<Link
 								href={`/dashboard/canvas?projectId=${task.projectId}&designId=${task.linkedDesignId}`}
 							>
 								<Palette className="size-3" />
 								{task.linkedDesignName ?? "Canvas"}
-								<ExternalLink className="size-3 opacity-60" />
 							</Link>
 						</Button>
-					) : null}
+					) : (
+						<Button
+							type="button"
+							size="xs"
+							variant="ghost"
+							className="h-7 gap-1 px-2 text-[11px] text-muted-foreground"
+							onClick={() => onEdit(task)}
+						>
+							<Palette className="size-3" />
+							Link canvas
+						</Button>
+					)}
+					<Button
+						type="button"
+						size="xs"
+						variant={isFocused ? "default" : "outline"}
+						className="h-7 gap-1 px-2 text-[11px]"
+						onClick={handleFocus}
+					>
+						<Timer className="size-3" />
+						Focus
+					</Button>
 				</div>
-			)}
-
-			<div className="mt-3 flex justify-between gap-1 pl-7">
-				<Button
-					type="button"
-					size="xs"
-					variant={isFocused ? "default" : "outline"}
-					className="h-7 gap-1 px-2 text-[11px]"
-					onClick={handleFocus}
-				>
-					<Timer className="size-3" />
-					Focus
-				</Button>
 				<div className="flex gap-1">
 					<Button
 						type="button"

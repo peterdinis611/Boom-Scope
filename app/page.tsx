@@ -38,6 +38,24 @@ const TRAY = [
 	},
 ] as const;
 
+const STEPS = [
+	{
+		n: "01",
+		title: "Open a project",
+		line: "Create a workspace for the thing you’re shipping. Everything else hangs off that project.",
+	},
+	{
+		n: "02",
+		title: "Lay out the work",
+		line: "Drop tasks on the board, pin notes, and sketch on the canvas — same desk, same context.",
+	},
+	{
+		n: "03",
+		title: "Focus and ship",
+		line: "Start a Pomodoro from the task in front of you. Track progress without leaving the desk.",
+	},
+] as const;
+
 export default async function Home() {
 	const isAuthenticated = await isAuthenticatedNextjs();
 
@@ -143,6 +161,42 @@ export default async function Home() {
 								</div>
 							))}
 						</div>
+					</div>
+				</section>
+
+				<section className="relative z-10 border-t border-border px-5 py-14 sm:px-8 lg:px-12 lg:py-16">
+					<div className="mx-auto max-w-6xl">
+						<p className="font-mono text-[11px] tracking-[0.2em] text-scope uppercase">
+							How it works
+						</p>
+						<h2 className="mt-3 max-w-lg font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+							Three moves from idea to shipped.
+						</h2>
+						<ol className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-10">
+							{STEPS.map((step) => (
+								<li key={step.n} className="relative">
+									<span className="font-mono text-[11px] tracking-[0.2em] text-primary uppercase">
+										{step.n}
+									</span>
+									<p className="mt-3 font-heading text-xl font-semibold tracking-tight text-foreground">
+										{step.title}
+									</p>
+									<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+										{step.line}
+									</p>
+								</li>
+							))}
+						</ol>
+						{!isAuthenticated ? (
+							<div className="mt-12">
+								<Link
+									href="/register"
+									className={cn(buttonVariants({ size: "lg" }), "px-6")}
+								>
+									Start free
+								</Link>
+							</div>
+						) : null}
 					</div>
 				</section>
 			</main>

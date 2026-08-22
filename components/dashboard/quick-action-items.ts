@@ -2,6 +2,7 @@ import {
 	Clipboard,
 	FileText,
 	FolderKanban,
+	Inbox,
 	Palette,
 	Sparkles,
 	Timer,
@@ -16,10 +17,18 @@ export type QuickActionItem = {
 	icon: ElementType;
 	iconClassName: string;
 	href?: Route;
-	action?: "note";
+	action?: "note" | "capture";
 };
 
 export const QUICK_ACTION_ITEMS: QuickActionItem[] = [
+	{
+		id: "capture",
+		label: "Capture",
+		description: "⌘N · sort later",
+		icon: Inbox,
+		iconClassName: "bg-warning/15 text-warning border-warning/20",
+		action: "capture",
+	},
 	{
 		id: "note",
 		label: "New note",

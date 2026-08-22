@@ -150,6 +150,11 @@ export const recentActivity = query({
 
 const GLOBAL_SEARCH_NAVIGATION = [
 	{ label: "Overview", href: "/dashboard", keywords: "home dashboard" },
+	{
+		label: "Inbox",
+		href: "/dashboard/inbox",
+		keywords: "inbox capture triage",
+	},
 	{ label: "Projects", href: "/dashboard/projects", keywords: "projects" },
 	{ label: "Notes", href: "/dashboard/notes", keywords: "notes documents" },
 	{ label: "Link Hub", href: "/dashboard/links", keywords: "links resources" },
@@ -349,6 +354,133 @@ export const todaySummary = query({
 				projectId: note.projectId,
 				updatedAt: note._creationTime,
 			})),
+		};
+	},
+});
+
+export const weeklyReview = query({
+	handler: async (ctx) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId) {
+			return {
+				weekStart: 0,
+				moved: [],
+				completed: [],
+				overdue: [],
+				unlinkedTasks: [],
+				notesWithoutProject: [],
+				inboxOpen: 0,
+			};
+		}
+
+		const weekStart = startOfLocalDay() - 6 * 86_400_000;
+		const todayStart = startOfLocalDay();
+
+		const [tasks, notes, events, inbox] = await Promise.all([
+			ctx.db
+				.query("project_tasks")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.collect(),
+			ctx.db
+				.query("notes")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.collect(),
+			ctx.db
+				.query("task_activity_events")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.order("desc")
+				.take(80),
+			ctx.db
+				.query("inbox_items")
+				.withIndex("by_userId", (q) => q.eq("userId", userId))
+				.collect(),
+		]);
+
+		const weekEvents = events.filter(
+			(event) => event._creationTime >= weekStart,
+		);
+
+		const moved = await Promise.all(
+			weekEvents
+				.filter((event) => event.kind === "moved" || event.kind === "updated")
+				.slice(0, 8)
+				.map(async (event) => {
+					const project = await ctx.db.get(event.projectId);
+					return {
+						_id: event._id,
+						summary: event.summary,
+						kind: event.kind,
+						taskId: event.taskId,
+						projectName: project?.name ?? null,
+						at: event._creationTime,
+					};
+				}),
+		);
+
+		const completed = await Promise.all(
+			weekEvents
+				.filter((event) => event.kind === "completed")
+				.slice(0, 8)
+				.map(async (event) => {
+					const project = await ctx.db.get(event.projectId);
+					return {
+						_id: event._id,
+						summary: event.summary,
+						taskId: event.taskId,
+						projectName: project?.name ?? null,
+						at: event._creationTime,
+					};
+				}),
+		);
+
+		const enrichedTasks = await Promise.all(
+			tasks.map(async (task) => {
+				const project = await ctx.db.get(task.projectId);
+				const column = task.columnId ? await ctx.db.get(task.columnId) : null;
+				const columnKey = column?.key ?? task.status ?? null;
+				return {
+					_id: task._id,
+					title: task.title,
+					projectId: task.projectId,
+					projectName: project?.name ?? null,
+					dueDate: task.dueDate,
+					columnKey,
+					linkedNoteId: task.linkedNoteId,
+					linkedDesignId: task.linkedDesignId,
+				};
+			}),
+		);
+
+		const openTasks = enrichedTasks.filter((task) => task.columnKey !== "done");
+
+		const overdue = openTasks
+			.filter(
+				(task) => task.dueDate !== undefined && task.dueDate < todayStart,
+			)
+			.slice(0, 10);
+
+		const unlinkedTasks = openTasks
+			.filter((task) => !task.linkedNoteId && !task.linkedDesignId)
+			.slice(0, 10);
+
+		const notesWithoutProject = notes
+			.filter((note) => !note.projectId)
+			.sort((a, b) => b._creationTime - a._creationTime)
+			.slice(0, 8)
+			.map((note) => ({
+				_id: note._id,
+				title: note.title,
+				at: note._creationTime,
+			}));
+
+		return {
+			weekStart,
+			moved,
+			completed,
+			overdue,
+			unlinkedTasks,
+			notesWithoutProject,
+			inboxOpen: inbox.filter((item) => item.triagedAt === undefined).length,
 		};
 	},
 });

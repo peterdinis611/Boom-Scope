@@ -86,6 +86,11 @@ export default defineSchema({
 		userId: v.id("users"),
 		items: v.string(),
 	}).index("by_userId", ["userId"]),
+	inbox_items: defineTable({
+		userId: v.id("users"),
+		body: v.string(),
+		triagedAt: v.optional(v.number()),
+	}).index("by_userId", ["userId"]),
 	kanban_columns: defineTable({
 		projectId: v.id("projects"),
 		userId: v.id("users"),

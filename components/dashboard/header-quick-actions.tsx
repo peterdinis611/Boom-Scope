@@ -25,6 +25,7 @@ import {
 type HeaderQuickActionsProps = {
 	onOpenClipboard?: () => void;
 	clipboardCount?: number;
+	onOpenCapture?: () => void;
 };
 
 function QuickActionMenuItem({
@@ -71,6 +72,7 @@ function QuickActionMenuItem({
 export function HeaderQuickActions({
 	onOpenClipboard,
 	clipboardCount = 0,
+	onOpenCapture,
 }: HeaderQuickActionsProps) {
 	const router = useRouter();
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
@@ -78,6 +80,10 @@ export function HeaderQuickActions({
 	const runAction = (item: QuickActionItem) => {
 		if (item.action === "note") {
 			setIsNoteOpen(true);
+			return;
+		}
+		if (item.action === "capture") {
+			onOpenCapture?.();
 			return;
 		}
 		if (item.href) {

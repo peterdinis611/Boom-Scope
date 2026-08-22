@@ -6,6 +6,7 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { CaptureDialog } from "@/components/inbox/capture-dialog";
 import { QuickNoteDialog } from "@/components/notes/QuickNoteDialog";
 import { cn } from "@/lib/utils";
 
@@ -15,10 +16,13 @@ export function QuickActions() {
 	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isNoteOpen, setIsNoteOpen] = useState(false);
+	const [isCaptureOpen, setIsCaptureOpen] = useState(false);
 
 	const runAction = (item: QuickActionItem) => {
 		if (item.action === "note") {
 			setIsNoteOpen(true);
+		} else if (item.action === "capture") {
+			setIsCaptureOpen(true);
 		} else if (item.href) {
 			router.push(item.href as Route);
 		}
@@ -140,6 +144,7 @@ export function QuickActions() {
 			</div>
 
 			<QuickNoteDialog open={isNoteOpen} onOpenChange={setIsNoteOpen} />
+			<CaptureDialog open={isCaptureOpen} onOpenChange={setIsCaptureOpen} />
 		</>
 	);
 }
