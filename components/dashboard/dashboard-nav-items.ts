@@ -1,4 +1,5 @@
 import {
+	CalendarDays,
 	FileText,
 	FolderKanban,
 	Image as ImageIcon,
@@ -25,6 +26,7 @@ export type DashboardNavId =
 	| "links"
 	| "sticky-notes"
 	| "tasks"
+	| "calendar"
 	| "design"
 	| "design-system"
 	| "generate"
@@ -145,6 +147,15 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 				iconClassName: chip.primary.idle,
 				activeIconClassName: chip.primary.active,
 				href: "/dashboard/tasks" as Route,
+			},
+			{
+				id: "calendar",
+				label: "Calendar",
+				description: "Due dates across all projects",
+				icon: CalendarDays,
+				iconClassName: chip.scope.idle,
+				activeIconClassName: chip.scope.active,
+				href: "/dashboard/calendar" as Route,
 			},
 		],
 	},

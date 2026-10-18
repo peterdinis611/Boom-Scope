@@ -168,6 +168,11 @@ const GLOBAL_SEARCH_NAVIGATION = [
 		href: "/dashboard/tasks",
 		keywords: "tasks kanban board",
 	},
+	{
+		label: "Calendar",
+		href: "/dashboard/calendar",
+		keywords: "calendar due dates schedule",
+	},
 	{ label: "Canvas", href: "/dashboard/canvas", keywords: "canvas design" },
 	{
 		label: "Design System",

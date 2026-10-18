@@ -25,6 +25,7 @@ import type * as notes from "../notes.js";
 import type * as openai from "../openai.js";
 import type * as project_links from "../project_links.js";
 import type * as project_tasks from "../project_tasks.js";
+import type * as project_templates from "../project_templates.js";
 import type * as projects from "../projects.js";
 import type * as sticky_notes from "../sticky_notes.js";
 import type * as users from "../users.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   openai: typeof openai;
   project_links: typeof project_links;
   project_tasks: typeof project_tasks;
+  project_templates: typeof project_templates;
   projects: typeof projects;
   sticky_notes: typeof sticky_notes;
   users: typeof users;

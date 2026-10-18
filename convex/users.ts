@@ -27,3 +27,12 @@ export const updateUser = mutation({
 		});
 	},
 });
+
+export const dismissOnboarding = mutation({
+	args: {},
+	handler: async (ctx) => {
+		const userId = await getAuthUserId(ctx);
+		if (userId === null) throw new Error("Unauthorized");
+		await ctx.db.patch(userId, { onboardingDismissedAt: Date.now() });
+	},
+});

@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import { useQuery } from "convex/react";
 import { useMemo } from "react";
 import { DashboardQuickAccess } from "@/components/dashboard/dashboard-quick-access";
+import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
+import { SoftBoundary } from "@/components/error/soft-boundary";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -72,6 +74,10 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 				description="Deadlines, focus, and recent work — scoped for today."
 			/>
 
+			<SoftBoundary>
+				<OnboardingChecklist />
+			</SoftBoundary>
+
 			<div className="grid gap-4 xl:grid-cols-12 xl:items-start">
 				<div className="xl:col-span-8">
 					<TodayWidget />
@@ -84,7 +90,9 @@ export function DashboardContent({ viewer }: { viewer: ViewerSummary }) {
 				</div>
 			</div>
 
-			<WeeklyReviewWidget />
+			<SoftBoundary>
+				<WeeklyReviewWidget />
+			</SoftBoundary>
 
 			<div className="grid gap-4 lg:grid-cols-2">
 				<StickyNotesPreview />

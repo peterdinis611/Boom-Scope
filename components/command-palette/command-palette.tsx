@@ -2,13 +2,16 @@
 
 import { useQuery } from "convex/react";
 import {
+	CalendarDays,
 	FileText,
 	FolderKanban,
+	Inbox,
 	Link2,
 	Loader2,
 	Palette,
 	Search,
 	SquareKanban,
+	Timer,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Route } from "next";
@@ -95,6 +98,43 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 		return () => window.removeEventListener("keydown", onKeyDown);
 	}, [onOpenChange]);
 
+	const quickActions = useMemo(
+		() => [
+			{
+				label: "Capture to inbox",
+				href: "/dashboard/inbox",
+				icon: Inbox,
+				hint: "⌘N",
+			},
+			{
+				label: "New task",
+				href: "/dashboard/tasks",
+				icon: SquareKanban,
+			},
+			{
+				label: "Calendar",
+				href: "/dashboard/calendar",
+				icon: CalendarDays,
+			},
+			{
+				label: "Start focus",
+				href: "/dashboard/pomodoro",
+				icon: Timer,
+			},
+			{
+				label: "New note",
+				href: "/dashboard/notes/new",
+				icon: FileText,
+			},
+			{
+				label: "New project",
+				href: "/dashboard/projects",
+				icon: FolderKanban,
+			},
+		],
+		[],
+	);
+
 	const contentKey = !trimmed
 		? "hint"
 		: isSearching
@@ -145,18 +185,43 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 				<div className="relative max-h-80 min-h-[8.5rem] overflow-y-auto p-2">
 					<AnimatePresence mode="wait" initial={false}>
 						{contentKey === "hint" ? (
-							<motion.p
+							<motion.div
 								key="hint"
 								initial={reduceMotion ? false : { opacity: 0, y: 8 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
 								transition={{ duration: 0.22, ease: panelEase }}
-								className="px-3 py-6 text-center text-sm text-muted-foreground"
+								className="space-y-2 p-1"
 							>
-								Type to search or jump to a page. Press{" "}
-								<kbd className="rounded border px-1.5 py-0.5 text-xs">⌘K</kbd>{" "}
-								anytime.
-							</motion.p>
+								<p className="px-3 py-2 text-center text-sm text-muted-foreground">
+									Type to search, or pick an action.{" "}
+									<kbd className="rounded border px-1.5 py-0.5 text-xs">⌘K</kbd>
+								</p>
+								<p className="px-3 py-1 font-mono text-[10px] tracking-[0.14em] text-muted-foreground uppercase">
+									Actions
+								</p>
+								{quickActions.map((action) => {
+									const Icon = action.icon;
+									return (
+										<button
+											key={action.href + action.label}
+											type="button"
+											className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-accent"
+											onClick={() => navigate(action.href)}
+										>
+											<span className="flex size-7 items-center justify-center rounded-md bg-muted">
+												<Icon className="size-3.5 text-muted-foreground" />
+											</span>
+											<span className="flex-1 truncate">{action.label}</span>
+											{action.hint ? (
+												<kbd className="rounded border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+													{action.hint}
+												</kbd>
+											) : null}
+										</button>
+									);
+								})}
+							</motion.div>
 						) : contentKey === "loading" ? (
 							<motion.div
 								key="loading"

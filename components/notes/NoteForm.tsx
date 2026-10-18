@@ -3,8 +3,10 @@
 import { useMutation } from "convex/react";
 import {
 	ChevronLeft,
+	Copy,
 	Download,
 	FileText,
+	Globe,
 	Loader2,
 	Save,
 	Trash2,
@@ -14,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
+import { InsertTaskLink } from "@/components/notes/insert-task-link";
 import { NoteEditorDynamic } from "@/components/notes/note-editor-dynamic";
 import { NoteTagsField } from "@/components/notes/NoteTagsField";
 import { ProjectSelector } from "@/components/notes/ProjectSelector";
@@ -21,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { downloadNoteAsMarkdown } from "@/lib/download";
 import { downloadNoteAsPdf, downloadNoteAsTxt } from "@/lib/notes";
 import { noteSchema } from "@/lib/validations";
 
@@ -31,12 +35,14 @@ interface NoteFormProps {
 		content: string;
 		projectId?: Id<"projects">;
 		tags?: string[];
+		isPublic?: boolean;
 	};
 }
 
 export function NoteForm({ initialData }: NoteFormProps) {
 	const router = useRouter();
 	const updateNote = useMutation(api.notes.update);
+	const setPublic = useMutation(api.notes.setPublic);
 	const removeNote = useMutation(api.notes.remove);
 
 	const [title, setTitle] = useState(initialData.title);
@@ -45,6 +51,7 @@ export function NoteForm({ initialData }: NoteFormProps) {
 		initialData.projectId,
 	);
 	const [tags, setTags] = useState<string[]>(initialData.tags ?? []);
+	const [isPublic, setIsPublic] = useState(Boolean(initialData.isPublic));
 	const [isSaving, setIsSaving] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -99,12 +106,48 @@ export function NoteForm({ initialData }: NoteFormProps) {
 				</Link>
 				<div className="flex items-center gap-2">
 					<Button
+						variant={isPublic ? "default" : "outline"}
+						size="sm"
+						className="gap-1.5"
+						onClick={async () => {
+							try {
+								const next = !isPublic;
+								await setPublic({
+									noteId: initialData._id,
+									isPublic: next,
+								});
+								setIsPublic(next);
+								if (next) {
+									const url = `${window.location.origin}/share/note/${initialData._id}`;
+									await navigator.clipboard.writeText(url);
+									toast.success("Public link copied");
+								} else {
+									toast.success("Note is private again");
+								}
+							} catch {
+								toast.error("Could not update sharing");
+							}
+						}}
+						title="Share note"
+					>
+						{isPublic ? <Copy className="size-3.5" /> : <Globe className="size-3.5" />}
+						{isPublic ? "Copy link" : "Share"}
+					</Button>
+					<Button
 						variant="outline"
 						size="icon-sm"
 						onClick={() => downloadNoteAsTxt(title, content)}
 						title="Download as .txt"
 					>
 						<Download className="size-4" />
+					</Button>
+					<Button
+						variant="outline"
+						size="icon-sm"
+						onClick={() => downloadNoteAsMarkdown(title, content)}
+						title="Download as Markdown"
+					>
+						<span className="text-[10px] font-bold">MD</span>
 					</Button>
 					<Button
 						variant="outline"
@@ -156,6 +199,13 @@ export function NoteForm({ initialData }: NoteFormProps) {
 						</div>
 					</div>
 					<NoteTagsField tags={tags} onChange={setTags} />
+					<InsertTaskLink
+						projectId={projectId}
+						onInsert={(html) => {
+							setContent((current) => `${current}${html}`);
+							toast.success("Task link inserted — save the note");
+						}}
+					/>
 				</div>
 
 				<NoteEditorDynamic content={content} onChange={setContent} />

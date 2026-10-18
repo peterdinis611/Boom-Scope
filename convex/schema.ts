@@ -13,6 +13,7 @@ export default defineSchema({
 		phoneVerificationTime: v.optional(v.number()),
 		isAnonymous: v.optional(v.boolean()),
 		accentColor: v.optional(v.string()),
+		onboardingDismissedAt: v.optional(v.number()),
 	})
 		.index("email", ["email"])
 		.index("phone", ["phone"]),
@@ -20,6 +21,7 @@ export default defineSchema({
 		name: v.string(),
 		description: v.optional(v.string()),
 		userId: v.id("users"),
+		fromTemplate: v.optional(v.string()),
 	}).index("by_userId", ["userId"]),
 	notes: defineTable({
 		title: v.string(),
@@ -27,6 +29,7 @@ export default defineSchema({
 		projectId: v.optional(v.id("projects")),
 		userId: v.id("users"),
 		tags: v.optional(v.array(v.string())),
+		isPublic: v.optional(v.boolean()),
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),
@@ -128,6 +131,17 @@ export default defineSchema({
 				}),
 			),
 		),
+		recurrence: v.optional(
+			v.object({
+				interval: v.union(
+					v.literal("daily"),
+					v.literal("weekly"),
+					v.literal("monthly"),
+				),
+				intervalCount: v.number(),
+			}),
+		),
+		recurrenceParentId: v.optional(v.id("project_tasks")),
 	})
 		.index("by_userId", ["userId"])
 		.index("by_projectId", ["projectId"]),

@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { ensureProjectColumns } from "./kanban_columns";
+import { spawnRecurringTask } from "./recurrence";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
@@ -16,6 +17,15 @@ const taskPriority = v.union(
 	v.literal("medium"),
 	v.literal("high"),
 );
+
+const recurrenceValidator = v.object({
+	interval: v.union(
+		v.literal("daily"),
+		v.literal("weekly"),
+		v.literal("monthly"),
+	),
+	intervalCount: v.number(),
+});
 
 const subtaskValidator = v.object({
 	id: v.string(),
@@ -166,6 +176,7 @@ export const create = mutation({
 		priority: v.optional(taskPriority),
 		labels: v.optional(v.array(v.string())),
 		subtasks: v.optional(v.array(subtaskValidator)),
+		recurrence: v.optional(recurrenceValidator),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
@@ -216,6 +227,12 @@ export const create = mutation({
 			priority: args.priority,
 			labels: args.labels?.map((label) => label.trim()).filter(Boolean),
 			subtasks: args.subtasks,
+			recurrence: args.recurrence
+				? {
+						interval: args.recurrence.interval,
+						intervalCount: Math.max(1, Math.floor(args.recurrence.intervalCount)),
+					}
+				: undefined,
 		});
 
 		const column = await getColumnMeta(ctx, columnId);
@@ -245,6 +262,7 @@ export const update = mutation({
 		priority: v.optional(v.union(taskPriority, v.null())),
 		labels: v.optional(v.array(v.string())),
 		subtasks: v.optional(v.array(subtaskValidator)),
+		recurrence: v.optional(v.union(recurrenceValidator, v.null())),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);
@@ -257,6 +275,7 @@ export const update = mutation({
 
 		const updates: Record<string, unknown> = {};
 		const summaries: string[] = [];
+		let completedNow = false;
 
 		if (args.title !== undefined) {
 			const title = args.title.trim();
@@ -287,6 +306,20 @@ export const update = mutation({
 			updates.subtasks = args.subtasks;
 			summaries.push("Checklist updated");
 		}
+		if (args.recurrence !== undefined) {
+			updates.recurrence = args.recurrence
+				? {
+						interval: args.recurrence.interval,
+						intervalCount: Math.max(
+							1,
+							Math.floor(args.recurrence.intervalCount),
+						),
+					}
+				: undefined;
+			summaries.push(
+				args.recurrence ? "Recurrence enabled" : "Recurrence cleared",
+			);
+		}
 		if (args.linkedNoteId !== undefined) {
 			if (args.linkedNoteId) {
 				await assertNoteAccess(ctx, args.linkedNoteId, userId);
@@ -314,6 +347,7 @@ export const update = mutation({
 				const column = await getColumnMeta(ctx, nextColumnId);
 				summaries.push(`Moved to ${column.label}`);
 				if (column.key === "done") {
+					completedNow = true;
 					await logTaskActivity(ctx, {
 						userId,
 						projectId: existing.projectId,
@@ -326,6 +360,11 @@ export const update = mutation({
 		}
 
 		await ctx.db.patch(args.taskId, updates);
+
+		if (completedNow) {
+			const latest = { ...existing, ...updates } as Doc<"project_tasks">;
+			await spawnRecurringTask(ctx, latest, userId);
+		}
 
 		if (summaries.length > 0) {
 			await logTaskActivity(ctx, {
@@ -486,6 +525,10 @@ export const move = mutation({
 					? `Completed “${task.title}”`
 					: summary,
 		});
+
+		if (destinationColumn.key === "done") {
+			await spawnRecurringTask(ctx, task, userId);
+		}
 	},
 });
 

@@ -34,6 +34,11 @@ export type TaskLinkOption = {
 	label: string;
 };
 
+export type TaskRecurrence = {
+	interval: "daily" | "weekly" | "monthly";
+	intervalCount: number;
+} | null;
+
 export type TaskDetailsFormValues = {
 	title: string;
 	description: string;
@@ -43,6 +48,7 @@ export type TaskDetailsFormValues = {
 	priority?: TaskPriority | null;
 	labels: string;
 	subtasks: TaskSubtask[];
+	recurrence?: TaskRecurrence;
 };
 
 type TaskDetailsDialogProps = {
@@ -64,6 +70,7 @@ const EMPTY_VALUES: TaskDetailsFormValues = {
 	priority: null,
 	labels: "",
 	subtasks: [],
+	recurrence: null,
 };
 
 export function TaskDetailsDialog({
@@ -193,6 +200,38 @@ export function TaskDetailsDialog({
 							}
 							placeholder="design, urgent, client"
 						/>
+					</div>
+					<div className="space-y-2">
+						<Label>Recurrence</Label>
+						<Select
+							value={values.recurrence?.interval ?? "none"}
+							onValueChange={(value) =>
+								setValues((current) => ({
+									...current,
+									recurrence:
+										value === "none"
+											? null
+											: {
+													interval: value as "daily" | "weekly" | "monthly",
+													intervalCount: 1,
+												},
+								}))
+							}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Does not repeat" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="none">Does not repeat</SelectItem>
+								<SelectItem value="daily">Daily</SelectItem>
+								<SelectItem value="weekly">Weekly</SelectItem>
+								<SelectItem value="monthly">Monthly</SelectItem>
+							</SelectContent>
+						</Select>
+						<p className="text-xs text-muted-foreground">
+							When completed, a fresh copy lands in To do with the next due
+							date.
+						</p>
 					</div>
 					<div className="space-y-2">
 						<Label htmlFor="task-description">Details</Label>

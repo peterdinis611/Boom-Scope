@@ -1,8 +1,13 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
 /** Set SOURCEMAPS=false to skip publishing browser source maps. */
 const enableBrowserSourceMaps = process.env.SOURCEMAPS !== "false";
+
+/** Keep Turbopack rooted here — parent /work has a pnpm-lock.yaml that would otherwise win. */
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
 	cacheComponents: true,
@@ -13,6 +18,9 @@ const nextConfig: NextConfig = {
 	productionBrowserSourceMaps: enableBrowserSourceMaps,
 	// Helps debug prerender / RSC issues without shipping maps to every client fetch
 	enablePrerenderSourceMaps: enableBrowserSourceMaps,
+	turbopack: {
+		root: projectRoot,
+	},
 	devIndicators: {
 		position: "bottom-right",
 	},

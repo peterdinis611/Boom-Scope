@@ -281,6 +281,7 @@ export function ProjectKanban({
 				priority: details?.priority ?? undefined,
 				labels: details?.labels ? parseLabelsInput(details.labels) : undefined,
 				subtasks: details?.subtasks,
+				recurrence: details?.recurrence ?? undefined,
 			});
 			setNewTaskTitle("");
 			toast.success("Task created");
@@ -327,6 +328,7 @@ export function ProjectKanban({
 					priority: values.priority,
 					labels: parseLabelsInput(values.labels),
 					subtasks: values.subtasks,
+					recurrence: values.recurrence ?? null,
 				});
 				toast.success("Task updated");
 			}
@@ -618,6 +620,7 @@ export function ProjectKanban({
 								priority: editingTask.priority ?? null,
 								labels: (editingTask.labels ?? []).join(", "),
 								subtasks: editingTask.subtasks ?? [],
+								recurrence: editingTask.recurrence ?? null,
 							}
 						: {
 								title: newTaskTitle,
@@ -628,6 +631,7 @@ export function ProjectKanban({
 								priority: null,
 								labels: "",
 								subtasks: [],
+								recurrence: null,
 							}
 				}
 				onSubmit={handleDialogSubmit}

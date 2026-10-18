@@ -244,6 +244,28 @@
 	}
 }
 
+/* Embedded @task deep links inside TipTap notes */
+.ProseMirror a.task-mention,
+.prose a.task-mention {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2em;
+	border-radius: 0.35rem;
+	border: 1px solid color-mix(in oklch, var(--primary) 28%, transparent);
+	background: color-mix(in oklch, var(--primary) 10%, transparent);
+	padding: 0.05em 0.4em;
+	font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+	font-size: 0.85em;
+	font-weight: 500;
+	text-decoration: none;
+	color: var(--primary);
+}
+
+.ProseMirror a.task-mention:hover,
+.prose a.task-mention:hover {
+	background: color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
 	html:focus-within {
 		scroll-behavior: auto;

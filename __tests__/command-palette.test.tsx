@@ -31,10 +31,12 @@ describe("Component: CommandPalette", () => {
 		mockPush.mockReset();
 	});
 
-	test("shows hint when open with empty search", () => {
+	test("shows actions when open with empty search", () => {
 		vi.mocked(useQuery).mockReturnValue(undefined);
 		render(<CommandPalette open onOpenChange={() => {}} />);
-		expect(screen.getByText(/Type to search or jump to a page/i)).toBeDefined();
+		expect(screen.getByText(/Type to search, or pick an action/i)).toBeDefined();
+		expect(screen.getByRole("button", { name: /New task/i })).toBeDefined();
+		expect(screen.getByRole("button", { name: /Start focus/i })).toBeDefined();
 	});
 
 	test("opens via keyboard shortcut", () => {

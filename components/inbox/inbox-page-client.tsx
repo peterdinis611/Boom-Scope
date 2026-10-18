@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { suggestInboxTriage } from "@/lib/inbox-triage";
 import { formatAppDateTime } from "@/lib/locale";
+import { cn } from "@/lib/utils";
 
 export function InboxPageClient() {
 	const items = useQuery(api.inbox.listOpen);
@@ -80,6 +82,7 @@ export function InboxPageClient() {
 						const selectedProject =
 							projectByItem[item._id] ?? projectOptions[0]?._id;
 						const busy = busyId === item._id;
+						const suggestion = suggestInboxTriage(item.body);
 
 						return (
 							<li
@@ -92,6 +95,75 @@ export function InboxPageClient() {
 								<p className="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground uppercase">
 									Captured {formatAppDateTime(item._creationTime)}
 								</p>
+								<div className="mt-3 flex flex-wrap items-center gap-2">
+									<span
+										className={cn(
+											"rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+											suggestion.destination === "task" &&
+												"border-primary/25 bg-primary/10 text-primary",
+											suggestion.destination === "note" &&
+												"border-success/25 bg-success/10 text-success",
+											suggestion.destination === "sticky" &&
+												"border-warning/25 bg-warning/15 text-warning",
+										)}
+									>
+										Suggested: {suggestion.destination}
+									</span>
+									<span className="text-[11px] text-muted-foreground">
+										{suggestion.reason}
+									</span>
+									<Button
+										type="button"
+										size="xs"
+										variant="secondary"
+										disabled={busy}
+										onClick={() => {
+											if (suggestion.destination === "note") {
+												void run(
+													item._id,
+													() =>
+														triageToNote({
+															itemId: item._id,
+															projectId: selectedProject
+																? (selectedProject as Id<"projects">)
+																: undefined,
+														}),
+													"Moved to note",
+												);
+												return;
+											}
+											if (suggestion.destination === "sticky") {
+												void run(
+													item._id,
+													() =>
+														triageToSticky({
+															itemId: item._id,
+															projectId: selectedProject
+																? (selectedProject as Id<"projects">)
+																: undefined,
+														}),
+													"Moved to sticky notes",
+												);
+												return;
+											}
+											if (!selectedProject) {
+												toast.error("Pick a project for the task.");
+												return;
+											}
+											void run(
+												item._id,
+												() =>
+													triageToTask({
+														itemId: item._id,
+														projectId: selectedProject as Id<"projects">,
+													}),
+												"Moved to task",
+											);
+										}}
+									>
+										Apply suggestion
+									</Button>
+								</div>
 
 								<div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
 									{projectOptions.length > 0 ? (

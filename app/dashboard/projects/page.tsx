@@ -35,11 +35,14 @@ import { projectSchema } from "@/lib/validations";
 export default function ProjectsPage() {
 	const projects = useQuery(api.projects.list);
 	const createProject = useMutation(api.projects.create);
+	const createFromTemplate = useMutation(api.project_templates.createFromTemplate);
 	const deleteProject = useMutation(api.projects.remove);
 
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [newProjectName, setNewProjectName] = useState("");
+	const [useStarterTemplate, setUseStarterTemplate] = useState(true);
+	const [creating, setCreating] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<Id<"projects"> | null>(null);
 	const [deleting, setDeleting] = useState(false);
 
@@ -55,13 +58,24 @@ export default function ProjectsPage() {
 			toast.error(validation.error.message);
 			return;
 		}
+		setCreating(true);
 		try {
-			await createProject({ name: newProjectName });
+			if (useStarterTemplate) {
+				await createFromTemplate({
+					name: newProjectName,
+					templateId: "starter-desk",
+				});
+				toast.success("Starter desk created — board, note, and canvas ready.");
+			} else {
+				await createProject({ name: newProjectName });
+				toast.success("Project created.");
+			}
 			setNewProjectName("");
 			setIsCreateOpen(false);
-			toast.success("Project created.");
 		} catch {
 			toast.error("Failed to create project.");
+		} finally {
+			setCreating(false);
 		}
 	};
 
@@ -193,16 +207,43 @@ export default function ProjectsPage() {
 								placeholder="e.g. Web application"
 							/>
 						</div>
+						<label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3">
+							<input
+								type="checkbox"
+								className="mt-1"
+								checked={useStarterTemplate}
+								onChange={(event) =>
+									setUseStarterTemplate(event.target.checked)
+								}
+							/>
+							<span className="min-w-0">
+								<span className="block text-sm font-medium">
+									Starter desk template
+								</span>
+								<span className="mt-0.5 block text-xs text-muted-foreground">
+									Seeds a Kanban board, brief note, blank canvas, and four
+									starter tasks — one click.
+								</span>
+							</span>
+						</label>
 						<DialogFooter>
 							<Button
 								type="button"
 								variant="outline"
 								onClick={() => setIsCreateOpen(false)}
+								disabled={creating}
 							>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={!newProjectName.trim()}>
-								Create
+							<Button
+								type="submit"
+								disabled={!newProjectName.trim() || creating}
+							>
+								{creating
+									? "Creating…"
+									: useStarterTemplate
+										? "Create from template"
+										: "Create empty"}
 							</Button>
 						</DialogFooter>
 					</form>

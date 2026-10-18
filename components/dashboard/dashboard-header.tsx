@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "convex/react";
 import { ChevronRight, Inbox, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -12,10 +11,10 @@ import {
 	CommandPaletteTrigger,
 } from "@/components/command-palette/command-palette";
 import { CaptureDialog } from "@/components/inbox/capture-dialog";
+import { InboxCountBadge } from "@/components/inbox/inbox-count-badge";
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
-import { api } from "@/convex/_generated/api";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { DashboardMobileNav } from "./dashboard-nav";
 import { HeaderQuickActions } from "./header-quick-actions";
@@ -37,6 +36,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 		links: "Link Hub",
 		"sticky-notes": "Sticky Notes",
 		tasks: "Tasks",
+		calendar: "Calendar",
 		canvas: "Canvas",
 		"design-system": "Design System",
 		v2: "Lab",
@@ -69,7 +69,6 @@ export function DashboardHeader() {
 	const { mode, setClipboardOpen } = useLayoutChrome();
 	const { isCollapsed, toggleSidebar } = useSidebar();
 	const { history } = useCopyToClipboard();
-	const inboxCount = useQuery(api.inbox.openCount);
 	const [commandOpen, setCommandOpen] = useState(false);
 	const [captureOpen, setCaptureOpen] = useState(false);
 	const crumbs = buildBreadcrumbs(pathname);
@@ -156,11 +155,7 @@ export function DashboardHeader() {
 							>
 								<Inbox className="size-4" />
 								<span className="hidden sm:inline">Capture</span>
-								{inboxCount !== undefined && inboxCount > 0 ? (
-									<span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground">
-										{inboxCount > 9 ? "9+" : inboxCount}
-									</span>
-								) : null}
+								<InboxCountBadge />
 							</Button>
 							<CommandPaletteTrigger onClick={() => setCommandOpen(true)} />
 						</>

@@ -102,6 +102,37 @@ export const get = query({
 	},
 });
 
+export const getPublic = query({
+	args: { noteId: v.id("notes") },
+	handler: async (ctx, args) => {
+		const note = await ctx.db.get(args.noteId);
+		if (!note || !note.isPublic) return null;
+		return {
+			_id: note._id,
+			title: note.title,
+			content: note.content,
+			_creationTime: note._creationTime,
+		};
+	},
+});
+
+export const setPublic = mutation({
+	args: {
+		noteId: v.id("notes"),
+		isPublic: v.boolean(),
+	},
+	handler: async (ctx, args) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId) throw new ConvexError("Not authenticated");
+		const existing = await ctx.db.get(args.noteId);
+		if (!existing || existing.userId !== userId) {
+			throw new ConvexError("Unauthorized");
+		}
+		await ctx.db.patch(args.noteId, { isPublic: args.isPublic });
+		return args.isPublic;
+	},
+});
+
 export const create = mutation({
 	args: {
 		title: v.string(),
@@ -132,6 +163,7 @@ export const update = mutation({
 		content: v.optional(v.string()),
 		projectId: v.optional(v.id("projects")),
 		tags: v.optional(v.array(v.string())),
+		isPublic: v.optional(v.boolean()),
 	},
 	handler: async (ctx, args) => {
 		const userId = await getAuthUserId(ctx);

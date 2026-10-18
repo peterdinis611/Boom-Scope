@@ -940,7 +940,21 @@ export function NoteEditor({
 			TableCell,
 			Image.configure({ inline: false, allowBase64: true }),
 			Youtube.configure({ controls: true, nocookie: true }),
-			LinkExtension.configure({
+			LinkExtension.extend({
+				addAttributes() {
+					return {
+						...this.parent?.(),
+						"data-task-id": {
+							default: null,
+							parseHTML: (element) => element.getAttribute("data-task-id"),
+							renderHTML: (attributes) => {
+								if (!attributes["data-task-id"]) return {};
+								return { "data-task-id": attributes["data-task-id"] };
+							},
+						},
+					};
+				},
+			}).configure({
 				openOnClick: false,
 				HTMLAttributes: {
 					class:
